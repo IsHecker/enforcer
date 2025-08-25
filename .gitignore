@@ -1,0 +1,67 @@
+## Build Folders
+bin/
+obj/
+out/
+
+## VS Code settings folder
+.vscode/
+
+## Rider settings (if you're switching IDEs)
+.idea/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## OS-specific
+.DS_Store
+Thumbs.db
+
+## NuGet packages
+*.nupkg
+# Package folders can be safely ignored
+packages/
+# except build/, which may be needed for restore
+!packages/build/
+
+## ASP.NET temporary files
+*.dbmdl
+*.bak
+*.log
+*.vspscc
+*.vssscc
+_ReSharper*/
+
+## dotnet CLI
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Visual Studio Code backup files
+*.code-workspace
+*.tmp
+*.temp
+
+## Logs
+*.log
+
+## Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.testresults
+
+## Local database
+*.mdf
+*.ldf
+*.db
+
+## Ignore publish output
+publish/
+wwwroot/
+
+## Others
+*.vs/
