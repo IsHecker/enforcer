@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Enforcer.Modules.ApiServices.Application\Enforcer.Modules.ApiServices.Application.csproj" />
+    <!-- <ProjectReference Include="..\..\..\Common\Enforcer.Common.Presentation\Enforcer.Common.Presentation.csproj" /> -->
+  </ItemGroup>
+
+</Project>
