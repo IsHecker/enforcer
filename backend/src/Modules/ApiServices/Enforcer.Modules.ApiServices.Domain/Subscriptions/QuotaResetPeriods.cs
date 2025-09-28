@@ -1,6 +1,6 @@
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public enum QuotaResetPeriods
+public enum QuotaResetPeriod
 {
     Daily,
     Weekly,

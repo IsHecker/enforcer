@@ -1,6 +1,6 @@
 namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
-public enum HTTPMethods
+public enum HTTPMethod
 {
     GET,
     POST,

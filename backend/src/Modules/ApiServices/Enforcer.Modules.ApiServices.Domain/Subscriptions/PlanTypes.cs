@@ -1,6 +1,6 @@
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public enum PlanTypes
+public enum PlanType
 {
     Free,
     Pro,

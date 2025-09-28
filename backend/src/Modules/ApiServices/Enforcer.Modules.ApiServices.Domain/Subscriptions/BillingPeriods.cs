@@ -1,6 +1,6 @@
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public enum BillingPeriods
+public enum BillingPeriod
 {
     Monthly,
     Yearly

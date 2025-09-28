@@ -1,3 +1,4 @@
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,6 +9,17 @@ public class PlanConfiguration : IEntityTypeConfiguration<Plan>
 {
     public void Configure(EntityTypeBuilder<Plan> builder)
     {
-        throw new NotImplementedException();
+        builder
+            .HasOne<ApiService>()
+            .WithMany()
+            .HasForeignKey(p => p.ApiServiceId);
+
+        builder
+            .HasOne(p => p.Features)
+            .WithOne()
+            .HasForeignKey<Plan>(p => p.FeaturesId);
+
+        builder.HasIndex(p => new { p.ApiServiceId, p.TierLevel })
+            .IsUnique();
     }
 }

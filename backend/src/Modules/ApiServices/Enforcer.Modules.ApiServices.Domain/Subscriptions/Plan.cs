@@ -9,14 +9,14 @@ public class Plan : Entity
 {
     public Guid ApiServiceId { get; private set; }
     public Guid CreatorId { get; private set; }
-    public PlanTypes Type { get; private set; }
+    public PlanType Type { get; private set; }
     public string Name { get; private set; } = null!;
     public int? Price { get; private set; }
-    public BillingPeriods? BillingPeriod { get; private set; }
+    public BillingPeriod? BillingPeriod { get; private set; }
     public int QuotaLimit { get; private set; }
-    public QuotaResetPeriods QuotaResetPeriod { get; private set; }
+    public QuotaResetPeriod QuotaResetPeriod { get; private set; }
     public int RateLimit { get; private set; }
-    public RateLimitWindows RateLimitWindow { get; private set; }
+    public RateLimitWindow RateLimitWindow { get; private set; }
     public Guid FeaturesId { get; private set; }
     public bool IsActive { get; private set; }
     public int? OveragePrice { get; private set; }
@@ -31,14 +31,14 @@ public class Plan : Entity
     public static Result<Plan> Create(
         Guid apiServiceId,
         Guid creatorId,
-        PlanTypes type,
+        PlanType type,
         string name,
         int? price,
-        BillingPeriods? billingPeriod,
+        BillingPeriod? billingPeriod,
         int quotaLimit,
-        QuotaResetPeriods quotaResetPeriod,
+        QuotaResetPeriod quotaResetPeriod,
         int rateLimit,
-        RateLimitWindows rateLimitWindow,
+        RateLimitWindow rateLimitWindow,
         int? overagePrice,
         int? maxOverage,
         int sortOrder)
@@ -105,14 +105,14 @@ public class Plan : Entity
     }
 
     public void UpdateDetails(
-        PlanTypes type,
+        PlanType type,
         string name,
         int? price,
-        BillingPeriods? billingPeriod,
+        BillingPeriod? billingPeriod,
         int quotaLimit,
-        QuotaResetPeriods quotaResetPeriod,
+        QuotaResetPeriod quotaResetPeriod,
         int rateLimit,
-        RateLimitWindows rateLimitWindow,
+        RateLimitWindow rateLimitWindow,
         int? overagePrice,
         int? maxOverage)
     {

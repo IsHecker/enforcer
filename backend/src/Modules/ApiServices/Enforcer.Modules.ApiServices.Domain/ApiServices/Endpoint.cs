@@ -7,24 +7,23 @@ public class Endpoint : Entity
 {
     public Guid ApiServiceId { get; private set; }
     public Guid PlanId { get; private set; }
-    public HTTPMethods? HTTPMethod { get; private set; }
+    public HTTPMethod? HTTPMethod { get; private set; }
     public string PublicPath { get; private set; } = null!;
     public string TargetPath { get; private set; } = null!;
     public int? RateLimit { get; private set; }
-    public RateLimitWindows? RateLimitWindow { get; private set; }
+    public RateLimitWindow? RateLimitWindow { get; private set; }
     public bool IsActive { get; private set; }
-    //   PublicPath+Method INDEX UNIQUE
 
     private Endpoint() { }
 
     public static Result<Endpoint> Create(
         Guid apiServiceId,
         Guid planId,
-        HTTPMethods? httpMethod,
+        HTTPMethod? httpMethod,
         string publicPath,
         string targetPath,
         int? rateLimit,
-        RateLimitWindows? rateLimitWindow,
+        RateLimitWindow? rateLimitWindow,
         bool isActive)
     {
         if (string.IsNullOrWhiteSpace(publicPath))
@@ -77,7 +76,7 @@ public class Endpoint : Entity
         return Result.Success;
     }
 
-    public Result ChangeRateLimit(int? rateLimit, RateLimitWindows? window)
+    public Result ChangeRateLimit(int? rateLimit, RateLimitWindow? window)
     {
         if (rateLimit is <= 0)
             return EndpointErrors.InvalidRateLimit;

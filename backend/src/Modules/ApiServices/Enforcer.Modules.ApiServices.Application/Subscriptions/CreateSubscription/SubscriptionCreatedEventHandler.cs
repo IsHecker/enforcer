@@ -1,3 +1,4 @@
+using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
@@ -15,11 +16,11 @@ public class SubscriptionCreatedEventHandler(
     {
         var apiService = await apiServiceRepository.GetByIdAsync(domainEvent.ApiServiceId, cancellationToken);
         if (apiService is null)
-            return;
+            throw new EnforcerException("api service is null");
 
         var plan = await planRepository.GetByIdAsync(domainEvent.PlanId, cancellationToken);
         if (plan is null)
-            return;
+            throw new EnforcerException("plan is null");
 
         plan.IncrementSubscriptions();
         apiService.IncrementSubscriptions();

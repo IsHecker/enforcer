@@ -1,4 +1,5 @@
-﻿using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
+﻿using Enforcer.Common.Infrastructure;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
@@ -7,6 +8,7 @@ using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.Infrastructure.Plans;
 using Enforcer.Modules.ApiServices.Infrastructure.Subscriptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +30,9 @@ public static class ApiServicesModule
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApiServicesDbContext>(opts =>
-            opts.UseSqlServer(configuration.GetConnectionString("Database")));
+            opts.UseSqlServer(
+                configuration.GetConnectionString("Database"),
+                sqlOpts => sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.ApiServices)));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApiServicesDbContext>());
 

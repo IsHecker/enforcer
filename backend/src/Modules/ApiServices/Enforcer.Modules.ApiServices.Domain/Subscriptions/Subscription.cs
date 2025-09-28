@@ -9,9 +9,12 @@ public class Subscription : Entity
     public Guid ConsumerId { get; private set; }
     public Guid PlanId { get; private set; }
     public Guid ApiServiceId { get; private set; }
+
     public string ApiKey { get; private set; } = null!;
+
     public DateTime SubscribedAt { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
+
     public bool IsCanceled { get; private set; } = false;
 
     public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;
@@ -105,15 +108,15 @@ public class Subscription : Entity
                   .Replace("/", "")
                   .ToLowerInvariant();
 
-    private static DateTime? CalculateExpiration(DateTime subscriptionDate, BillingPeriods? billingPeriod)
+    private static DateTime? CalculateExpiration(DateTime subscriptionDate, BillingPeriod? billingPeriod)
     {
         if (billingPeriod is null)
             return null;
 
         return billingPeriod switch
         {
-            BillingPeriods.Monthly => subscriptionDate.AddMonths(1),
-            BillingPeriods.Yearly => subscriptionDate.AddYears(1),
+            BillingPeriod.Monthly => subscriptionDate.AddMonths(1),
+            BillingPeriod.Yearly => subscriptionDate.AddYears(1),
             _ => subscriptionDate.AddMonths(1)
         };
     }

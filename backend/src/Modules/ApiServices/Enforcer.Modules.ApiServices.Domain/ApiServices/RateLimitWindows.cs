@@ -1,6 +1,6 @@
 namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
-public enum RateLimitWindows
+public enum RateLimitWindow
 {
     Second,
     Minute,

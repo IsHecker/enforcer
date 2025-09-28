@@ -6,26 +6,21 @@ namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 public class OpenApiDocumentation : Entity
 {
-    public Guid ApiServiceId { get; private set; }
     public string Documentation { get; private set; } = null!;
 
     private OpenApiDocumentation() { }
 
-    public static Result<OpenApiDocumentation> Create(Guid apiServiceId, string documentation)
+    public static Result<OpenApiDocumentation> Create(string documentation)
     {
-        if (apiServiceId == Guid.Empty)
-            return OpenApiDocumentationErrors.InvalidApiServiceId;
-
         if (string.IsNullOrWhiteSpace(documentation))
             return OpenApiDocumentationErrors.EmptyDocumentation;
 
         var doc = new OpenApiDocumentation
         {
-            ApiServiceId = apiServiceId,
             Documentation = documentation
         };
 
-        doc.Raise(new DocumentationCreatedEvent(doc.Id, doc.ApiServiceId));
+        doc.Raise(new DocumentationCreatedEvent(doc.Id));
 
         return doc;
     }
@@ -37,7 +32,7 @@ public class OpenApiDocumentation : Entity
 
         Documentation = newDocumentation;
 
-        Raise(new DocumentationUpdatedEvent(Id, ApiServiceId));
+        Raise(new DocumentationUpdatedEvent(Id));
 
         return Result.Success;
     }

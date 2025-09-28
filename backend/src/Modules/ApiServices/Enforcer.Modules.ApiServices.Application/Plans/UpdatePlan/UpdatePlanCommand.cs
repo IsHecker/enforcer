@@ -6,14 +6,14 @@ namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
 
 public sealed record UpdatePlanCommand(
     Guid PlanId,
-    PlanTypes Type,
+    PlanType Type,
     string Name,
     int? Price,
-    BillingPeriods? BillingPeriod,
+    BillingPeriod? BillingPeriod,
     int QuotaLimit,
-    QuotaResetPeriods QuotaResetPeriod,
+    QuotaResetPeriod QuotaResetPeriod,
     int RateLimit,
-    RateLimitWindows RateLimitWindow,
+    RateLimitWindow RateLimitWindow,
     IEnumerable<string> Features,
     int? OveragePrice,
     int? MaxOverage

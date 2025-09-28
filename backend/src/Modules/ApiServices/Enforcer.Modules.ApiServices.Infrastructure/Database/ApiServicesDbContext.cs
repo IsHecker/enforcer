@@ -22,6 +22,8 @@ public class ApiServicesDbContext : DbContext, IUnitOfWork, IApiServicesDbContex
    {
       modelBuilder.HasDefaultSchema(Schemas.ApiServices);
 
+      modelBuilder.StoreAllEnumsAsNames();
+
       modelBuilder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);
    }
 }
