@@ -1,8 +1,10 @@
+using Enforcer.Common.Application.Extensions;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.UpdateApiService;
 
-public sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiServiceCommand>
+internal sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiServiceCommand>
 {
     public UpdateApiServiceValidator()
     {
@@ -34,5 +36,9 @@ public sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiServi
             .NotEmpty()
             .Must(v => Version.TryParse(v, out _))
             .WithMessage(cmd => $"Version '{cmd.Version}' must follow semantic versioning.");
+
+        RuleFor(x => x.Category).MustBeEnumValue<UpdateApiServiceCommand, ApiCategory>();
+
+        RuleFor(x => x.Status).MustBeEnumValue<UpdateApiServiceCommand, ServiceStatus>();
     }
 }

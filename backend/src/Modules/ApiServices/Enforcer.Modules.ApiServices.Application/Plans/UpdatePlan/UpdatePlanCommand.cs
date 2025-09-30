@@ -1,19 +1,18 @@
 using Enforcer.Common.Application.Messaging;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
 
 public sealed record UpdatePlanCommand(
     Guid PlanId,
-    PlanType Type,
+    string PlanType,
     string Name,
     int? Price,
-    BillingPeriod? BillingPeriod,
+    string? BillingPeriod,
     int QuotaLimit,
-    QuotaResetPeriod QuotaResetPeriod,
+    string QuotaResetPeriod,
     int RateLimit,
-    RateLimitWindow RateLimitWindow,
+    string RateLimitWindow,
+    bool IsActive,
     IEnumerable<string> Features,
     int? OveragePrice,
     int? MaxOverage

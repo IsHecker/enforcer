@@ -3,6 +3,9 @@ using Enforcer.Common.Application;
 using Enforcer.Common.Infrastructure;
 using System.Reflection;
 using Enforcer.Api.Middleware;
+using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Api.Extensions;
+using Enforcer.Modules.Gateway;
 
 internal class Program
 {
@@ -14,16 +17,16 @@ internal class Program
         builder.Services.AddProblemDetails();
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
+        builder.Services.AddSwaggerDocumentation();
 
         Assembly[] moduleApplicationAssemblies = [
-            AssemblyReference.Assembly];
+            Enforcer.Modules.ApiServices.Application.AssemblyReference.Assembly];
 
         builder.Services.AddApplication(moduleApplicationAssemblies);
 
         builder.Services.AddInfrastructure();
 
+        builder.Services.AddGatewayModule();
         builder.Services.AddApiServicesModule(builder.Configuration);
 
         WebApplication app = builder.Build();
@@ -33,6 +36,12 @@ internal class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseExceptionHandler();
+
+        app.UseGatewayPipeline();
+
+        app.MapEndpoints();
 
         app.Run();
     }

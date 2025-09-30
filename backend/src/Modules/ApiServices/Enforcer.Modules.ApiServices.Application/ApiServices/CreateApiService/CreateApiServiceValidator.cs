@@ -1,8 +1,10 @@
+using Enforcer.Common.Application.Extensions;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
 
-public sealed class CreateApiServiceValidator : AbstractValidator<CreateApiServiceCommand>
+internal sealed class CreateApiServiceValidator : AbstractValidator<CreateApiServiceCommand>
 {
     public CreateApiServiceValidator()
     {
@@ -27,6 +29,14 @@ public sealed class CreateApiServiceValidator : AbstractValidator<CreateApiServi
         RuleFor(x => x.LogoUrl)
             .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _)).When(x => x.LogoUrl is not null)
             .WithMessage("Logo URL is not valid.");
+
+        RuleFor(x => x.Category)
+            .Must(value => Enum.TryParse<ApiCategory>(value, ignoreCase: true, out _))
+            .WithMessage("Invalid Category.");
+
+        RuleFor(x => x.Category).MustBeEnumValue<CreateApiServiceCommand, ApiCategory>();
+
+        RuleFor(x => x.Status).MustBeEnumValue<CreateApiServiceCommand, ServiceStatus>();
 
         // !Uri.IsWellFormedUriString(logoUrl, UriKind.Absolute)
     }

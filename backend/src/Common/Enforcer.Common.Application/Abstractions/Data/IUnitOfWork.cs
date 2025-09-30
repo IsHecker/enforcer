@@ -1,4 +1,4 @@
-﻿namespace Enforcer.Modules.ApiServices.Application.Abstractions.Data;
+﻿namespace Enforcer.Common.Application.Abstractions.Data;
 
 public interface IUnitOfWork
 {

@@ -5,7 +5,7 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
 
-public class CreateSubscriptionCommandHandler(
+internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository) : ICommandHandler<CreateSubscriptionCommand, Guid>
 {

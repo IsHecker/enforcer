@@ -7,7 +7,7 @@ public class Endpoint : Entity
 {
     public Guid ApiServiceId { get; private set; }
     public Guid PlanId { get; private set; }
-    public HTTPMethod? HTTPMethod { get; private set; }
+    public HTTPMethod HTTPMethod { get; private set; }
     public string PublicPath { get; private set; } = null!;
     public string TargetPath { get; private set; } = null!;
     public int? RateLimit { get; private set; }
@@ -19,7 +19,7 @@ public class Endpoint : Entity
     public static Result<Endpoint> Create(
         Guid apiServiceId,
         Guid planId,
-        HTTPMethod? httpMethod,
+        HTTPMethod httpMethod,
         string publicPath,
         string targetPath,
         int? rateLimit,
@@ -54,6 +54,43 @@ public class Endpoint : Entity
         endpoint.Raise(new EndpointCreatedEvent(endpoint.Id, apiServiceId));
 
         return endpoint;
+    }
+    public Result Update(
+        Guid planId,
+        HTTPMethod httpMethod,
+        string publicPath,
+        string targetPath,
+        int? rateLimit,
+        RateLimitWindow? rateLimitWindow,
+        bool isActive)
+    {
+        if (string.IsNullOrWhiteSpace(publicPath))
+            return EndpointErrors.PublicPathEmpty;
+
+        if (string.IsNullOrWhiteSpace(targetPath))
+            return EndpointErrors.TargetPathEmpty;
+
+        if (rateLimit is <= 0)
+            return EndpointErrors.InvalidRateLimit;
+
+        if (rateLimit is not null && rateLimitWindow is null)
+            return EndpointErrors.InvalidRateLimitWindow;
+
+        var activationResult = isActive
+            ? Activate()
+            : Deactivate();
+
+        if (activationResult.IsFailure)
+            return activationResult.Error;
+
+        PlanId = planId;
+        HTTPMethod = httpMethod;
+        PublicPath = publicPath;
+        TargetPath = targetPath;
+        RateLimit = rateLimit;
+        RateLimitWindow = rateLimitWindow;
+
+        return Result.Success;
     }
 
     public Result Activate()
@@ -105,4 +142,7 @@ public class Endpoint : Entity
         Raise(new EndpointRouteChangedEvent(Id, PublicPath, TargetPath));
         return Result.Success;
     }
+
+    public static string NormalizePath(string path) =>
+        path.Trim().ToLowerInvariant();
 }

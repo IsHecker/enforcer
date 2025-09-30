@@ -5,7 +5,7 @@ using Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.DeleteApiService;
 
-public class DeleteApiServiceCommandHandler(IApiServiceRepository apiServiceRepository) : ICommandHandler<DeleteApiServiceCommand>
+internal sealed class DeleteApiServiceCommandHandler(IApiServiceRepository apiServiceRepository) : ICommandHandler<DeleteApiServiceCommand>
 {
     public async Task<Result> Handle(DeleteApiServiceCommand request, CancellationToken cancellationToken)
     {

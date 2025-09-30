@@ -2,7 +2,8 @@
 
 internal static class Tags
 {
-    internal const string Events = "Events";
-    internal const string TicketTypes = "TicketTypes";
-    internal const string Categories = "Categories";
+    internal const string ApiServices = "ApiServices";
+    internal const string Endpoints = "Endpoints";
+    internal const string Plans = "Plans";
+    internal const string Subscriptions = "Subscriptions";
 }

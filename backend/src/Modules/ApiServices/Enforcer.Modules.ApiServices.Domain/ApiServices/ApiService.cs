@@ -39,9 +39,6 @@ public class ApiService : Entity
         if (description?.Length > 400)
             return Result<ApiService>.Failure(ApiServiceErrors.DescriptionTooLong);
 
-        if (string.IsNullOrWhiteSpace(serviceKey) || !serviceKey.StartsWith("/"))
-            return Result<ApiService>.Failure(ApiServiceErrors.InvalidServiceKey);
-
         if (targetBaseUrl is null)
             return Result<ApiService>.Failure(ApiServiceErrors.TargetBaseUrlRequired);
 

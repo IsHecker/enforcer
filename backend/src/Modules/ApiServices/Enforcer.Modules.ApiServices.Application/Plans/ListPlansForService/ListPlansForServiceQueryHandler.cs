@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.ListPlansForService;
 
-public class ListPlansForServiceQueryHandler(IApiServicesDbContext context) : IQueryHandler<ListPlansForServiceQuery, IReadOnlyList<PlanResponse>>
+internal sealed class ListPlansForServiceQueryHandler(IApiServicesDbContext context) : IQueryHandler<ListPlansForServiceQuery, IReadOnlyList<PlanResponse>>
 {
     public async Task<Result<IReadOnlyList<PlanResponse>>> Handle(ListPlansForServiceQuery request, CancellationToken cancellationToken)
     {

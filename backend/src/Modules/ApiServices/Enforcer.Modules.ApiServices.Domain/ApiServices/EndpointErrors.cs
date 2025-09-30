@@ -4,6 +4,9 @@ namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 public static class EndpointErrors
 {
+    public static Error NotFound(Guid id) =>
+        Error.NotFound("Endpoint.NotFound", $"Endpoint with id '{id}' was not found.");
+
     public static readonly Error PublicPathEmpty =
         Error.Validation("Endpoint.PublicPathEmpty", "Public route cannot be empty.");
 
@@ -21,4 +24,6 @@ public static class EndpointErrors
 
     public static readonly Error AlreadyInactive =
         Error.Conflict("Endpoint.AlreadyInactive", "Endpoint is already inactive.");
+    public static Error DuplicateRoute =>
+        Error.Conflict("Endpoint.DuplicateRoute", "An endpoint with the same route (HTTP method + public path) already exists for this service.");
 }

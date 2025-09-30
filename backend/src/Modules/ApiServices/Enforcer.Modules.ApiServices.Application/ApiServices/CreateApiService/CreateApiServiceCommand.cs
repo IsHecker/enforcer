@@ -6,9 +6,10 @@ namespace Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
 public record CreateApiServiceCommand(
     string Name,
     string Description,
-    ApiCategory Category,
+    string Category,
     string ServiceKey,
     string TargetBaseUrl,
     string? LogoUrl,
     bool IsPublic,
-    ServiceStatus Status) : ICommand<Guid>;
+    string Status
+) : ICommand<Guid>;

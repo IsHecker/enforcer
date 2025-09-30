@@ -16,6 +16,7 @@ public static class ApplicationConfiguration
             config.RegisterServicesFromAssemblies(moduleAssemblies);
 
             config.AddOpenBehavior(typeof(ExceptionHandlingBehavior<,>));
+            config.AddOpenBehavior(typeof(UnitOfWorkBehaviour<,>));
             config.AddOpenBehavior(typeof(ValidationBehaviour<,>));
         });
 

@@ -4,7 +4,7 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CancelSubscription;
 
-public class CancelSubscriptionCommandHandler(
+internal sealed class CancelSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository) : ICommandHandler<CancelSubscriptionCommand>
 {
 

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Gateway\Enforcer.Modules.Gateway\Enforcer.Modules.Gateway.csproj" />
     <ProjectReference Include="..\..\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure\Enforcer.Modules.ApiServices.Infrastructure.csproj" />
   </ItemGroup>
 

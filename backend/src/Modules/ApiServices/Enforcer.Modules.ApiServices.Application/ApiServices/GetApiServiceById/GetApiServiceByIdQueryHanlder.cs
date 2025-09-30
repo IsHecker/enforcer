@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 
-public class GetApiServiceByIdQueryHanlder(IApiServicesDbContext context)
+internal sealed class GetApiServiceByIdQueryHanlder(IApiServicesDbContext context)
     : IQueryHandler<GetApiServiceByIdQuery, ApiServiceResponse>
 {
     public async Task<Result<ApiServiceResponse>> Handle(GetApiServiceByIdQuery request, CancellationToken cancellationToken)

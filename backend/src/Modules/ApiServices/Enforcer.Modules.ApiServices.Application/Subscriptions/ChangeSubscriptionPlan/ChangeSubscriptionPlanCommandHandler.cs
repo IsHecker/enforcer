@@ -5,7 +5,7 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscriptionPlan;
 
-public class ChangeSubscriptionPlanCommandHandler(
+internal sealed class ChangeSubscriptionPlanCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository) : ICommandHandler<ChangeSubscriptionPlanCommand>
 {

@@ -1,10 +1,12 @@
+using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
 
-public class UpdatePlanCommandHandler(IPlanRepository planRepository) : ICommandHandler<UpdatePlanCommand>
+internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) : ICommandHandler<UpdatePlanCommand>
 {
     public async Task<Result> Handle(UpdatePlanCommand request, CancellationToken cancellationToken)
     {
@@ -12,18 +14,22 @@ public class UpdatePlanCommandHandler(IPlanRepository planRepository) : ICommand
         if (plan is null)
             return PlanErrors.NotFound(request.PlanId);
 
-        plan.UpdateDetails(
-            request.Type,
+        var updateResult = plan.UpdateDetails(
+            request.PlanType.ToEnum<PlanType>(),
             request.Name,
             request.Price,
-            request.BillingPeriod,
+            request.BillingPeriod?.ToEnum<BillingPeriod>(),
             request.QuotaLimit,
-            request.QuotaResetPeriod,
+            request.QuotaResetPeriod.ToEnum<QuotaResetPeriod>(),
             request.RateLimit,
-            request.RateLimitWindow,
+            request.RateLimitWindow.ToEnum<RateLimitWindow>(),
+            request.IsActive,
             request.OveragePrice,
             request.MaxOverage
         );
+
+        if (updateResult.IsFailure)
+            return updateResult.Error;
 
         var planFeatures = await planRepository.GetFeatureByFeatureIdAsync(plan.FeaturesId, cancellationToken);
         if (planFeatures is null)

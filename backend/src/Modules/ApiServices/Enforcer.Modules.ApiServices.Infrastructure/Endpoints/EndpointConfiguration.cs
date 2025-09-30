@@ -21,7 +21,7 @@ public class EndpointConfiguration : IEntityTypeConfiguration<Endpoint>
             .OnDelete(DeleteBehavior.NoAction);
 
         builder
-            .HasIndex(p => new { p.HTTPMethod, p.PublicPath })
+            .HasIndex(p => new { p.ApiServiceId, p.HTTPMethod, p.PublicPath })
             .IsUnique();
     }
 }

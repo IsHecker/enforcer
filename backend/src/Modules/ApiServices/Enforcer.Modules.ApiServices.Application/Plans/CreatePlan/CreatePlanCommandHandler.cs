@@ -1,11 +1,12 @@
+using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
-using MediatR;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.CreatePlan;
 
-public sealed class CreatePlanCommandHandler(IPlanRepository planRepository)
+internal sealed class CreatePlanCommandHandler(IPlanRepository planRepository)
     : ICommandHandler<CreatePlanCommand, Guid>
 {
 
@@ -14,14 +15,14 @@ public sealed class CreatePlanCommandHandler(IPlanRepository planRepository)
         var planResult = Plan.Create(
             request.ApiServiceId,
             request.CreatorId,
-            request.Type,
+            request.PlanType.ToEnum<PlanType>(),
             request.Name,
             request.Price,
-            request.BillingPeriod,
+            request.BillingPeriod?.ToEnum<BillingPeriod>(),
             request.QuotaLimit,
-            request.QuotaResetPeriod,
+            request.QuotaResetPeriod.ToEnum<QuotaResetPeriod>(),
             request.RateLimit,
-            request.RateLimitWindow,
+            request.RateLimitWindow.ToEnum<RateLimitWindow>(),
             request.OveragePrice,
             request.MaxOverage,
             request.TierLevel

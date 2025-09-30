@@ -1,3 +1,4 @@
+using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
@@ -5,7 +6,7 @@ using Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
 
-public class CreateApiServiceCommandHandler(IApiServiceRepository apiServiceRepository)
+internal sealed class CreateApiServiceCommandHandler(IApiServiceRepository apiServiceRepository)
     : ICommandHandler<CreateApiServiceCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(CreateApiServiceCommand request, CancellationToken cancellationToken)
@@ -17,12 +18,12 @@ public class CreateApiServiceCommandHandler(IApiServiceRepository apiServiceRepo
         var createResult = ApiService.Create(
            request.Name,
            request.Description ?? string.Empty,
-           request.Category,
+           request.Category.ToEnum<ApiCategory>(),
            request.ServiceKey,
            request.TargetBaseUrl,
            request.LogoUrl,
            request.IsPublic,
-           request.Status
+           request.Status.ToEnum<ServiceStatus>()
         );
 
         if (createResult.IsFailure)

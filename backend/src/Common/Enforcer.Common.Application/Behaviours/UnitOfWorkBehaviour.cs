@@ -1,19 +1,16 @@
-using System.Reflection;
 using System.Transactions;
+using Enforcer.Common.Application.Abstractions.Data;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Common.Application.Behaviours;
 
-public class UnitOfWorkBehaviour<TRequest, TResponse>(IServiceProvider serviceProvider) :
+public class UnitOfWorkBehaviour<TRequest, TResponse>(IEnumerable<IUnitOfWork> units) :
     IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
     where TResponse : Result
 {
-    private static readonly Dictionary<Assembly, Type> contexts = GetAllDbContextTypes();
-
     public async Task<TResponse> Handle(
     TRequest request,
     RequestHandlerDelegate<TResponse> next,
@@ -34,19 +31,29 @@ public class UnitOfWorkBehaviour<TRequest, TResponse>(IServiceProvider servicePr
         if (response.IsFailure)
             return response;
 
-        var contextType = contexts[request.GetType().Assembly];
-        var context = (DbContext?)serviceProvider.GetService(contextType);
-
-        await context.SaveChangesAsync(cancellationToken);
+        foreach (var unitOfWork in units)
+        {
+            if (IsFromSameModule(typeof(TRequest), unitOfWork.GetType()))
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
 
         scope.Complete();
         return response;
     }
 
-    private static Dictionary<Assembly, Type> GetAllDbContextTypes()
+    private static bool IsFromSameModule(Type requestType, Type uowType)
     {
-        return AppDomain.CurrentDomain
-            .GetAssemblies()
-            .ToDictionary(key => key, val => val.GetTypes().First(t => typeof(DbContext).IsAssignableFrom(t)));
+        ReadOnlySpan<char> requestAssembly = requestType.Assembly.GetName().Name;
+        ReadOnlySpan<char> uowAssembly = uowType.Assembly.GetName().Name;
+
+        var LastDotIndex = requestAssembly.LastIndexOf('.');
+
+        if (LastDotIndex < 0)
+            return false;
+
+        var reqModuleName = requestAssembly[..LastDotIndex];
+        var uowModuleName = uowAssembly[..LastDotIndex];
+
+        return reqModuleName.SequenceEqual(uowModuleName);
     }
 }

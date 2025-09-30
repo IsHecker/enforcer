@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.IsUserSubscribedToService;
 
-public class IsUserSubscribedToServiceQueryHandler(IApiServicesDbContext context) : IQueryHandler<IsUserSubscribedToServiceQuery, bool>
+internal sealed class IsUserSubscribedToServiceQueryHandler(IApiServicesDbContext context) : IQueryHandler<IsUserSubscribedToServiceQuery, bool>
 {
     public async Task<Result<bool>> Handle(IsUserSubscribedToServiceQuery request, CancellationToken cancellationToken)
     {

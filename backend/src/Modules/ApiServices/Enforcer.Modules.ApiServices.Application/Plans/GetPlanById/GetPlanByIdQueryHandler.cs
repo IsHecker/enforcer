@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.GetPlanById;
 
-public class GetPlanByIdQueryHandler(IApiServicesDbContext context) : IQueryHandler<GetPlanByIdQuery, PlanResponse?>
+internal sealed class GetPlanByIdQueryHandler(IApiServicesDbContext context) : IQueryHandler<GetPlanByIdQuery, PlanResponse?>
 {
     public async Task<Result<PlanResponse?>> Handle(GetPlanByIdQuery request, CancellationToken cancellationToken)
     {

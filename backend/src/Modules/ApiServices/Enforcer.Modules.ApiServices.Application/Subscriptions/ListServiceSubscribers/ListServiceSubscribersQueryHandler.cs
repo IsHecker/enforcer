@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ListServiceSubscribers;
 
-public class ListServiceSubscribersQueryHandler(IApiServicesDbContext context) :
+internal sealed class ListServiceSubscribersQueryHandler(IApiServicesDbContext context) :
     IQueryHandler<ListServiceSubscribersQuery, IReadOnlyList<SubscriptionResponse>>
 {
     public async Task<Result<IReadOnlyList<SubscriptionResponse>>> Handle(ListServiceSubscribersQuery request,

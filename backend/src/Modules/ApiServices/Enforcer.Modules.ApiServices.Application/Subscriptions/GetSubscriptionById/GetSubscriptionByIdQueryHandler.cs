@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
 
-public class GetSubscriptionByIdQueryHandler(IApiServicesDbContext context)
+internal sealed class GetSubscriptionByIdQueryHandler(IApiServicesDbContext context)
     : IQueryHandler<GetSubscriptionByIdQuery, SubscriptionResponse>
 {
     public async Task<Result<SubscriptionResponse>> Handle(GetSubscriptionByIdQuery request, CancellationToken cancellationToken)

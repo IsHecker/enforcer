@@ -104,7 +104,7 @@ public class Plan : Entity
         return Result.Success;
     }
 
-    public void UpdateDetails(
+    public Result UpdateDetails(
         PlanType type,
         string name,
         int? price,
@@ -113,9 +113,17 @@ public class Plan : Entity
         QuotaResetPeriod quotaResetPeriod,
         int rateLimit,
         RateLimitWindow rateLimitWindow,
+        bool isActive,
         int? overagePrice,
         int? maxOverage)
     {
+        var activationResult = isActive
+            ? Activate()
+            : Deactivate();
+
+        if (activationResult.IsFailure)
+            return activationResult.Error;
+
         Type = type;
         Name = name;
         Price = price;
@@ -126,6 +134,8 @@ public class Plan : Entity
         RateLimitWindow = rateLimitWindow;
         OveragePrice = overagePrice;
         MaxOverage = maxOverage;
+
+        return Result.Success;
     }
 
     public void IncrementSubscriptions()

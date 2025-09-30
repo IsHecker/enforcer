@@ -1,3 +1,4 @@
+using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
@@ -5,7 +6,7 @@ using Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.UpdateApiService;
 
-public sealed class UpdateApiServiceCommandHandler(IApiServiceRepository apiServiceRepository) : ICommandHandler<UpdateApiServiceCommand>
+internal sealed class UpdateApiServiceCommandHandler(IApiServiceRepository apiServiceRepository) : ICommandHandler<UpdateApiServiceCommand>
 {
 
     public async Task<Result> Handle(UpdateApiServiceCommand request, CancellationToken cancellationToken)
@@ -18,12 +19,12 @@ public sealed class UpdateApiServiceCommandHandler(IApiServiceRepository apiServ
         var updateResult = service.UpdateDetails(
             request.Name,
             request.Description,
-            request.Category,
+            request.Category.ToEnum<ApiCategory>(),
             request.ServiceKey,
             request.TargetBaseUrl,
             request.LogoUrl,
             request.IsPublic,
-            request.Status,
+            request.Status.ToEnum<ServiceStatus>(),
             request.Version
         );
 
