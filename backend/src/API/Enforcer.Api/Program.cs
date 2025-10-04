@@ -16,6 +16,8 @@ internal class Program
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
+        builder.Services.AddDistributedMemoryCache();
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerDocumentation();
 

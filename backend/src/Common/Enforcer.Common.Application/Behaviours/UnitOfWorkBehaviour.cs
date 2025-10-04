@@ -1,5 +1,5 @@
 using System.Transactions;
-using Enforcer.Common.Application.Abstractions.Data;
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using MediatR;

@@ -1,4 +1,4 @@
-using Enforcer.Common.Application.Abstractions.Data;
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Infrastructure;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;

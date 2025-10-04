@@ -2,5 +2,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Enforcer.Common.Application\Enforcer.Common.Application.csproj" />
     <ProjectReference Include="..\..\..\Common\Enforcer.Common.Presentation\Enforcer.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\..\Common\Enforcer.Common.Infrastructure\Enforcer.Common.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
