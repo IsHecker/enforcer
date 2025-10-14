@@ -1,6 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
+using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
 

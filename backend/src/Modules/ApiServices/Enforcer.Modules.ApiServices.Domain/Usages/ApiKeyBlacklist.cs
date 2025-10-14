@@ -11,11 +11,15 @@ public class ApiKeyBlacklist : Entity
     public DateTime? Duration { get; private set; }
     public DateTime BannedAt { get; private set; }
     public Guid BannedBy { get; private set; }
-    public bool IsActive { get; private set; }
 
     private ApiKeyBlacklist() { }
 
-    public static Result<ApiKeyBlacklist> Ban(string apiKey, string reason, Guid bannedBy, DateTime bannedAt, DateTime? duration = null)
+    public static Result<ApiKeyBlacklist> Ban(
+        string apiKey,
+        string reason,
+        Guid bannedBy,
+        DateTime bannedAt,
+        DateTime? duration = null)
     {
         if (string.IsNullOrWhiteSpace(apiKey))
             return ApiKeyBlacklistErrors.InvalidApiKey;
@@ -31,29 +35,22 @@ public class ApiKeyBlacklist : Entity
 
         var blacklist = new ApiKeyBlacklist
         {
-            ApiKey = apiKey, // ⚠️ Hashing should happen before persistence
+            ApiKey = apiKey,
             Reason = reason,
             BannedAt = bannedAt,
             Duration = duration,
-            BannedBy = bannedBy,
-            IsActive = true
+            BannedBy = bannedBy
         };
 
-        blacklist.Raise(new ApiKeyBannedEvent(blacklist.Id, blacklist.ApiKey, blacklist.Reason, blacklist.BannedAt, blacklist.Duration, blacklist.BannedBy));
+        blacklist.Raise(new ApiKeyBannedEvent(
+            blacklist.Id,
+            blacklist.ApiKey,
+            blacklist.Reason,
+            blacklist.BannedAt,
+            blacklist.Duration,
+            blacklist.BannedBy));
 
         return blacklist;
-    }
-
-    public Result LiftBan(DateTime liftedAt)
-    {
-        if (!IsActive)
-            return ApiKeyBlacklistErrors.AlreadyLifted;
-
-        IsActive = false;
-
-        Raise(new ApiKeyBanLiftedEvent(Id, ApiKey, liftedAt));
-
-        return Result.Success;
     }
 
     public bool HasExpired(DateTime now) =>

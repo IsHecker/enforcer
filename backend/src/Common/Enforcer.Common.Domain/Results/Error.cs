@@ -14,6 +14,10 @@ public record Error(string Code, string Description, ErrorType Type)
         string description = "A 'failure' error has occurred.") =>
             new(code, description, ErrorType.Failure);
 
+    public static Error TooManyRequests(string code = "General.TooManyRequests",
+        string description = "Too many requests. Please slow down and try again later.") =>
+            new(code, description, ErrorType.TooManyRequests);
+
     public static Error Validation(string code = "General.Validation",
         string description = "A 'validation' error has occurred.") =>
             new(code, description, ErrorType.Validation);

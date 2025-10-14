@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Enforcer.Modules.ApiServices.Application\Enforcer.Modules.ApiServices.Application.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.ApiServices.PublicApi\Enforcer.Modules.ApiServices.PublicApi.csproj" />
     <ProjectReference Include="..\Enforcer.Modules.ApiServices.Presentation\Enforcer.Modules.ApiServices.Presentation.csproj" />
     <ProjectReference Include="..\..\..\Common\Enforcer.Common.Infrastructure\Enforcer.Common.Infrastructure.csproj" />
   </ItemGroup>

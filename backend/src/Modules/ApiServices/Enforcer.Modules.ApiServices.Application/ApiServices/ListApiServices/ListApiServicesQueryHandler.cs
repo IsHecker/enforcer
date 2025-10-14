@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
-using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
+using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Microsoft.EntityFrameworkCore;
 

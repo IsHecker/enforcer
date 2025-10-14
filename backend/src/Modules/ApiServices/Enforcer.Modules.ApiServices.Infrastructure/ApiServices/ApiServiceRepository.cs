@@ -16,7 +16,7 @@ public class ApiServiceRepository(ApiServicesDbContext context) : IApiServiceRep
     public async Task<ApiService?> GetByServiceKeyAsync(string serviceKey, CancellationToken cancellationToken = default)
     {
         return await context.ApiServices
-            .FirstOrDefaultAsync(s => s.ServiceKey.ToLower() == serviceKey.ToLower(),
+            .FirstOrDefaultAsync(s => s.ServiceKey == serviceKey.ToLower(),
                 cancellationToken);
     }
 

@@ -7,12 +7,18 @@ namespace Enforcer.Modules.ApiServices.Domain.Usages;
 public class QuotaUsage : Entity
 {
     public Guid SubscriptionId { get; private set; }
+    public Guid ApiServiceId { get; private set; }
     public int QuotasLeft { get; private set; }
     public DateTime ResetAt { get; private set; }
 
     private QuotaUsage() { }
 
-    public static Result<QuotaUsage> Create(Guid subscriptionId, int initialQuota, DateTime resetAt)
+    public static Result<QuotaUsage> Create(
+        Guid subscriptionId,
+        Guid apiServiceId,
+        int initialQuota,
+        DateTime resetAt,
+        Guid? id = null)
     {
         if (subscriptionId == Guid.Empty)
             return QuotaUsageErrors.InvalidSubscriptionId;
@@ -25,12 +31,12 @@ public class QuotaUsage : Entity
 
         var quotaUsage = new QuotaUsage
         {
+            Id = id ?? Guid.NewGuid(),
             SubscriptionId = subscriptionId,
+            ApiServiceId = apiServiceId,
             QuotasLeft = initialQuota,
             ResetAt = resetAt
         };
-
-        quotaUsage.Raise(new QuotaUsageCreatedEvent(quotaUsage.Id, quotaUsage.SubscriptionId, quotaUsage.QuotasLeft, quotaUsage.ResetAt));
 
         return quotaUsage;
     }

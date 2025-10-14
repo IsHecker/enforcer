@@ -7,10 +7,13 @@ using Enforcer.Modules.ApiServices.Application.Endpoints;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiServices;
+using Enforcer.Modules.ApiServices.Infrastructure.BackgroundJobs;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.Infrastructure.Endpoints;
 using Enforcer.Modules.ApiServices.Infrastructure.Plans;
+using Enforcer.Modules.ApiServices.Infrastructure.PublicApi;
 using Enforcer.Modules.ApiServices.Infrastructure.Subscriptions;
+using Enforcer.Modules.ApiServices.PublicApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +41,9 @@ public static class ApiServicesModule
                 configuration.GetConnectionString("Database"),
                 sqlOpts => sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.ApiServices)));
 
+        services.Configure<WriteBackOptions>(configuration.GetSection("ApiServices:WriteBack"));
+        services.ConfigureOptions<CacheWriteBackJobConfiguration>();
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApiServicesDbContext>());
         services.AddScoped<IApiServicesDbContext>(sp => sp.GetRequiredService<ApiServicesDbContext>());
 
@@ -45,5 +51,7 @@ public static class ApiServicesModule
         services.AddScoped<IEndpointRepository, EndpointRepository>();
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+
+        services.AddScoped<IApiServicesApi, ApiServicesApi>();
     }
 }

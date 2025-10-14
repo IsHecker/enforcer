@@ -37,7 +37,5 @@ internal sealed class CreateApiServiceValidator : AbstractValidator<CreateApiSer
         RuleFor(x => x.Category).MustBeEnumValue<CreateApiServiceCommand, ApiCategory>();
 
         RuleFor(x => x.Status).MustBeEnumValue<CreateApiServiceCommand, ServiceStatus>();
-
-        // !Uri.IsWellFormedUriString(logoUrl, UriKind.Absolute)
     }
 }

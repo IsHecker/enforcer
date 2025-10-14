@@ -1,5 +1,7 @@
 using Enforcer.Common.Domain.Results;
 using Enforcer.Common.Presentation.Results;
+using Enforcer.Modules.ApiServices.Contracts.ApiServices;
+using Enforcer.Modules.ApiServices.PublicApi;
 using Enforcer.Modules.Gateway.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
@@ -8,47 +10,72 @@ namespace Enforcer.Modules.Gateway.RequestValidation;
 
 public class RequestValidationMiddleware(RequestDelegate next)
 {
-    public Task InvokeAsync(HttpContext context)
+    private const char PathSeparator = '/';
+    private const string DefaultRoute = "/";
+
+    public async Task InvokeAsync(HttpContext context, IApiServicesApi servicesApi)
     {
-        ReadOnlySpan<char> path = context.Request.Path.Value.AsSpan().Trim('/');
+        var path = NormalizePath(context.Request.Path.Value);
 
         if (!PathValidator.IsValidPath(path))
-            return InvalidUrlResponse(context);
+        {
+            await ErrorResponse(context, Error.Validation(
+                description: "Invalid characters or structure in URL path."));
+
+            return;
+        }
 
         var (serviceKey, route) = SplitPath(path);
 
         if (serviceKey.IsNullOrEmpty())
-            return MissingServiceKeyResponse(context);
+        {
+            await ErrorResponse(context, Error.Validation(description: "Service key is missing"));
 
-        context.SetServiceKey(serviceKey);
-        context.SetRoute(route);
+            return;
+        }
 
-        return next(context);
+        var apiService = await servicesApi.GetApiServiceByServiceKeyAsync(serviceKey);
+
+        if (apiService is null)
+        {
+            await ErrorResponse(context, Error.NotFound(
+                description: $"ApiService with Service Key '{serviceKey}' was not found."));
+
+            return;
+        }
+
+        SetContextProperties(context, serviceKey, route, apiService);
+
+        await next(context);
     }
 
     private static (string serviceKey, string) SplitPath(ReadOnlySpan<char> path)
     {
-        int slashIndex = path.IndexOf('/');
+        int slashIndex = path.IndexOf(PathSeparator);
 
         if (slashIndex == -1)
-            return (path.ToString(), "/");
+            return (path.ToString(), DefaultRoute);
 
         return (path[..slashIndex].ToString(), path[(slashIndex + 1)..].ToString());
     }
 
-    private static Task MissingServiceKeyResponse(HttpContext context)
+    private static string NormalizePath(string? path)
+        => path.AsSpan().Trim(PathSeparator).ToString();
+
+    private static void SetContextProperties(
+        HttpContext context,
+        string serviceKey,
+        string route,
+        ApiServiceResponse apiService)
     {
-        IResult problemResult = ApiResults.Problem(Error.Validation("Key.Missing", "Service key is missing"));
-        problemResult.ExecuteAsync(context).GetAwaiter().GetResult();
-        return Task.CompletedTask;
+        context.SetServiceKey(serviceKey);
+        context.SetRequestPath(route);
+        context.SetApiService(apiService);
     }
 
-    private static Task InvalidUrlResponse(HttpContext context)
+    private static async Task ErrorResponse(HttpContext context, Error error)
     {
-        IResult result = ApiResults.Problem(
-            Error.Validation("Url.Invalid", "Invalid characters or structure in URL path."));
-
-        result.ExecuteAsync(context).GetAwaiter().GetResult();
-        return Task.CompletedTask;
+        var problemResult = ApiResults.Problem(error);
+        await problemResult.ExecuteAsync(context);
     }
 }

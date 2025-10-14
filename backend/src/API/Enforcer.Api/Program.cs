@@ -16,8 +16,6 @@ internal class Program
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
 
-        builder.Services.AddDistributedMemoryCache();
-
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerDocumentation();
 
@@ -28,8 +26,10 @@ internal class Program
 
         builder.Services.AddInfrastructure();
 
-        builder.Services.AddGatewayModule();
+        builder.Configuration.AddModuleConfiguration(["apiservices"]);
+
         builder.Services.AddApiServicesModule(builder.Configuration);
+        builder.Services.AddGatewayModule();
 
         WebApplication app = builder.Build();
 
@@ -44,6 +44,12 @@ internal class Program
         app.UseGatewayPipeline();
 
         app.MapEndpoints();
+
+        app.MapGet("posts/{param1}/segment3/{param2}", (string param1, string param2) => "first");
+        app.MapGet("posts/segment3/{optional?}/{optional2?}", (string? optional, string? optional2) => "second");
+        app.MapGet("posts/segment3/{optional?}", (string? optional) => "thirds");
+        app.MapGet("posts/segment3", () => "fourth");
+        // app.MapGet("posts/{id}", (string id) => "third");
 
         app.Run();
     }

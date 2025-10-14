@@ -1,5 +1,6 @@
 using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
@@ -21,6 +22,7 @@ public class Subscription : Entity
     public bool IsFree => !ExpiresAt.HasValue;
 
     public Plan Plan { get; init; } = null!;
+    public ApiService ApiService { get; init; } = null!;
 
     private Subscription() { }
 

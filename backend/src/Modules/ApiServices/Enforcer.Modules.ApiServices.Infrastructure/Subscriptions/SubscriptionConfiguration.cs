@@ -10,15 +10,15 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
     public void Configure(EntityTypeBuilder<Subscription> builder)
     {
         builder
-            .HasOne(p => p.Plan)
+            .HasOne(s => s.Plan)
             .WithMany()
-            .HasForeignKey(p => p.PlanId)
+            .HasForeignKey(s => s.PlanId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder
-            .HasOne<ApiService>()
+            .HasOne(s => s.ApiService)
             .WithMany()
-            .HasForeignKey(p => p.ApiServiceId);
+            .HasForeignKey(s => s.ApiServiceId);
 
         builder.HasIndex(s => s.ApiKey).IsUnique();
         builder.HasIndex(s => new { s.ConsumerId, s.PlanId })

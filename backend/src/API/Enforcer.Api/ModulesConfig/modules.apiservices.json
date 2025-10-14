@@ -1,0 +1,7 @@
+{
+  "ApiServices": {
+    "WriteBack": {
+      "IntervalInSeconds": 15
+    }
+  }
+}

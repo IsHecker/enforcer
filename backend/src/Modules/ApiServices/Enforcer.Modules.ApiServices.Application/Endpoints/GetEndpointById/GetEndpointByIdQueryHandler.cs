@@ -1,6 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
+using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,11 +23,11 @@ internal sealed class GetEndpointByIdQueryHandler(IApiServicesDbContext context)
             endpoint.Id,
             endpoint.ApiServiceId,
             endpoint.PlanId,
-            endpoint.HTTPMethod,
+            endpoint.HTTPMethod.ToString(),
             endpoint.PublicPath,
             endpoint.TargetPath,
             endpoint.RateLimit,
-            endpoint.RateLimitWindow,
+            endpoint.RateLimitWindow.ToString(),
             endpoint.IsActive
         );
 

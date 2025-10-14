@@ -8,6 +8,7 @@ public enum ErrorType
     Unauthorized,
     Conflict,
     Forbidden,
+    TooManyRequests,
     Failure,
     Problem,
     Unexpected

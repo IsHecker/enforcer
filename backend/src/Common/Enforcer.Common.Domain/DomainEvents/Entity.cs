@@ -2,7 +2,7 @@
 
 public abstract class Entity
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
     private readonly List<IDomainEvent> _domainEvents = [];
 
     protected Entity()

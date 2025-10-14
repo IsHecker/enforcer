@@ -23,21 +23,17 @@ public static class ApiResults
         static string GetTitle(Error error) =>
             error.Type switch
             {
-                ErrorType.Validation => error.Code,
-                ErrorType.Problem => error.Code,
-                ErrorType.NotFound => error.Code,
-                ErrorType.Conflict => error.Code,
-                _ => "Server failure"
+                ErrorType.Failure => "Server failure",
+                ErrorType.Unexpected => "Server failure",
+                _ => error.Code
             };
 
         static string GetDetail(Error error) =>
             error.Type switch
             {
-                ErrorType.Validation => error.Description,
-                ErrorType.Problem => error.Description,
-                ErrorType.NotFound => error.Description,
-                ErrorType.Conflict => error.Description,
-                _ => "An unexpected error occurred"
+                ErrorType.Failure => "An unexpected error occurred",
+                ErrorType.Unexpected => "An unexpected error occurred",
+                _ => error.Description
             };
 
         static string GetType(ErrorType errorType) =>
@@ -57,6 +53,9 @@ public static class ApiResults
                 ErrorType.Problem => StatusCodes.Status400BadRequest,
                 ErrorType.NotFound => StatusCodes.Status404NotFound,
                 ErrorType.Conflict => StatusCodes.Status409Conflict,
+                ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+                ErrorType.Forbidden => StatusCodes.Status403Forbidden,
+                ErrorType.TooManyRequests => StatusCodes.Status429TooManyRequests,
                 _ => StatusCodes.Status500InternalServerError
             };
 

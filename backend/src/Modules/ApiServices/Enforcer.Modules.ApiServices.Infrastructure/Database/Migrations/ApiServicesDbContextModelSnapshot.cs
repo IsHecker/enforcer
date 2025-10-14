@@ -94,6 +94,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("HTTPMethod")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsActive")
@@ -118,13 +119,10 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApiServiceId");
-
                     b.HasIndex("PlanId");
 
-                    b.HasIndex("HTTPMethod", "PublicPath")
-                        .IsUnique()
-                        .HasFilter("[HTTPMethod] IS NOT NULL");
+                    b.HasIndex("ApiServiceId", "HTTPMethod", "PublicPath")
+                        .IsUnique();
 
                     b.ToTable("Endpoints", "ApiServices");
                 });
@@ -271,6 +269,61 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.ToTable("Subscriptions", "ApiServices");
                 });
 
+            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.ApiKeyBlacklist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("BannedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("BannedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Duration")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ApiKeyBlacklist", "ApiServices");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.QuotaUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApiServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("QuotasLeft")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ResetAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiServiceId");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.ToTable("QuotaUsages", "ApiServices");
+                });
+
             modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.ApiServices.ApiService", b =>
                 {
                     b.HasOne("Enforcer.Modules.ApiServices.Domain.ApiServices.OpenApiDocumentation", null)
@@ -312,7 +365,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", b =>
                 {
-                    b.HasOne("Enforcer.Modules.ApiServices.Domain.ApiServices.ApiService", null)
+                    b.HasOne("Enforcer.Modules.ApiServices.Domain.ApiServices.ApiService", "ApiService")
                         .WithMany()
                         .HasForeignKey("ApiServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -324,7 +377,24 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.Navigation("ApiService");
+
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.QuotaUsage", b =>
+                {
+                    b.HasOne("Enforcer.Modules.ApiServices.Domain.ApiServices.ApiService", null)
+                        .WithMany()
+                        .HasForeignKey("ApiServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>RouteParsingBenchmarks-20251009-235754</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.4, Windows 10 (10.0.19045.6332/22H2/2022Update)
+AMD Ryzen 5 2600 3.40GHz, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 9.0.302
+  [Host]     : .NET 8.0.1 (8.0.1, 8.0.123.58001), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 8.0.1 (8.0.1, 8.0.123.58001), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method </th><th>route         </th><th>Mean </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>MineWhileV2</td><td>api/users/{id}</td><td>67.34 ns</td><td>0.875 ns</td><td>0.776 ns</td><td>0.0401</td><td>168 B</td>
+</tr><tr><td>MineForeachV2</td><td>api/users/{id}</td><td>73.88 ns</td><td>0.954 ns</td><td>0.846 ns</td><td>0.0401</td><td>168 B</td>
+</tr><tr><td>MineV1</td><td>api/users/{id}</td><td>138.57 ns</td><td>1.385 ns</td><td>1.296 ns</td><td>0.0782</td><td>328 B</td>
+</tr><tr><td>Other</td><td>api/users/{id}</td><td>1,023.95 ns</td><td>8.728 ns</td><td>7.289 ns</td><td>0.2708</td><td>1136 B</td>
+</tr><tr><td>MineWhileV2</td><td>api/v(...)mId?} [65]</td><td>181.84 ns</td><td>0.602 ns</td><td>0.470 ns</td><td>0.0880</td><td>368 B</td>
+</tr><tr><td>MineForeachV2</td><td>api/v(...)mId?} [65]</td><td>174.21 ns</td><td>2.999 ns</td><td>2.505 ns</td><td>0.0880</td><td>368 B</td>
+</tr><tr><td>MineV1</td><td>api/v(...)mId?} [65]</td><td>307.59 ns</td><td>3.475 ns</td><td>2.902 ns</td><td>0.2103</td><td>880 B</td>
+</tr><tr><td>Other</td><td>api/v(...)mId?} [65]</td><td>3,150.27 ns</td><td>39.187 ns</td><td>36.656 ns</td><td>0.5646</td><td>2368 B</td>
+</tr><tr><td>MineWhileV2</td><td>api/(...)ram} [170]</td><td>499.59 ns</td><td>4.302 ns</td><td>3.593 ns</td><td>0.1945</td><td>816 B</td>
+</tr><tr><td>MineForeachV2</td><td>api/(...)ram} [170]</td><td>531.14 ns</td><td>10.661 ns</td><td>10.948 ns</td><td>0.1945</td><td>816 B</td>
+</tr><tr><td>MineV1</td><td>api/(...)ram} [170]</td><td>812.56 ns</td><td>3.893 ns</td><td>3.451 ns</td><td>0.6981</td><td>2920 B</td>
+</tr><tr><td>Other</td><td>api/(...)ram} [170]</td><td>8,624.89 ns</td><td>158.085 ns</td><td>205.555 ns</td><td>1.5106</td><td>6376 B</td>
+</tr></tbody></table>
+</body>
+</html>

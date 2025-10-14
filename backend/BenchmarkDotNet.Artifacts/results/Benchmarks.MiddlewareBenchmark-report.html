@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmarks.MiddlewareBenchmark-20251010-172328</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.4, Windows 10 (10.0.19045.6332/22H2/2022Update)
+AMD Ryzen 5 2600 3.40GHz, 1 CPU, 12 logical and 6 physical cores
+.NET SDK 9.0.302
+  [Host]     : .NET 8.0.1 (8.0.1, 8.0.123.58001), X64 RyuJIT x86-64-v3
+  Job-CNUJVU : .NET 8.0.1 (8.0.1, 8.0.123.58001), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>InvocationCount=1  UnrollFactor=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method      </th><th>RequestUrl</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Gen1</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>MiddlewarePipeline</td><td>all todos</td><td>342.8 &mu;s</td><td>1.77 &mu;s</td><td>1.56 &mu;s</td><td>342.3 &mu;s</td><td>19.0000</td><td>1.0000</td><td>80.15 KB</td>
+</tr><tr><td>MiddlewarePipeline</td><td>base</td><td>342.7 &mu;s</td><td>6.60 &mu;s</td><td>7.34 &mu;s</td><td>342.9 &mu;s</td><td>19.0000</td><td>2.0000</td><td>80.27 KB</td>
+</tr><tr><td>MiddlewarePipeline</td><td>long ass url</td><td>343.9 &mu;s</td><td>1.29 &mu;s</td><td>1.08 &mu;s</td><td>344.2 &mu;s</td><td>20.0000</td><td>1.0000</td><td>81.4 KB</td>
+</tr><tr><td>MiddlewarePipeline</td><td>post comments</td><td>343.0 &mu;s</td><td>6.82 &mu;s</td><td>7.86 &mu;s</td><td>339.5 &mu;s</td><td>19.0000</td><td>1.0000</td><td>80.61 KB</td>
+</tr><tr><td>MiddlewarePipeline</td><td>search</td><td>341.3 &mu;s</td><td>5.86 &mu;s</td><td>5.19 &mu;s</td><td>341.0 &mu;s</td><td>19.0000</td><td>1.0000</td><td>80.54 KB</td>
+</tr><tr><td>MiddlewarePipeline</td><td>todo ID</td><td>345.9 &mu;s</td><td>6.75 &mu;s</td><td>10.10 &mu;s</td><td>339.7 &mu;s</td><td>19.0000</td><td>2.0000</td><td>80.47 KB</td>
+</tr></tbody></table>
+</body>
+</html>
