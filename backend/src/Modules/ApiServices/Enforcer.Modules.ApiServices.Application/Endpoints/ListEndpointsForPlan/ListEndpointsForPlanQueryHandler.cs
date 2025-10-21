@@ -1,6 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
+using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,9 @@ namespace Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForPla
 internal sealed class ListEndpointsForPlanQueryHandler(IApiServicesDbContext context)
     : IQueryHandler<ListEndpointsForPlanQuery, IEnumerable<EndpointResponse>>
 {
-    public async Task<Result<IEnumerable<EndpointResponse>>> Handle(ListEndpointsForPlanQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<EndpointResponse>>> Handle(
+        ListEndpointsForPlanQuery request,
+        CancellationToken cancellationToken)
     {
         var planExists = await context.Plans
             .AsNoTracking()
@@ -24,17 +27,7 @@ internal sealed class ListEndpointsForPlanQueryHandler(IApiServicesDbContext con
             .Where(e => e.PlanId == request.PlanId)
             .ToListAsync(cancellationToken);
 
-        var response = endpoints.Select(e => new EndpointResponse(
-            e.Id,
-            e.ApiServiceId,
-            e.PlanId,
-            e.HTTPMethod.ToString(),
-            e.PublicPath,
-            e.TargetPath,
-            e.RateLimit,
-            e.RateLimitWindow.ToString(),
-            e.IsActive
-        )).ToList();
+        var response = endpoints.Select(e => e.ToResponse()).ToList();
 
         return response;
     }

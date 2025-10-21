@@ -5,19 +5,19 @@ using Microsoft.AspNetCore.Http;
 
 namespace Enforcer.Modules.Gateway.EndpointTrieProvider;
 
-public class EndpointTrieProviderMiddleware(RequestDelegate next, ICacheService cacheService)
+public sealed class EndpointTrieProviderMiddleware(RequestDelegate next, ICacheService cacheService)
 {
     public async Task InvokeAsync(HttpContext context, IApiServicesApi servicesApi)
     {
-        var serviceKey = context.GetServiceKey()!;
-        var apiServiceId = context.GetApiService()!.Id;
+        var requestContext = context.GetRequestContext();
+        var apiServiceId = requestContext.ApiService!.Id;
 
-        var cacheKey = CacheKeys.EndpointTrie(serviceKey);
+        var cacheKey = CacheKeys.EndpointTrie(apiServiceId);
 
         var endpointTrie = await cacheService.GetAsync<EndpointTrie>(cacheKey);
         if (endpointTrie is not null)
         {
-            context.Features.Set<IEndpointTrieFeature>(new EndpointTrieFeature(endpointTrie));
+            requestContext.EndpointTrie = endpointTrie;
             await next(context);
             return;
         }
@@ -27,7 +27,7 @@ public class EndpointTrieProviderMiddleware(RequestDelegate next, ICacheService 
 
         await cacheService.SetAsync(cacheKey, endpointTrie);
 
-        context.Features.Set<IEndpointTrieFeature>(new EndpointTrieFeature(endpointTrie));
+        requestContext.EndpointTrie = endpointTrie;
         await next(context);
     }
 }

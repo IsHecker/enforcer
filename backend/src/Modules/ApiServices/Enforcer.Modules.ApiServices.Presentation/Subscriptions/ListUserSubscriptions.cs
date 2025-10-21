@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.ListUserSubscriptions;
 using MediatR;
@@ -14,10 +15,11 @@ internal sealed class ListUserSubscriptions : IEndpoint
     {
         app.MapGet(ApiEndpoints.Subscriptions.ListUserSubscriptions, async (ISender sender) =>
         {
-            var result = await sender.Send(new ListUserSubscriptionsQuery(Guid.Empty));
+            var result = await sender.Send(new ListUserSubscriptionsQuery(Guid.Parse("5866E98E-BBB5-4CC9-B6C0-53D982739957")));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.Subscriptions);
+        .WithTags(Tags.Subscriptions)
+        .WithOpenApiName(nameof(ListUserSubscriptions));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.UpdateApiService;
 using MediatR;
@@ -15,7 +16,7 @@ internal sealed class UpdateApiService : IEndpoint
         app.MapPut(ApiEndpoints.ApiServices.Update, async (Guid apiServiceId, Request request, ISender sender) =>
         {
             var result = await sender.Send(new UpdateApiServiceCommand(
-                request.ApiServiceId,
+                apiServiceId,
                 request.Name,
                 request.Description,
                 request.Category,
@@ -29,11 +30,11 @@ internal sealed class UpdateApiService : IEndpoint
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.ApiServices);
+        .WithTags(Tags.ApiServices)
+        .WithOpenApiName(nameof(UpdateApiService));
     }
 
     internal sealed record Request(
-        Guid ApiServiceId,
         string Name,
         string Description,
         string Category,

@@ -1,4 +1,5 @@
-﻿using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
+﻿using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
 using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
@@ -15,7 +16,7 @@ public interface IApiServicesApi
     Task<IEnumerable<EndpointResponse>> ListEndpointsForServiceAsync(Guid apiServiceId,
         CancellationToken cancellationToken = default);
 
-    Task<SubscriptionResponse?> GetSubscriptionAsync(string apiKey, string serviceKey, CancellationToken ct = default);
+    Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(string apiKey, string serviceKey, CancellationToken ct = default);
 
     Task<ApiKeyBlacklistResponse?> GetBlacklistedApiKeyAsync(string apiKey, CancellationToken ct = default);
 
@@ -27,4 +28,9 @@ public interface IApiServicesApi
         Guid subscriptionId,
         Guid apiServiceId,
         CancellationToken ct = default);
+
+    Task<Result> ConsumeQuotaAsync(
+        Guid subscriptionId,
+        int quotaLimit,
+        string resetPeriod);
 }

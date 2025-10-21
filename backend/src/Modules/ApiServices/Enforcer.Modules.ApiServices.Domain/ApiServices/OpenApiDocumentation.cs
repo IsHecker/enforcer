@@ -4,7 +4,7 @@ using Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
-public class OpenApiDocumentation : Entity
+public sealed class OpenApiDocumentation : Entity
 {
     public string Documentation { get; private set; } = null!;
 

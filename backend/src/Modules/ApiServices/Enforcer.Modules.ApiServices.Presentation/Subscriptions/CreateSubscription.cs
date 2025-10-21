@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
 using MediatR;
@@ -15,14 +16,15 @@ internal sealed class CreateSubscription : IEndpoint
         app.MapPost(ApiEndpoints.Subscriptions.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreateSubscriptionCommand(
-                Guid.Empty,
+                Guid.NewGuid(),
                 request.PlanId,
                 request.ApiServiceId
             ));
 
-            return result.MatchResponse(Results.NoContent, ApiResults.Problem);
+            return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.Subscriptions);
+        .WithTags(Tags.Subscriptions)
+        .WithOpenApiName(nameof(CreateSubscription));
     }
 
     internal sealed record Request(

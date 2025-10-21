@@ -8,9 +8,6 @@ internal sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiSer
 {
     public UpdateApiServiceValidator()
     {
-        RuleFor(x => x.ApiServiceId)
-            .NotEmpty().WithMessage("Service Id is required.");
-
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name cannot be empty.")
             .MaximumLength(200);
@@ -20,7 +17,7 @@ internal sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiSer
 
         RuleFor(x => x.ServiceKey)
             .NotEmpty().WithMessage("Service Key is required.")
-            .Matches("^[a-z]+(-[a-z]+)*$")
+            .Matches("^[a-z0-9]+(-[a-z0-9]+)*$")
             .WithMessage("Service Key must contain only lowercase letters and single hyphens between words.");
 
         RuleFor(x => x.TargetBaseUrl)

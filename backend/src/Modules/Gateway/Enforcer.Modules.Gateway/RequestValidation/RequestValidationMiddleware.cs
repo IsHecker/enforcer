@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Enforcer.Modules.Gateway.RequestValidation;
 
-public class RequestValidationMiddleware(RequestDelegate next)
+public sealed class RequestValidationMiddleware(RequestDelegate next)
 {
     private const char PathSeparator = '/';
     private const string DefaultRoute = "/";
@@ -21,16 +21,14 @@ public class RequestValidationMiddleware(RequestDelegate next)
         {
             await ErrorResponse(context, Error.Validation(
                 description: "Invalid characters or structure in URL path."));
-
             return;
         }
 
-        var (serviceKey, route) = SplitPath(path);
+        var (serviceKey, requestPath) = SplitPath(path);
 
         if (serviceKey.IsNullOrEmpty())
         {
             await ErrorResponse(context, Error.Validation(description: "Service key is missing"));
-
             return;
         }
 
@@ -40,11 +38,10 @@ public class RequestValidationMiddleware(RequestDelegate next)
         {
             await ErrorResponse(context, Error.NotFound(
                 description: $"ApiService with Service Key '{serviceKey}' was not found."));
-
             return;
         }
 
-        SetContextProperties(context, serviceKey, route, apiService);
+        SetContextProperties(context, serviceKey, requestPath, apiService);
 
         await next(context);
     }
@@ -65,12 +62,13 @@ public class RequestValidationMiddleware(RequestDelegate next)
     private static void SetContextProperties(
         HttpContext context,
         string serviceKey,
-        string route,
+        string path,
         ApiServiceResponse apiService)
     {
-        context.SetServiceKey(serviceKey);
-        context.SetRequestPath(route);
-        context.SetApiService(apiService);
+        var requestContext = context.GetRequestContext();
+        requestContext.ServiceKey = serviceKey;
+        requestContext.RequestPath = path;
+        requestContext.ApiService = apiService;
     }
 
     private static async Task ErrorResponse(HttpContext context, Error error)

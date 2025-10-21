@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.PlanFeatures;
 
-public class PlanFeatureConfiguration : IEntityTypeConfiguration<PlanFeature>
+internal sealed class PlanFeatureConfiguration : IEntityTypeConfiguration<PlanFeature>
 {
     public void Configure(EntityTypeBuilder<PlanFeature> builder)
     {

@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
 namespace Benchmarks;
 
-public class Program
+internal sealed class Program
 {
     public static async Task Main(string[] args)
     {
-        BenchmarkRunner.Run<MiddlewareBenchmark>();
+        BenchmarkRunner.Run<PathValidatorBenchmarks>();
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Enforcer.Common.Infrastructure;
 
-public class ValueJsonConverter<T>(ConverterMappingHints? mappingHints = null)
+internal sealed class ValueJsonConverter<T>(ConverterMappingHints? mappingHints = null)
     : ValueConverter<T, string>(
         v => JsonSerializer.Serialize(v, JsonSerializerOptions.Default),
         v => JsonSerializer.Deserialize<T>(v, JsonSerializerOptions.Default)!,
@@ -12,7 +12,7 @@ public class ValueJsonConverter<T>(ConverterMappingHints? mappingHints = null)
 {
 }
 
-public class ValueJsonComparer<T> : ValueComparer<T>
+internal sealed class ValueJsonComparer<T> : ValueComparer<T>
 {
   public ValueJsonComparer() : base(
     (l, r) => JsonSerializer.Serialize(l, JsonSerializerOptions.Default) == JsonSerializer.Serialize(r, JsonSerializerOptions.Default),

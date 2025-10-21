@@ -9,22 +9,23 @@ internal sealed class ChangeSubscriptionPlanCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository) : ICommandHandler<ChangeSubscriptionPlanCommand>
 {
-
     public async Task<Result> Handle(ChangeSubscriptionPlanCommand request, CancellationToken cancellationToken)
     {
         var subscription = await subscriptionRepository.GetByIdAsync(request.SubscriptionId, cancellationToken);
         if (subscription is null)
             return SubscriptionErrors.NotFound(request.SubscriptionId);
 
-        var targetPlan = await planRepository.GetByIdAsync(request.TargetPlanId, cancellationToken);
+        var targetPlanId = request.TargetPlanId;
+
+        if (subscription.PlanId == targetPlanId)
+            return SubscriptionErrors.AlreadyOnPlan(targetPlanId);
+
+        var targetPlan = await planRepository.GetByIdAsync(targetPlanId, cancellationToken);
         if (targetPlan is null)
-            return PlanErrors.NotFound(request.TargetPlanId);
+            return PlanErrors.NotFound(targetPlanId);
 
         if (targetPlan.ApiServiceId != subscription.ApiServiceId)
             return PlanErrors.PlanDoesNotBelongToService;
-
-        if (!targetPlan.IsActive)
-            return PlanErrors.InactivePlan;
 
         var changePlanResult = subscription.ChangePlan(targetPlan);
         if (changePlanResult.IsFailure)

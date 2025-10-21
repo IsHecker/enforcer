@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Enforcer.Modules.Gateway.Security;
 
-public class EndpointAuthorizationMiddleware(RequestDelegate next)
+public sealed class EndpointAuthorizationMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context, IApiServicesApi servicesApi)
     {
-        var subscription = context.GetSubscription()!;
-        var endpoint = context.GetEndpointConfig();
+        var requestContext = context.GetRequestContext();
+        var subscription = requestContext.Subscription!;
+        var endpoint = requestContext.EndpointConfig;
 
         if (endpoint is null)
         {

@@ -1,11 +1,11 @@
 using Enforcer.Common.Domain.DomainEvents;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public class Plan : Entity
+public sealed class Plan : Entity
 {
     public Guid ApiServiceId { get; private set; }
     public Guid CreatorId { get; private set; }
@@ -23,6 +23,7 @@ public class Plan : Entity
     public int? MaxOverage { get; private set; }
     public int SubscriptionsCount { get; private set; }
     public int TierLevel { get; private set; }
+    public bool IsDeleted { get; private set; }
 
     public PlanFeature Features { get; private set; } = null!;
 
@@ -41,7 +42,7 @@ public class Plan : Entity
         RateLimitWindow rateLimitWindow,
         int? overagePrice,
         int? maxOverage,
-        int sortOrder)
+        int tierLevel)
     {
         if (apiServiceId == Guid.Empty)
             return PlanErrors.InvalidApiServiceId;
@@ -52,8 +53,8 @@ public class Plan : Entity
         if (string.IsNullOrWhiteSpace(name))
             return PlanErrors.EmptyName;
 
-        if (sortOrder < 0)
-            return PlanErrors.InvalidSortOrder;
+        if (tierLevel < 0)
+            return PlanErrors.InvalidTierLevel;
 
         var plan = new Plan
         {
@@ -72,7 +73,7 @@ public class Plan : Entity
             MaxOverage = maxOverage,
             IsActive = true,
             SubscriptionsCount = 0,
-            TierLevel = sortOrder
+            TierLevel = tierLevel
         };
 
         plan.Raise(new PlanCreatedEvent(plan.Id, plan.ApiServiceId, plan.CreatorId, plan.Type));
@@ -80,28 +81,24 @@ public class Plan : Entity
         return plan;
     }
 
-    public Result Activate()
+    public void Activate()
     {
         if (IsActive)
-            return PlanErrors.AlreadyActive;
+            return;
 
         IsActive = true;
 
         Raise(new PlanActivatedEvent(Id));
-
-        return Result.Success;
     }
 
-    public Result Deactivate()
+    public void Deactivate()
     {
         if (!IsActive)
-            return PlanErrors.AlreadyInactive;
+            return;
 
         IsActive = false;
 
         Raise(new PlanDeactivatedEvent(Id));
-
-        return Result.Success;
     }
 
     public Result UpdateDetails(
@@ -115,14 +112,16 @@ public class Plan : Entity
         RateLimitWindow rateLimitWindow,
         bool isActive,
         int? overagePrice,
-        int? maxOverage)
+        int? maxOverage,
+        int tierLevel)
     {
-        var activationResult = isActive
-            ? Activate()
-            : Deactivate();
+        if (tierLevel < 1)
+            return PlanErrors.InvalidTierLevel;
 
-        if (activationResult.IsFailure)
-            return activationResult.Error;
+        if (isActive)
+            Activate();
+        else
+            Deactivate();
 
         Type = type;
         Name = name;
@@ -134,6 +133,7 @@ public class Plan : Entity
         RateLimitWindow = rateLimitWindow;
         OveragePrice = overagePrice;
         MaxOverage = maxOverage;
+        TierLevel = tierLevel;
 
         return Result.Success;
     }
@@ -157,5 +157,14 @@ public class Plan : Entity
     public void SetFeaturesId(Guid featuresId)
     {
         FeaturesId = featuresId;
+    }
+
+    public Result MarkAsDeleted()
+    {
+        if (IsDeleted)
+            return PlanErrors.AlreadyDeleted;
+
+        IsDeleted = true;
+        return Result.Success;
     }
 }

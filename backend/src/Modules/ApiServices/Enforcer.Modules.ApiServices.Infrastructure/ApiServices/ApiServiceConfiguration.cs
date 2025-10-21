@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.ApiServices;
 
-public class ApiServiceConfiguration : IEntityTypeConfiguration<ApiService>
+internal sealed class ApiServiceConfiguration : IEntityTypeConfiguration<ApiService>
 {
     public void Configure(EntityTypeBuilder<ApiService> builder)
     {

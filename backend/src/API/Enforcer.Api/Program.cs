@@ -6,12 +6,15 @@ using Enforcer.Api.Middleware;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Api.Extensions;
 using Enforcer.Modules.Gateway;
+using Serilog;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+        builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
         builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddProblemDetails();
@@ -39,17 +42,10 @@ internal class Program
             app.UseSwaggerUI();
         }
 
+        app.UseSerilogRequestLogging();
         app.UseExceptionHandler();
-
         app.UseGatewayPipeline();
-
         app.MapEndpoints();
-
-        app.MapGet("posts/{param1}/segment3/{param2}", (string param1, string param2) => "first");
-        app.MapGet("posts/segment3/{optional?}/{optional2?}", (string? optional, string? optional2) => "second");
-        app.MapGet("posts/segment3/{optional?}", (string? optional) => "thirds");
-        app.MapGet("posts/segment3", () => "fourth");
-        // app.MapGet("posts/{id}", (string id) => "third");
 
         app.Run();
     }

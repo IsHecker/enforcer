@@ -16,7 +16,7 @@ public static class PlanMapper
             plan.QuotaLimit,
             plan.QuotaResetPeriod.ToString(),
             plan.RateLimit,
-            plan.RateLimitWindow.ToString(),
+            plan.RateLimitWindow,
             plan.Features?.Content,
             plan.OveragePrice,
             plan.MaxOverage,

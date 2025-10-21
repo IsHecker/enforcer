@@ -1,58 +1,65 @@
 namespace Enforcer.Modules.Gateway.RequestValidation;
 
-public class PathValidator
+public static class PathValidator
 {
     public static bool IsValidPath(ReadOnlySpan<char> path)
     {
         if (path.IsEmpty)
             return true;
 
-        bool isInSegment = false;
-        bool lastCharacterWasSeparator = false;
-
-        ReadOnlySpan<char> ValidSeparators = "-._";
-
-        for (int i = 0; i < path.Length; i++)
+        while (!path.IsEmpty)
         {
-            char currentChar = path[i];
+            int slashIndex = path.IndexOf('/');
 
-            if (currentChar == '/')
+            ReadOnlySpan<char> segment;
+
+            if (slashIndex == -1)
             {
-                if (!isInSegment || lastCharacterWasSeparator)
-                    return false;
+                segment = path;
+                path = [];
+            }
+            else
+            {
+                // Get the segment before the slash
+                segment = path[..slashIndex];
 
-                isInSegment = false;
-                lastCharacterWasSeparator = false;
-                continue;
+                // Advance the span past the slash
+                path = path[(slashIndex + 1)..];
             }
 
-            bool isAlphanumeric = char.IsLetterOrDigit(currentChar);
-            bool isSeparator = ValidSeparators.Contains(currentChar);
-
-            if (!isAlphanumeric && !isSeparator)
+            if (!IsValidSegment(segment))
                 return false;
-
-            if (!isInSegment)
-            {
-                if (!isAlphanumeric)
-                    return false;
-
-                isInSegment = true;
-            }
-
-            if (!isSeparator)
-            {
-                lastCharacterWasSeparator = false;
-                continue;
-            }
-
-            if (lastCharacterWasSeparator)
-                return false;
-
-            lastCharacterWasSeparator = true;
-
         }
 
-        return !lastCharacterWasSeparator;
+        return true;
+    }
+
+    private static bool IsValidSegment(ReadOnlySpan<char> segment)
+    {
+        // If a segment is empty, it means the original path had consecutive slashes ("//").
+        if (segment.IsEmpty)
+            return false;
+
+        if (!char.IsLetterOrDigit(segment[0]) || !char.IsLetterOrDigit(segment[^1]))
+            return false;
+
+        ReadOnlySpan<char> Separators = "-._";
+
+        for (int i = 0; i < segment.Length; i++)
+        {
+            char currentChar = segment[i];
+
+            if (char.IsLetterOrDigit(currentChar))
+                continue;
+
+            if (!Separators.Contains(currentChar))
+                return false;
+
+            char previousChar = segment[i - 1];
+            if (Separators.Contains(previousChar))
+                return false;
+        }
+
+        return true;
     }
 }

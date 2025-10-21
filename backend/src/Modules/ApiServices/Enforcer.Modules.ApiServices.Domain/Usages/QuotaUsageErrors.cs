@@ -4,6 +4,8 @@ namespace Enforcer.Modules.ApiServices.Domain.Usages;
 
 public static class QuotaUsageErrors
 {
+    public static Error QuotaExceeded(string resetPeriod) =>
+        Error.TooManyRequests("QuotaUsage.QuotaExceeded", $"{resetPeriod} quota exceeded. Please upgrade your plan.");
     public static readonly Error InvalidSubscriptionId =
         Error.Validation("QuotaUsage.InvalidSubscriptionId", "SubscriptionId cannot be empty.");
 
@@ -16,9 +18,9 @@ public static class QuotaUsageErrors
     public static readonly Error InvalidConsumptionAmount =
         Error.Validation("QuotaUsage.InvalidConsumptionAmount", "Consumption amount must be greater than zero.");
 
-    public static readonly Error QuotaExceeded =
-        Error.Conflict("QuotaUsage.QuotaExceeded", "Quota exceeded. Not enough units left.");
-
     public static readonly Error InvalidResetDate =
         Error.Validation("QuotaUsage.InvalidResetDate", "Reset date must be in the future.");
+
+    public static readonly Error InvalidResetPeriod =
+        Error.Validation("QuotaUsage.InvalidResetPeriod", "Invalid reset period specified");
 }

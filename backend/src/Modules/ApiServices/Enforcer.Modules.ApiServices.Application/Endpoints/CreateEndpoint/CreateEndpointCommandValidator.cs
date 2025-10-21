@@ -1,10 +1,11 @@
 using Enforcer.Common.Application.Extensions;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.CreateEndpoint;
 
-public class CreateEndpointCommandValidator : AbstractValidator<CreateEndpointCommand>
+internal sealed class CreateEndpointCommandValidator : AbstractValidator<CreateEndpointCommand>
 {
     public CreateEndpointCommandValidator()
     {

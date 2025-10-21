@@ -1,13 +1,12 @@
 using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Domain.Usages.Events;
+using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Domain.Usages;
 
-public class QuotaUsage : Entity
+public sealed class QuotaUsage : Entity
 {
     public Guid SubscriptionId { get; private set; }
-    public Guid ApiServiceId { get; private set; }
     public int QuotasLeft { get; private set; }
     public DateTime ResetAt { get; private set; }
 
@@ -15,10 +14,8 @@ public class QuotaUsage : Entity
 
     public static Result<QuotaUsage> Create(
         Guid subscriptionId,
-        Guid apiServiceId,
         int initialQuota,
-        DateTime resetAt,
-        Guid? id = null)
+        QuotaResetPeriod resetPeriod)
     {
         if (subscriptionId == Guid.Empty)
             return QuotaUsageErrors.InvalidSubscriptionId;
@@ -26,49 +23,59 @@ public class QuotaUsage : Entity
         if (initialQuota < 0)
             return QuotaUsageErrors.InvalidInitialQuota;
 
-        if (resetAt <= DateTime.UtcNow)
-            return QuotaUsageErrors.InvalidResetDate;
-
         var quotaUsage = new QuotaUsage
         {
-            Id = id ?? Guid.NewGuid(),
             SubscriptionId = subscriptionId,
-            ApiServiceId = apiServiceId,
             QuotasLeft = initialQuota,
-            ResetAt = resetAt
+            ResetAt = CalculateNextResetDate(resetPeriod)
         };
 
         return quotaUsage;
     }
 
-    public Result ConsumeQuota(int amount = 1)
+    public Result ConsumeQuota(string resetPeriod, int amount = 1)
     {
         if (amount <= 0)
             return QuotaUsageErrors.InvalidConsumptionAmount;
 
         if (QuotasLeft < amount)
-            return QuotaUsageErrors.QuotaExceeded;
+            return QuotaUsageErrors.QuotaExceeded(resetPeriod);
 
         QuotasLeft -= amount;
-
-        Raise(new QuotaConsumedEvent(Id, SubscriptionId, amount, QuotasLeft));
 
         return Result.Success;
     }
 
-    public Result ResetQuota(int newQuota, DateTime newResetAt)
+    public Result ResetQuota(int quotaLimit, QuotaResetPeriod resetPeriod)
     {
-        if (newQuota < 0)
+        if (DateTime.UtcNow < ResetAt)
+            return Result.Success;
+
+        if (quotaLimit < 0)
             return QuotaUsageErrors.InvalidResetQuota;
+
+        DateTime newResetAt = CalculateNextResetDate(resetPeriod);
 
         if (newResetAt <= DateTime.UtcNow)
             return QuotaUsageErrors.InvalidResetDate;
 
-        QuotasLeft = newQuota;
+        QuotasLeft = quotaLimit;
         ResetAt = newResetAt;
 
-        Raise(new QuotaResetEvent(Id, SubscriptionId, QuotasLeft, ResetAt));
-
         return Result.Success;
+    }
+
+    private static DateTime CalculateNextResetDate(QuotaResetPeriod resetPeriod)
+    {
+        var now = DateTime.UtcNow;
+
+        return resetPeriod switch
+        {
+            QuotaResetPeriod.Daily => now.AddDays(1),
+            QuotaResetPeriod.Weekly => now.AddMinutes(1),
+            QuotaResetPeriod.Monthly => now.AddMonths(1),
+            QuotaResetPeriod.Yearly => now.AddYears(1),
+            _ => now.AddMonths(1)
+        };
     }
 }

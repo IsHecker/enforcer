@@ -1,5 +1,6 @@
 ﻿using Enforcer.Common.Application.Caching;
 using Enforcer.Common.Infrastructure.Caching;
+using Enforcer.Common.Infrastructure.Interceptors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
@@ -16,6 +17,8 @@ public static class InfrastructureConfiguration
 
         services.AddQuartz();
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+
+        services.TryAddSingleton<PublishDomainEventsInterceptor>();
 
         return services;
     }

@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public class SubscriptionExpiredEvent(Guid subscriptionId, Guid consumerId, Guid planId, DateTime expiredAt) : DomainEvent
+internal sealed class SubscriptionExpiredEvent(Guid subscriptionId, Guid consumerId, Guid planId, DateTime expiredAt) : DomainEvent
 {
     public Guid SubscriptionId { get; } = subscriptionId;
     public Guid ConsumerId { get; } = consumerId;

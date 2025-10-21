@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.Endpoints;
 
-public class EndpointRepository(ApiServicesDbContext context) : IEndpointRepository
+internal sealed class EndpointRepository(ApiServicesDbContext context) : IEndpointRepository
 {
     public async Task AddAsync(Endpoint endpoint, CancellationToken cancellationToken = default)
     {
@@ -31,10 +31,11 @@ public class EndpointRepository(ApiServicesDbContext context) : IEndpointReposit
         CancellationToken cancellationToken = default)
     {
         return await context.Endpoints
+            .AsNoTracking()
             .AnyAsync(e =>
                 e.ApiServiceId == apiServiceId &&
                 e.HTTPMethod == httpMethod &&
-                e.PublicPath == publicPath,
+                e.PublicPath == publicPath.ToLowerInvariant(),
                 cancellationToken);
     }
 

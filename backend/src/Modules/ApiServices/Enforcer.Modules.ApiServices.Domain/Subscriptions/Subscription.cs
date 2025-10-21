@@ -5,7 +5,7 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public class Subscription : Entity
+public sealed class Subscription : Entity
 {
     public Guid ConsumerId { get; private set; }
     public Guid PlanId { get; private set; }
@@ -33,11 +33,8 @@ public class Subscription : Entity
         if (consumerId == Guid.Empty)
             return SubscriptionErrors.InvalidConsumerId;
 
-        if (plan is null)
-            return SubscriptionErrors.InvalidPlan;
-
         if (!plan.IsActive)
-            return PlanErrors.InactivePlan;
+            return SubscriptionErrors.InactivePlan;
 
         var subscriptionDate = DateTime.UtcNow;
 
@@ -84,7 +81,7 @@ public class Subscription : Entity
 
         IsCanceled = true;
 
-        Raise(new SubscriptionCanceledEvent(Id, ConsumerId, PlanId, ExpiresAt));
+        Raise(new SubscriptionCanceledEvent(Id, ApiServiceId, PlanId, ExpiresAt));
 
         return Result.Success;
     }
@@ -95,7 +92,7 @@ public class Subscription : Entity
             return SubscriptionErrors.CannotChangePlanWhenCanceled;
 
         if (!targetPlan.IsActive)
-            return PlanErrors.InactivePlan;
+            return SubscriptionErrors.InactivePlan;
 
         var oldPlanId = PlanId;
         PlanId = targetPlan.Id;

@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <ProjectReference Include="..\Enforcer.Modules.ApiServices.Contracts\Enforcer.Modules.ApiServices.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Common\Enforcer.Common.Domain\Enforcer.Common.Domain.csproj" />
     </ItemGroup>
 </Project>

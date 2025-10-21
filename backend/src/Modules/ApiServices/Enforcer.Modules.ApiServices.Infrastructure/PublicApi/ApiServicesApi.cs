@@ -1,6 +1,9 @@
+using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.ApiKeyBlacklists;
 using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
+using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
+using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForService;
 using Enforcer.Modules.ApiServices.Application.QuotaUsages;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
 using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
@@ -11,11 +14,16 @@ using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Contracts.Usages;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.PublicApi;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.PublicApi;
 
-public class ApiServicesApi(ApiServicesDbContext context, IApiServiceRepository serviceRepository) : IApiServicesApi
+internal class ApiServicesApi(
+    ApiServicesDbContext context,
+    IApiServiceRepository serviceRepository,
+    QuotaEnforcementService enforcementService,
+    ISender sender) : IApiServicesApi
 {
     public async Task<ApiServiceResponse?> GetApiServiceByServiceKeyAsync(
         string serviceKey,
@@ -28,24 +36,14 @@ public class ApiServicesApi(ApiServicesDbContext context, IApiServiceRepository 
     public async Task<IEnumerable<EndpointResponse>> ListEndpointsForServiceAsync(Guid apiServiceId,
         CancellationToken ct = default)
     {
-        return await context.Endpoints
-            .AsNoTracking()
-            .Where(e => e.ApiServiceId == apiServiceId)
-            .Select(e => new EndpointResponse(
-                e.Id,
-                e.ApiServiceId,
-                e.PlanId,
-                e.HTTPMethod.ToString(),
-                e.PublicPath,
-                e.TargetPath,
-                e.RateLimit,
-                e.RateLimitWindow.ToString(),
-                e.IsActive
-            ))
-            .ToListAsync(ct);
+        var result = await sender.Send(new ListEndpointsForServiceQuery(apiServiceId), ct);
+        if (result.IsFailure)
+            return [];
+
+        return result.Value;
     }
 
-    public async Task<SubscriptionResponse?> GetSubscriptionAsync(
+    public async Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(
         string apiKey,
         string serviceKey,
         CancellationToken ct = default)
@@ -53,7 +51,8 @@ public class ApiServicesApi(ApiServicesDbContext context, IApiServiceRepository 
         return await context.Subscriptions
             .AsNoTracking()
             .Include(s => s.Plan)
-            .Where(s => s.ApiKey == apiKey && s.ApiService.ServiceKey == serviceKey)
+            .Where(s => s.ApiKey == apiKey
+                        && s.ApiService.ServiceKey == serviceKey)
             .Select(s => s.ToResponse())
             .FirstOrDefaultAsync(ct);
     }
@@ -97,8 +96,14 @@ public class ApiServicesApi(ApiServicesDbContext context, IApiServiceRepository 
     {
         return await context.QuotaUsages
             .AsNoTracking()
-            .Where(qu => qu.SubscriptionId == subscriptionId && qu.ApiServiceId == apiServiceId)
+            .Where(qu => qu.SubscriptionId == subscriptionId)
             .Select(qu => qu.ToResponse())
             .FirstOrDefaultAsync(ct);
     }
+
+    public Task<Result> ConsumeQuotaAsync(Guid subscriptionId, int quotaLimit, string resetPeriod)
+        => enforcementService.TryConsumeQuotaAsync(
+            subscriptionId,
+            quotaLimit,
+            resetPeriod);
 }

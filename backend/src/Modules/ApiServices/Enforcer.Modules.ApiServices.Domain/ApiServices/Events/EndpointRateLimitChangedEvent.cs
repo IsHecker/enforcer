@@ -1,8 +1,9 @@
 using Enforcer.Common.Domain.DomainEvents;
+using Enforcer.Common.Domain.Enums.ApiServices;
 
-namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
+namespace Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
 
-public class EndpointRateLimitChangedEvent(Guid endpointId, int? newRateLimit, RateLimitWindow? newWindow) : DomainEvent
+internal sealed class EndpointRateLimitChangedEvent(Guid endpointId, int? newRateLimit, RateLimitWindow? newWindow) : DomainEvent
 {
     public Guid EndpointId { get; } = endpointId;
     public int? NewRateLimit { get; } = newRateLimit;

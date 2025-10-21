@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Usages.Events;
 
-public class ApiKeyBannedEvent(
+internal sealed class ApiKeyBannedEvent(
     Guid blacklistId,
     string apiKey,
     string reason,

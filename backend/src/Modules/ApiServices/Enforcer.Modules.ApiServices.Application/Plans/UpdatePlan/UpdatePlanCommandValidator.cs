@@ -1,5 +1,5 @@
 using Enforcer.Common.Application.Extensions;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using FluentValidation;
 

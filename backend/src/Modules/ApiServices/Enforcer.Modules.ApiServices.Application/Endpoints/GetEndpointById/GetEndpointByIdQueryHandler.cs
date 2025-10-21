@@ -19,18 +19,6 @@ internal sealed class GetEndpointByIdQueryHandler(IApiServicesDbContext context)
         if (endpoint is null)
             return EndpointErrors.NotFound(request.EndpointId);
 
-        var response = new EndpointResponse(
-            endpoint.Id,
-            endpoint.ApiServiceId,
-            endpoint.PlanId,
-            endpoint.HTTPMethod.ToString(),
-            endpoint.PublicPath,
-            endpoint.TargetPath,
-            endpoint.RateLimit,
-            endpoint.RateLimitWindow.ToString(),
-            endpoint.IsActive
-        );
-
-        return response;
+        return endpoint.ToResponse();
     }
 }

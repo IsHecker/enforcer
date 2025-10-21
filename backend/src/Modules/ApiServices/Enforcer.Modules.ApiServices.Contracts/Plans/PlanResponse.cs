@@ -1,3 +1,5 @@
+using Enforcer.Common.Domain.Enums.ApiServices;
+
 namespace Enforcer.Modules.ApiServices.Contracts.Plans;
 
 public sealed record PlanResponse(
@@ -11,7 +13,7 @@ public sealed record PlanResponse(
     int QuotaLimit,
     string QuotaResetPeriod,
     int RateLimit,
-    string RateLimitWindow,
+    RateLimitWindow RateLimitWindow,
     IEnumerable<string>? Features,
     int? OveragePrice,
     int? MaxOverage,

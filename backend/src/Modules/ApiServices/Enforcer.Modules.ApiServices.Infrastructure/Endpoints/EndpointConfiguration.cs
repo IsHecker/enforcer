@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.Endpoints;
 
-public class EndpointConfiguration : IEntityTypeConfiguration<Endpoint>
+internal sealed class EndpointConfiguration : IEntityTypeConfiguration<Endpoint>
 {
     public void Configure(EntityTypeBuilder<Endpoint> builder)
     {

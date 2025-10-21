@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Enforcer.Common.Application.Behaviours;
 
-public class UnitOfWorkBehaviour<TRequest, TResponse>(IEnumerable<IUnitOfWork> units) :
+internal class UnitOfWorkBehaviour<TRequest, TResponse>(IEnumerable<IUnitOfWork> units) :
     IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
     where TResponse : Result

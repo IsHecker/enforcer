@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.DeleteApiService;
 using MediatR;
@@ -18,6 +19,7 @@ internal sealed class DeleteApiService : IEndpoint
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.ApiServices);
+        .WithTags(Tags.ApiServices)
+        .WithOpenApiName(nameof(DeleteApiService));
     }
 }

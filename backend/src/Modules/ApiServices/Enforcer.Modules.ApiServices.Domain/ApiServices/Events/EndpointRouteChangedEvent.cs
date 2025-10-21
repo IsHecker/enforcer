@@ -1,8 +1,8 @@
 using Enforcer.Common.Domain.DomainEvents;
 
-namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
+namespace Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
 
-public class EndpointRouteChangedEvent(Guid endpointId, string newPublicPath, string newTargetPath) : DomainEvent
+internal sealed class EndpointRouteChangedEvent(Guid endpointId, string newPublicPath, string newTargetPath) : DomainEvent
 {
     public Guid EndpointId { get; } = endpointId;
     public string NewPublicPath { get; } = newPublicPath;

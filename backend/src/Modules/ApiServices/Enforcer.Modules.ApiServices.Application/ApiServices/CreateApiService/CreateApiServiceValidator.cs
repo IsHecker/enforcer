@@ -18,7 +18,7 @@ internal sealed class CreateApiServiceValidator : AbstractValidator<CreateApiSer
 
         RuleFor(x => x.ServiceKey)
             .NotEmpty().WithMessage("Service Key is required.")
-            .Matches("^[a-z]+(-[a-z]+)*$")
+            .Matches("^[a-z0-9]+(-[a-z0-9]+)*$")
             .WithMessage("Service Key must contain only lowercase letters and single hyphens between words.");
 
         RuleFor(x => x.TargetBaseUrl)

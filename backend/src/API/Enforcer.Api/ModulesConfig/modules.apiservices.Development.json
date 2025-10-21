@@ -3,5 +3,10 @@
     "WriteBack": {
       "IntervalInSeconds": 15
     }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Microsoft.EntityFrameworkCore": "None"
+    }
   }
 }

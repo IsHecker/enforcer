@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.Database;
 
-public class ApiServicesDbContext : DbContext, IUnitOfWork, IApiServicesDbContext
+public sealed class ApiServicesDbContext : DbContext, IUnitOfWork, IApiServicesDbContext
 {
    public ApiServicesDbContext(DbContextOptions options) : base(options) { }
 

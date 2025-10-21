@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
 using MediatR;
@@ -12,10 +13,10 @@ internal sealed class UpdatePlan : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut(ApiEndpoints.Plans.Create, async (Request request, ISender sender) =>
+        app.MapPut(ApiEndpoints.Plans.Update, async (Guid planId, Request request, ISender sender) =>
         {
             var result = await sender.Send(new UpdatePlanCommand(
-                request.PlanId,
+                planId,
                 request.PlanType,
                 request.Name,
                 request.Price,
@@ -27,16 +28,17 @@ internal sealed class UpdatePlan : IEndpoint
                 request.IsActive,
                 request.Features,
                 request.OveragePrice,
-                request.MaxOverage
+                request.MaxOverage,
+                request.TierLevel
             ));
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.Plans);
+        .WithTags(Tags.Plans)
+        .WithOpenApiName(nameof(UpdatePlan));
     }
 
     internal sealed record Request(
-        Guid PlanId,
         string PlanType,
         string Name,
         int? Price,
@@ -48,6 +50,7 @@ internal sealed class UpdatePlan : IEndpoint
         IEnumerable<string> Features,
         int? OveragePrice,
         int? MaxOverage,
+        int TierLevel,
         bool IsActive
     );
 }

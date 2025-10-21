@@ -1,7 +1,7 @@
 using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
@@ -25,7 +25,8 @@ internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) :
             request.RateLimitWindow.ToEnum<RateLimitWindow>(),
             request.IsActive,
             request.OveragePrice,
-            request.MaxOverage
+            request.MaxOverage,
+            request.TierLevel
         );
 
         if (updateResult.IsFailure)

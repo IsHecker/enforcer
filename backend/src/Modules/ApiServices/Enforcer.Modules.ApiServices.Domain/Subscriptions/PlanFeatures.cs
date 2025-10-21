@@ -4,7 +4,7 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
-public class PlanFeature : Entity
+public sealed class PlanFeature : Entity
 {
     public IReadOnlyList<string> Content { get; private set; } = [];
 

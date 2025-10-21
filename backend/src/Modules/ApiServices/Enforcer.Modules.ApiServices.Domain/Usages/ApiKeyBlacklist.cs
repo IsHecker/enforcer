@@ -4,7 +4,7 @@ using Enforcer.Modules.ApiServices.Domain.Usages.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Usages;
 
-public class ApiKeyBlacklist : Entity
+public sealed class ApiKeyBlacklist : Entity
 {
     public string ApiKey { get; private set; } = null!;
     public string Reason { get; private set; } = null!;

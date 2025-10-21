@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Plans.CreatePlan;
 using MediatR;
@@ -30,9 +31,10 @@ internal sealed class CreatePlan : IEndpoint
                 request.TierLevel
             ));
 
-            return result.MatchResponse(Results.NoContent, ApiResults.Problem);
+            return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.Plans);
+        .WithTags(Tags.Plans)
+        .WithOpenApiName(nameof(CreatePlan));
     }
 
     internal sealed record Request(

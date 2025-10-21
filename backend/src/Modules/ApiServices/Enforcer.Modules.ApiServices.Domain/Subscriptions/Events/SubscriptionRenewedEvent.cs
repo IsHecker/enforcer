@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public class SubscriptionRenewedEvent(
+internal sealed class SubscriptionRenewedEvent(
     Guid subscriptionId,
     Guid consumerId,
     Guid planId,

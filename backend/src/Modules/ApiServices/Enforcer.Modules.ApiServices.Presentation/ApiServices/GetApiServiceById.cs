@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 using MediatR;
@@ -18,6 +19,7 @@ internal sealed class GetApiServiceById : IEndpoint
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.ApiServices);
+        .WithTags(Tags.ApiServices)
+        .WithOpenApiName(nameof(GetApiServiceById));
     }
 }

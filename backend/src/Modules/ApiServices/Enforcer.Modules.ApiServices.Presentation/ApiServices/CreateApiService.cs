@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
 using MediatR;
@@ -25,9 +26,10 @@ internal sealed class CreateApiService : IEndpoint
                 request.Status
             ));
 
-            return result.MatchResponse(Results.NoContent, ApiResults.Problem);
+            return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.ApiServices);
+        .WithTags(Tags.ApiServices)
+        .WithOpenApiName(nameof(CreateApiService));
     }
 
     internal record Request(

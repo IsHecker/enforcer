@@ -8,7 +8,7 @@ public interface IPlanRepository
     Task<Plan?> GetByIdAsync(Guid planId, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(Guid planId, CancellationToken cancellationToken = default);
     Task UpdateAsync(Plan plan, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Plan plan, CancellationToken cancellationToken = default);
+    Task<int> DeleteAsync(Guid planId, CancellationToken cancellationToken = default);
 
 
     Task AddFeatureAsync(PlanFeature feature, CancellationToken cancellationToken = default);

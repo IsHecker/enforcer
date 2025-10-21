@@ -163,6 +163,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("MaxOverage")
                         .HasColumnType("int");
 
@@ -303,9 +306,6 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ApiServiceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("QuotasLeft")
                         .HasColumnType("int");
 
@@ -316,8 +316,6 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApiServiceId");
 
                     b.HasIndex("SubscriptionId");
 
@@ -384,12 +382,6 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.QuotaUsage", b =>
                 {
-                    b.HasOne("Enforcer.Modules.ApiServices.Domain.ApiServices.ApiService", null)
-                        .WithMany()
-                        .HasForeignKey("ApiServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", null)
                         .WithMany()
                         .HasForeignKey("SubscriptionId")

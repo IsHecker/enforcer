@@ -8,6 +8,10 @@ public static class SubscriptionErrors
         "Subscription.NotFound",
         $"Subscription with ID '{subscriptionId}' was not found.");
 
+    public static Error AlreadyOnPlan(Guid planId) => Error.Conflict(
+        "Subscription.AlreadyOnPlan",
+        $"The subscription is already on plan '{planId}'. Cannot change to the same plan.");
+
     public static readonly Error Unauthorized = Error.Unauthorized(
         "Subscription.Unauthorized",
         "The subscription does not belong to this consumer.");
@@ -15,21 +19,21 @@ public static class SubscriptionErrors
     public static readonly Error InvalidConsumerId =
         Error.Validation("Subscription.InvalidConsumerId", "ConsumerId cannot be empty.");
 
-    public static Error AlreadyCanceled =>
+    public static readonly Error AlreadyCanceled =
         Error.Validation("Subscription.AlreadyCanceled", "This subscription has already been canceled.");
 
-    public static Error AlreadyExpired =>
+    public static readonly Error AlreadyExpired =
         Error.Validation("Subscription.AlreadyExpired", "This subscription has already expired.");
 
-    public static Error InvalidPlan =>
-        Error.Validation("Subscription.InvalidPlan", "The provided plan is invalid.");
+    public static readonly Error InactivePlan =
+        Error.Validation("Subscription.InActivePlan", "The plan is inactive and cannot be subscribed to.");
 
-    public static Error CannotRenewCanceled =>
+    public static readonly Error CannotRenewCanceled =
         Error.Validation("Subscription.CannotRenewCanceled", "Cannot renew a subscription that has been canceled.");
 
-    public static Error NoExpirationToRenew =>
+    public static readonly Error NoExpirationToRenew =
         Error.Validation("Subscription.NoExpirationToRenew", "This subscription does not have an expiration date to renew.");
 
-    public static Error CannotChangePlanWhenCanceled =>
+    public static readonly Error CannotChangePlanWhenCanceled =
     Error.Validation("Subscription.CannotChangePlanWhenCanceled", "Cannot change plan for a canceled subscription.");
 }

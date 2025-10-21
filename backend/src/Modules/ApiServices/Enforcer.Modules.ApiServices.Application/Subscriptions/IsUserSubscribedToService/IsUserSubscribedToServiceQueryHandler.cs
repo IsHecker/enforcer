@@ -1,13 +1,12 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.IsUserSubscribedToService;
 
-internal sealed class IsUserSubscribedToServiceQueryHandler(IApiServicesDbContext context) : IQueryHandler<IsUserSubscribedToServiceQuery, bool>
+internal sealed class IsUserSubscribedToServiceQueryHandler(ISubscriptionRepository subscriptionRepository)
+    : IQueryHandler<IsUserSubscribedToServiceQuery, bool>
 {
     public async Task<Result<bool>> Handle(IsUserSubscribedToServiceQuery request, CancellationToken cancellationToken)
     {
@@ -17,12 +16,10 @@ internal sealed class IsUserSubscribedToServiceQueryHandler(IApiServicesDbContex
         if (request.ApiServiceId == Guid.Empty)
             return ApiServiceErrors.NotFound(request.ApiServiceId);
 
-        var existsActive = await context.Subscriptions
-            .AnyAsync(s =>
-                s.ConsumerId == request.ConsumerId &&
-                s.ApiServiceId == request.ApiServiceId &&
-                !s.IsExpired,
-                cancellationToken);
+        var existsActive = await subscriptionRepository.ExistsActiveSubscriptionAsync(
+            request.ConsumerId,
+            request.ApiServiceId,
+            cancellationToken);
 
         return existsActive;
     }

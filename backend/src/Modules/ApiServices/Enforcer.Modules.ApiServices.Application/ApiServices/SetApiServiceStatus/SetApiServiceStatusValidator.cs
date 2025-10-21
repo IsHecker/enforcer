@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.SetApiServiceStatus;
 
-public class SetApiServiceStatusValidator : AbstractValidator<SetApiServiceStatusCommand>
+internal sealed class SetApiServiceStatusValidator : AbstractValidator<SetApiServiceStatusCommand>
 {
     public SetApiServiceStatusValidator()
     {

@@ -1,39 +1,44 @@
 using Enforcer.Common.Domain.Results;
 using Enforcer.Common.Presentation.Results;
-using Enforcer.Modules.Gateway.EndpointTrieProvider;
 using Enforcer.Modules.Gateway.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 namespace Enforcer.Modules.Gateway.EndpointResolution;
 
-public class EndpointResolutionMiddleware(RequestDelegate next)
+public sealed class EndpointResolutionMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
+        var requestContext = context.GetRequestContext();
         var method = context.Request.Method;
-        var path = context.GetRequestPath()!;
-        var targetUrl = context.GetApiService()!.TargetBaseUrl;
+        var path = requestContext.RequestPath!;
+        var targetUrl = requestContext.ApiService!.TargetBaseUrl;
         var queries = context.Request.QueryString.Value!;
 
-        var endpointTrie = context.Features.Get<IEndpointTrieFeature>()!.EndpointTrie;
+        var endpointTrie = requestContext.EndpointTrie!;
         var isExist = endpointTrie.TryGetEndpoint(path, method, out var endpoint, out var routeValues);
 
         if (!isExist)
         {
             await ErrorResponse(context, Error.NotFound(
                 "Endpoint.NotFound",
-                $"No endpoint found for the provided path or HTTP method in service '{context.GetServiceKey()}'."));
+                $"No endpoint found for the provided path or HTTP method in service '{requestContext.ServiceKey}'."));
             return;
         }
 
         var resolvedPath = BuildResolvedPath(endpoint!.TargetPath, routeValues!);
-        Uri.TryCreate(new Uri(targetUrl), resolvedPath + queries, out var requestUrl);
+        var isValidUrl = Uri.TryCreate(new Uri(targetUrl), resolvedPath + queries, out var requestUrl);
 
-        if (requestUrl is null)
-            return; // return error
+        if (!isValidUrl || requestUrl is null)
+        {
+            await ErrorResponse(context, Error.Failure(
+                "Endpoint.InvalidUrl",
+                $"Failed to construct a valid request URL. Base: '{targetUrl}', Path: '{resolvedPath}', Query: '{queries}'."));
+            return;
+        }
 
-        context.SetRequestUrl(requestUrl);
-        context.SetEndpointConfig(endpoint);
+        requestContext.RequestUrl = requestUrl;
+        requestContext.EndpointConfig = endpoint;
 
         await next(context);
     }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.QuotaUsages;
 
-public class QuotaUsageConfiguration : IEntityTypeConfiguration<QuotaUsage>
+internal sealed class QuotaUsageConfiguration : IEntityTypeConfiguration<QuotaUsage>
 {
     public void Configure(EntityTypeBuilder<QuotaUsage> builder)
     {
@@ -14,9 +14,5 @@ public class QuotaUsageConfiguration : IEntityTypeConfiguration<QuotaUsage>
             .WithMany()
             .HasForeignKey(qu => qu.SubscriptionId)
             .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne<ApiService>()
-            .WithMany()
-            .HasForeignKey(qu => qu.ApiServiceId);
     }
 }

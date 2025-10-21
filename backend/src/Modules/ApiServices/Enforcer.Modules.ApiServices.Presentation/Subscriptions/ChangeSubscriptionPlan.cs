@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscriptionPlan;
 using MediatR;
@@ -18,7 +19,8 @@ internal sealed class ChangeSubscriptionPlan : IEndpoint
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.Subscriptions);
+        .WithTags(Tags.Subscriptions)
+        .WithOpenApiName(nameof(ChangeSubscriptionPlan));
     }
 
     internal record Request(Guid TargetPlanId);

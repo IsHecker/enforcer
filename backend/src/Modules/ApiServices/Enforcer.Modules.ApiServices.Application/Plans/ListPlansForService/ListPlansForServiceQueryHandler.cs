@@ -14,7 +14,7 @@ internal sealed class ListPlansForServiceQueryHandler(IApiServicesDbContext cont
         var plans = await context.Plans
             .AsNoTracking()
             .Include(p => p.Features)
-            .Where(p => p.ApiServiceId == request.ApiServiceId)
+            .Where(p => p.ApiServiceId == request.ApiServiceId && !p.IsDeleted)
             .Select(p => p.ToResponse())
             .ToListAsync(cancellationToken);
 

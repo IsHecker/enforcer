@@ -7,7 +7,6 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CancelSubscript
 internal sealed class CancelSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository) : ICommandHandler<CancelSubscriptionCommand>
 {
-
     public async Task<Result> Handle(CancelSubscriptionCommand request, CancellationToken cancellationToken)
     {
         var subscription = await subscriptionRepository.GetByIdAsync(request.SubscriptionId, cancellationToken);

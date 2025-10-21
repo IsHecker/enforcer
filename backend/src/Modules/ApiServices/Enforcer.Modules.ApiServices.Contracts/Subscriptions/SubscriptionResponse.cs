@@ -15,5 +15,4 @@ public sealed record SubscriptionResponse(
 )
 {
     public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;
-    public bool IsFree => !ExpiresAt.HasValue;
 }

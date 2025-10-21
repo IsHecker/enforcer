@@ -1,10 +1,11 @@
 using Enforcer.Common.Application.Extensions;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.UpdateEndpoint;
 
-public class UpdateEndpointCommandValidator : AbstractValidator<UpdateEndpointCommand>
+internal sealed class UpdateEndpointCommandValidator : AbstractValidator<UpdateEndpointCommand>
 {
     public UpdateEndpointCommandValidator()
     {

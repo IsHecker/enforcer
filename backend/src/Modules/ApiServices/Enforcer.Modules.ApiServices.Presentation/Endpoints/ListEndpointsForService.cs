@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForService;
 using MediatR;
@@ -18,6 +19,7 @@ internal sealed class ListEndpointsForService : IEndpoint
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
-        .WithTags(Tags.Endpoints);
+        .WithTags(Tags.Endpoints)
+        .WithOpenApiName(nameof(ListEndpointsForService));
     }
 }

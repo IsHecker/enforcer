@@ -1,9 +1,11 @@
 using Enforcer.Common.Domain.DomainEvents;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
-public class Endpoint : Entity
+public sealed class Endpoint : Entity
 {
     public Guid ApiServiceId { get; private set; }
     public Guid PlanId { get; private set; }
@@ -26,26 +28,21 @@ public class Endpoint : Entity
         RateLimitWindow? rateLimitWindow,
         bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(publicPath))
-            return EndpointErrors.PublicPathEmpty;
-
-        if (string.IsNullOrWhiteSpace(targetPath))
-            return EndpointErrors.TargetPathEmpty;
-
         if (rateLimit is <= 0)
             return EndpointErrors.InvalidRateLimit;
 
         if (rateLimit is not null && rateLimitWindow is null)
             return EndpointErrors.InvalidRateLimitWindow;
 
+        // TODO: validate publicpath and targetpath route patterns and parameters match before saving!
 
         var endpoint = new Endpoint
         {
             ApiServiceId = apiServiceId,
             PlanId = planId,
             HTTPMethod = httpMethod,
-            PublicPath = publicPath,
-            TargetPath = targetPath,
+            PublicPath = NormalizePath(publicPath),
+            TargetPath = NormalizePath(targetPath),
             RateLimit = rateLimit,
             RateLimitWindow = rateLimitWindow,
             IsActive = isActive
@@ -64,53 +61,45 @@ public class Endpoint : Entity
         RateLimitWindow? rateLimitWindow,
         bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(publicPath))
-            return EndpointErrors.PublicPathEmpty;
-
-        if (string.IsNullOrWhiteSpace(targetPath))
-            return EndpointErrors.TargetPathEmpty;
-
         if (rateLimit is <= 0)
             return EndpointErrors.InvalidRateLimit;
 
         if (rateLimit is not null && rateLimitWindow is null)
             return EndpointErrors.InvalidRateLimitWindow;
 
-        var activationResult = isActive
-            ? Activate()
-            : Deactivate();
-
-        if (activationResult.IsFailure)
-            return activationResult.Error;
+        if (isActive)
+            Activate();
+        else
+            Deactivate();
 
         PlanId = planId;
         HTTPMethod = httpMethod;
-        PublicPath = publicPath;
-        TargetPath = targetPath;
+        PublicPath = NormalizePath(publicPath);
+        TargetPath = NormalizePath(targetPath);
         RateLimit = rateLimit;
         RateLimitWindow = rateLimitWindow;
 
+        Raise(new EndpointUpdatedEvent(Id, ApiServiceId));
+
         return Result.Success;
     }
 
-    public Result Activate()
+    public void Activate()
     {
         if (IsActive)
-            return EndpointErrors.AlreadyActive;
+            return;
 
         IsActive = true;
         Raise(new EndpointActivatedEvent(Id));
-        return Result.Success;
     }
 
-    public Result Deactivate()
+    public void Deactivate()
     {
         if (!IsActive)
-            return EndpointErrors.AlreadyInactive;
+            return;
 
         IsActive = false;
         Raise(new EndpointDeactivatedEvent(Id));
-        return Result.Success;
     }
 
     public Result ChangeRateLimit(int? rateLimit, RateLimitWindow? window)
@@ -128,21 +117,16 @@ public class Endpoint : Entity
         return Result.Success;
     }
 
-    public Result ChangeRoutes(string newPublicPath, string newTargetPath)
+    private static string NormalizePath(ReadOnlySpan<char> path)
     {
-        if (string.IsNullOrWhiteSpace(newPublicPath))
-            return EndpointErrors.PublicPathEmpty;
+        const int maxStackLength = 256;
+        path = path.Trim().Trim('/');
 
-        if (string.IsNullOrWhiteSpace(newTargetPath))
-            return EndpointErrors.TargetPathEmpty;
+        Span<char> lowerCase = path.Length <= maxStackLength
+            ? stackalloc char[path.Length]
+            : new char[path.Length];
 
-        PublicPath = newPublicPath.Trim();
-        TargetPath = newTargetPath.Trim();
-
-        Raise(new EndpointRouteChangedEvent(Id, PublicPath, TargetPath));
-        return Result.Success;
+        path.ToLowerInvariant(lowerCase);
+        return lowerCase.ToString();
     }
-
-    public static string NormalizePath(string path) =>
-        path.Trim().ToLowerInvariant();
 }

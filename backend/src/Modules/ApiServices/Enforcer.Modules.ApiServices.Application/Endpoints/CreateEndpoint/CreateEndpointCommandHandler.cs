@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
+using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.Plans;
@@ -27,16 +28,14 @@ internal sealed class CreateEndpointCommandHandler(
             return PlanErrors.PlanDoesNotBelongToService;
 
         if (!plan.IsActive)
-            return PlanErrors.InactivePlan;
+            return SubscriptionErrors.InactivePlan;
 
         var httpMethod = request.HttpMethod.ToEnum<HTTPMethod>();
-        var publicPath = Endpoint.NormalizePath(request.PublicPath);
-        var targetPath = Endpoint.NormalizePath(request.TargetPath);
 
         var isRouteExist = await endpointRepository.IsRouteExistsAsync(
             request.ApiServiceId,
             httpMethod,
-            publicPath,
+            request.PublicPath,
             cancellationToken);
 
         if (isRouteExist)
@@ -46,8 +45,8 @@ internal sealed class CreateEndpointCommandHandler(
             request.ApiServiceId,
             request.PlanId,
             httpMethod,
-            publicPath,
-            targetPath,
+            request.PublicPath,
+            request.TargetPath,
             request.RateLimit,
             request.RateLimitWindow?.ToEnum<RateLimitWindow>(),
             request.IsActive);

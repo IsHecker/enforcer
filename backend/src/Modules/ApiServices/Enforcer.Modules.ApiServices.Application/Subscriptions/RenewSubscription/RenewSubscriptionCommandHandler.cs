@@ -4,7 +4,8 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.RenewSubscription;
 
-internal sealed class RenewSubscriptionCommandHandler(ISubscriptionRepository subscriptionRepository) : ICommandHandler<RenewSubscriptionCommand>
+internal sealed class RenewSubscriptionCommandHandler(ISubscriptionRepository subscriptionRepository)
+    : ICommandHandler<RenewSubscriptionCommand>
 {
     public async Task<Result> Handle(RenewSubscriptionCommand request, CancellationToken cancellationToken)
     {

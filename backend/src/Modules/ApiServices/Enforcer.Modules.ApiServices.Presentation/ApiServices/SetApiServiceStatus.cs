@@ -1,10 +1,10 @@
 ﻿using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.SetApiServiceStatus;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
 namespace Enforcer.Modules.ApiServices.Presentation.ApiServices;
@@ -19,7 +19,8 @@ internal sealed class SetApiServiceStatus : IEndpoint
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.ApiServices);
+        .WithTags(Tags.ApiServices)
+        .WithOpenApiName(nameof(SetApiServiceStatus));
     }
 
     internal sealed record Request(string Status);

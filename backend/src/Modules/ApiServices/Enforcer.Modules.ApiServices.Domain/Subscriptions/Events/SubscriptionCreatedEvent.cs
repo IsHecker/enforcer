@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public class SubscriptionCreatedEvent(
+public sealed class SubscriptionCreatedEvent(
     Guid subscriptionId,
     Guid planId,
     Guid apiServiceId) : DomainEvent

@@ -24,12 +24,6 @@ public sealed class PlanRepository(ApiServicesDbContext context) : IPlanReposito
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(Plan plan, CancellationToken cancellationToken = default)
-    {
-        context.Plans.Remove(plan);
-        return Task.CompletedTask;
-    }
-
     public async Task<bool> ExistsAsync(Guid planId, CancellationToken cancellationToken = default)
     {
         return await context.Plans
@@ -46,5 +40,10 @@ public sealed class PlanRepository(ApiServicesDbContext context) : IPlanReposito
     public async Task AddFeatureAsync(PlanFeature feature, CancellationToken cancellationToken = default)
     {
         await context.PlanFeatures.AddAsync(feature, cancellationToken);
+    }
+
+    public async Task<int> DeleteAsync(Guid planId, CancellationToken cancellationToken = default)
+    {
+        return await context.Plans.Where(p => p.Id == planId).ExecuteDeleteAsync(cancellationToken);
     }
 }

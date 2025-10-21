@@ -15,5 +15,6 @@ public sealed record UpdatePlanCommand(
     bool IsActive,
     IEnumerable<string> Features,
     int? OveragePrice,
-    int? MaxOverage
+    int? MaxOverage,
+    int TierLevel
 ) : ICommand;

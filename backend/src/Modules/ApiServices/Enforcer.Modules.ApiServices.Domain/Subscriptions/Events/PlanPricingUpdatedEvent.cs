@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public class PlanPricingUpdatedEvent(Guid planId, int? price, BillingPeriod? billingPeriod, int? overagePrice, int? maxOverage) : DomainEvent
+internal sealed class PlanPricingUpdatedEvent(Guid planId, int? price, BillingPeriod? billingPeriod, int? overagePrice, int? maxOverage) : DomainEvent
 {
     public Guid PlanId { get; } = planId;
     public int? Price { get; } = price;

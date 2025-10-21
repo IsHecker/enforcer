@@ -1,4 +1,4 @@
-namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
+namespace Enforcer.Common.Domain.Enums.ApiServices;
 
 public enum RateLimitWindow
 {

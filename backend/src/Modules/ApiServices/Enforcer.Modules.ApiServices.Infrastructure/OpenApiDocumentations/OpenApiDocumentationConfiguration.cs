@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.OpenApiDocumentations;
 
-public class OpenApiDocumentationConfiguration : IEntityTypeConfiguration<OpenApiDocumentation>
+internal sealed class OpenApiDocumentationConfiguration : IEntityTypeConfiguration<OpenApiDocumentation>
 {
     public void Configure(EntityTypeBuilder<OpenApiDocumentation> builder)
     {

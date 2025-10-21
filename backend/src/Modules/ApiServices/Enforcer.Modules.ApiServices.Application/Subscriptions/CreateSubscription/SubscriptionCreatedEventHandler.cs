@@ -3,16 +3,20 @@ using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.Plans;
+using Enforcer.Modules.ApiServices.Application.QuotaUsages;
+using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
+using Enforcer.Modules.ApiServices.Domain.Usages;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
 
-public class SubscriptionCreatedEventHandler(
+internal sealed class SubscriptionCreatedEventHandler(
     IPlanRepository planRepository,
     IApiServiceRepository apiServiceRepository,
-    IUnitOfWork unitOfWork) : DomainEventHandler<SubscriptionCreatedEvent>
+    IQuotaUsageRepository quotaRepository,
+    IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionCreatedEvent>
 {
-    public override async Task Handle(SubscriptionCreatedEvent domainEvent, CancellationToken cancellationToken = default)
+    public async Task Handle(SubscriptionCreatedEvent domainEvent, CancellationToken cancellationToken = default)
     {
         var apiService = await apiServiceRepository.GetByIdAsync(domainEvent.ApiServiceId, cancellationToken);
         if (apiService is null)
@@ -25,8 +29,20 @@ public class SubscriptionCreatedEventHandler(
         plan.IncrementSubscriptions();
         apiService.IncrementSubscriptions();
 
+        await CreateQuotaUsage(domainEvent.SubscriptionId, plan);
+
         await planRepository.UpdateAsync(plan, cancellationToken);
         await apiServiceRepository.UpdateAsync(apiService, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task CreateQuotaUsage(Guid subscriptionId, Plan plan)
+    {
+        var quotaUsage = QuotaUsage.Create(subscriptionId, plan.QuotaLimit, plan.QuotaResetPeriod);
+
+        if (quotaUsage.IsFailure)
+            throw new EnforcerException("couldn't create quota usage");
+
+        await quotaRepository.AddAsync(quotaUsage.Value);
     }
 }

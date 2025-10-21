@@ -3,4 +3,4 @@ using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ListUserSubscriptions;
 
-public record ListUserSubscriptionsQuery(Guid ConsumerId) : IQuery<IReadOnlyList<SubscriptionResponse>>;
+public record ListUserSubscriptionsQuery(Guid ConsumerId) : IQuery<IEnumerable<SubscriptionResponse>>;

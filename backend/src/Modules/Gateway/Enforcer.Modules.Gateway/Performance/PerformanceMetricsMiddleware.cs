@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Enforcer.Modules.Gateway.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Enforcer.Modules.Gateway.Performance;
 
-public class PerformanceMetricsMiddleware(RequestDelegate next, ILogger<PerformanceMetricsMiddleware> logger)
+public sealed class PerformanceMetricsMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -23,7 +23,7 @@ public class PerformanceMetricsMiddleware(RequestDelegate next, ILogger<Performa
 
             sw.Stop();
             var memUsed = GC.GetTotalMemory(false) - memBefore;
-            var serviceOverhead = context.Items["ServiceOverhead"] as dynamic;
+            var serviceOverhead = context.GetRequestContext().ServiceOverhead as dynamic;
             var middlewareMs = sw.Elapsed.TotalMilliseconds - (serviceOverhead?.milliseconds ?? 0);
 
             var metrics = new

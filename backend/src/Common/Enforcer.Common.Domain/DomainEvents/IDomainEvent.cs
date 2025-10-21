@@ -1,6 +1,8 @@
-﻿namespace Enforcer.Common.Domain.DomainEvents;
+﻿using MediatR;
 
-public interface IDomainEvent
+namespace Enforcer.Common.Domain.DomainEvents;
+
+public interface IDomainEvent : INotification
 {
     Guid Id { get; }
 

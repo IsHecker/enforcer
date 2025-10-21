@@ -14,7 +14,7 @@ internal sealed class GetPlanByIdQueryHandler(IApiServicesDbContext context) : I
         var plan = await context.Plans
             .AsNoTracking()
             .Include(p => p.Features)
-            .Where(p => p.Id == request.PlanId)
+            .Where(p => p.Id == request.PlanId && !p.IsDeleted)
             .Select(p => p.ToResponse())
             .FirstOrDefaultAsync(cancellationToken);
 

@@ -1,3 +1,5 @@
+using Enforcer.Common.Domain.Enums.ApiServices;
+
 namespace Enforcer.Modules.ApiServices.Contracts.Endpoints;
 
 public sealed record EndpointResponse(
@@ -8,6 +10,6 @@ public sealed record EndpointResponse(
     string PublicPath,
     string TargetPath,
     int? RateLimit,
-    string? RateLimitWindow,
+    RateLimitWindow? RateLimitWindow,
     bool IsActive
 );

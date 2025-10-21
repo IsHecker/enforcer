@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public class PlanCreatedEvent(Guid planId, Guid apiServiceId, Guid creatorId, PlanType type) : DomainEvent
+internal sealed class PlanCreatedEvent(Guid planId, Guid apiServiceId, Guid creatorId, PlanType type) : DomainEvent
 {
     public Guid PlanId { get; } = planId;
     public Guid ApiServiceId { get; } = apiServiceId;

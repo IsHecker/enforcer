@@ -15,14 +15,20 @@ public static class GatewayModule
 {
     public static IApplicationBuilder UseGatewayPipeline(this IApplicationBuilder app)
     {
-        app.UseMiddleware<PerformanceMetricsMiddleware>();
-        app.UseMiddleware<RequestValidationMiddleware>();
-        app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
-        app.UseMiddleware<EndpointTrieProviderMiddleware>();
-        app.UseMiddleware<EndpointResolutionMiddleware>();
-        app.UseMiddleware<EndpointAuthorizationMiddleware>();
-        app.UseMiddleware<RateLimitMiddleware>();
-        app.UseMiddleware<RequestForwardingMiddleware>();
+        app.MapWhen(
+            context => !context.Request.Path.StartsWithSegments("/api"),
+            proxyApp =>
+            {
+                // proxyApp.UseMiddleware<PerformanceMetricsMiddleware>();
+                proxyApp.UseMiddleware<RequestValidationMiddleware>();
+                proxyApp.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+                proxyApp.UseMiddleware<EndpointTrieProviderMiddleware>();
+                proxyApp.UseMiddleware<EndpointResolutionMiddleware>();
+                proxyApp.UseMiddleware<EndpointAuthorizationMiddleware>();
+                proxyApp.UseMiddleware<RateLimitMiddleware>();
+                proxyApp.UseMiddleware<RequestForwardingMiddleware>();
+            }
+        );
 
         return app;
     }
@@ -41,7 +47,6 @@ public static class GatewayModule
                         .DangerousAcceptAnyServerCertificateValidator
                     }));
 
-        services.AddScoped<UsageTrackingService>();
         services.AddSingleton<RateLimitService>();
 
         return services;

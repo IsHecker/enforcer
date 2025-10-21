@@ -7,9 +7,9 @@ using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscriptionPlan;
 
-public class SubscriptionPlanChangedEventHandler(IPlanRepository planRepository, IUnitOfWork unitOfWork) : DomainEventHandler<SubscriptionPlanChangedEvent>
+internal sealed class SubscriptionPlanChangedEventHandler(IPlanRepository planRepository, IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionPlanChangedEvent>
 {
-    public override async Task Handle(SubscriptionPlanChangedEvent domainEvent, CancellationToken cancellationToken = default)
+    public async Task Handle(SubscriptionPlanChangedEvent domainEvent, CancellationToken cancellationToken = default)
     {
         var oldPlan = await planRepository.GetByIdAsync(domainEvent.OldPlanId, cancellationToken);
         if (oldPlan is null)

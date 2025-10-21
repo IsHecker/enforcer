@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Enforcer.Modules.Gateway.RequestForwarding;
 
-public class RequestForwardingMiddleware
+public sealed class RequestForwardingMiddleware(RequestDelegate next)
 {
     private static readonly HashSet<string> HopByHopHeaders =
     [
@@ -19,9 +19,10 @@ public class RequestForwardingMiddleware
         "Host"
     ];
 
-    public static async Task InvokeAsync(HttpContext context, IHttpClientFactory clientFactory)
+    public async Task InvokeAsync(HttpContext context, IHttpClientFactory clientFactory)
     {
-        var requestUrl = context.GetRequestUrl()!;
+        var requestContext = context.GetRequestContext();
+        var requestUrl = requestContext.RequestUrl!;
 
         HttpRequestMessage? requestMessage = null;
         HttpResponseMessage? responseMessage = null;
@@ -41,11 +42,11 @@ public class RequestForwardingMiddleware
 
             serviceStopwatch.Stop();
 
-            context.SetServiceOverhead(new
+            requestContext.ServiceOverhead = new
             {
                 milliseconds = serviceStopwatch.Elapsed.TotalMilliseconds,
                 ticks = serviceStopwatch.Elapsed.Ticks
-            });
+            };
 
             ForwardResponseHeaders(context, responseMessage);
 

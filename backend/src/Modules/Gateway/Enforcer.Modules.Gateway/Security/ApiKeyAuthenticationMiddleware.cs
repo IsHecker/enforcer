@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Enforcer.Modules.Gateway.Security;
 
-public class ApiKeyAuthenticationMiddleware(RequestDelegate next)
+public sealed class ApiKeyAuthenticationMiddleware(RequestDelegate next)
 {
     private const string ApiKeyHeader = "X-Api-Key";
 
     public async Task InvokeAsync(HttpContext context, IApiServicesApi servicesApi)
     {
-        var serviceKey = context.GetServiceKey()!;
+        var requestContext = context.GetRequestContext();
+        var serviceKey = requestContext.ServiceKey!;
         var apiKey = ExtractApiKey(context);
 
         if (string.IsNullOrWhiteSpace(apiKey))
@@ -22,7 +23,7 @@ public class ApiKeyAuthenticationMiddleware(RequestDelegate next)
             return;
         }
 
-        var subscription = await servicesApi.GetSubscriptionAsync(apiKey, serviceKey);
+        var subscription = await servicesApi.GetSubscriptionForServiceAsync(apiKey, serviceKey);
 
         if (subscription is null)
         {
@@ -51,7 +52,7 @@ public class ApiKeyAuthenticationMiddleware(RequestDelegate next)
             return;
         }
 
-        context.SetSubscription(subscription);
+        requestContext.Subscription = subscription;
 
         await next(context);
     }
