@@ -102,7 +102,7 @@ internal class ApiServicesApi(
     }
 
     public Task<Result> ConsumeQuotaAsync(Guid subscriptionId, int quotaLimit, string resetPeriod)
-        => enforcementService.TryConsumeQuotaAsync(
+        => enforcementService.ConsumeQuotaAsync(
             subscriptionId,
             quotaLimit,
             resetPeriod);

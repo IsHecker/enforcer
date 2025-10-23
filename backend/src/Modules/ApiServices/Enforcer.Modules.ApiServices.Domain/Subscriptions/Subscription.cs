@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
@@ -21,7 +22,7 @@ public sealed class Subscription : Entity
     public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;
     public bool IsFree => !ExpiresAt.HasValue;
 
-    public Plan Plan { get; init; } = null!;
+    public Plan Plan { get; private set; } = null!;
     public ApiService ApiService { get; init; } = null!;
 
     private Subscription() { }
@@ -91,21 +92,72 @@ public sealed class Subscription : Entity
         if (IsCanceled)
             return SubscriptionErrors.CannotChangePlanWhenCanceled;
 
+        if (IsExpired)
+            return SubscriptionErrors.CannotChangePlanWhenCanceled;
+
         if (!targetPlan.IsActive)
             return SubscriptionErrors.InactivePlan;
 
         var oldPlanId = PlanId;
+        var oldExpirationDate = ExpiresAt;
+
         PlanId = targetPlan.Id;
-        Raise(new SubscriptionPlanChangedEvent(Id, oldPlanId, targetPlan.Id));
+        Plan = targetPlan;
+
+        ExpiresAt = DeterminePlanChangeExpiration(targetPlan);
+
+        Raise(new SubscriptionPlanChangedEvent(
+            Id,
+            oldPlanId,
+            targetPlan.Id,
+            SubscribedAt,
+            oldExpirationDate));
+
         return Result.Success;
     }
 
+    private DateTime? DeterminePlanChangeExpiration(Plan targetPlan)
+    {
+        if (targetPlan.BillingPeriod == Plan.BillingPeriod)
+            return ExpiresAt;
+
+        var baseDate = targetPlan.BillingPeriod > Plan.BillingPeriod
+            ? SubscribedAt
+            : DateTime.UtcNow;
+
+        return CalculateExpiration(baseDate, targetPlan.BillingPeriod);
+    }
+
     private static string GenerateApiKey()
-        => Convert.ToBase64String(Guid.NewGuid().ToByteArray())
-                  .Replace("=", "")
-                  .Replace("+", "")
-                  .Replace("/", "")
-                  .ToLowerInvariant();
+    {
+        const int keyBytes = 24;
+        const int base64Length = 32;
+
+        Span<byte> bytes = stackalloc byte[keyBytes];
+        RandomNumberGenerator.Fill(bytes);
+
+        Span<char> base64Chars = stackalloc char[base64Length];
+        Convert.TryToBase64Chars(bytes, base64Chars, out _);
+
+        for (int i = 0; i < base64Chars.Length; i++)
+        {
+            switch (base64Chars[i])
+            {
+                case '+':
+                case '=':
+                    base64Chars[i] = RandomLowerCase();
+                    break;
+                case '/':
+                    base64Chars[i] = RandomNumber();
+                    break;
+            }
+        }
+
+        return new string(base64Chars);
+
+        static char RandomLowerCase() => (char)RandomNumberGenerator.GetInt32(97, 123);
+        static char RandomNumber() => (char)RandomNumberGenerator.GetInt32(48, 58);
+    }
 
     private static DateTime? CalculateExpiration(DateTime subscriptionDate, BillingPeriod? billingPeriod)
     {

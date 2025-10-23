@@ -2,12 +2,16 @@ using Enforcer.Common.Application.Data;
 using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Plans;
+using Enforcer.Modules.ApiServices.Application.QuotaUsages;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscriptionPlan;
 
-internal sealed class SubscriptionPlanChangedEventHandler(IPlanRepository planRepository, IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionPlanChangedEvent>
+internal sealed class SubscriptionPlanChangedEventHandler(
+    IPlanRepository planRepository,
+    IQuotaUsageRepository quotaRepository,
+    IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionPlanChangedEvent>
 {
     public async Task Handle(SubscriptionPlanChangedEvent domainEvent, CancellationToken cancellationToken = default)
     {
@@ -19,14 +23,21 @@ internal sealed class SubscriptionPlanChangedEventHandler(IPlanRepository planRe
         if (currentPlan is null)
             throw new EnforcerException("current plan is null");
 
-        var result = oldPlan.DecrementSubscriptions();
-        if (result.IsFailure)
-            throw new EnforcerException(nameof(Plan.DecrementSubscriptions), result.Error);
-
+        oldPlan.DecrementSubscriptions();
         currentPlan.IncrementSubscriptions();
 
-        await planRepository.UpdateAsync(currentPlan, cancellationToken);
-        await planRepository.UpdateAsync(currentPlan, cancellationToken);
+        await ResetQuotaUsageAsync(domainEvent.SubscriptionId, currentPlan, cancellationToken);
+
+        planRepository.Update(oldPlan);
+        planRepository.Update(currentPlan);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task ResetQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct)
+    {
+        var quotaUsage = await quotaRepository.GetBySubscriptionIdAsync(subscriptionId, ct);
+        quotaUsage!.ResetQuota(plan.QuotaLimit, plan.QuotaResetPeriod, hardReset: true);
+        quotaRepository.Update(quotaUsage);
     }
 }

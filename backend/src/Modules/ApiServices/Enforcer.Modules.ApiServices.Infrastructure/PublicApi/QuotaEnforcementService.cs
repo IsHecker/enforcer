@@ -15,7 +15,7 @@ internal class QuotaEnforcementService(
 {
     private static readonly TimeSpan QuotaUsageExpiration = TimeSpan.FromMinutes(5);
 
-    public async Task<Result> TryConsumeQuotaAsync(
+    public async Task<Result> ConsumeQuotaAsync(
         Guid subscriptionId,
         int quotaLimit,
         string resetPeriod)
@@ -56,7 +56,7 @@ internal class QuotaEnforcementService(
             return cached;
         }
 
-        var quotaUsage = await repository.GetBySubscriptionAndServiceAsync(subscriptionId);
+        var quotaUsage = await repository.GetBySubscriptionIdAsync(subscriptionId);
         if (quotaUsage is null)
             throw new EnforcerException($"Quota usage not found for subscription {subscriptionId}");
 

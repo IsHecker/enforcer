@@ -5,6 +5,7 @@ internal static class ApiEndpoints
     private const string ApiBase = "api";
     private const string ApiServicesBase = $"{ApiBase}/api-services";
     private const string PlansBase = $"{ApiBase}/plans";
+    private const string EndpointsBase = $"{ApiBase}/endpoints";
     private const string SubscriptionsBase = $"{ApiBase}/subscriptions";
     private const string UsersBase = $"{ApiBase}/users";
 
@@ -21,10 +22,8 @@ internal static class ApiEndpoints
 
     public static class Endpoints
     {
-        private const string Base = $"{ApiServices.GetById}/endpoints";
-
-        public const string GetById = $"{Base}/{{endpointId:guid}}";
-        public const string Create = Base;
+        public const string GetById = $"{EndpointsBase}/{{endpointId:guid}}";
+        public const string Create = $"{ApiServices.GetById}/endpoints";
         public const string Update = GetById;
         public const string Delete = GetById;
 
@@ -35,8 +34,9 @@ internal static class ApiEndpoints
     public static class Plans
     {
         public const string ListPlansForService = $"{ApiServices.GetById}/plans";
+        public const string Create = $"{ApiServices.GetById}/plans";
+
         public const string GetById = $"{PlansBase}/{{planId:guid}}";
-        public const string Create = PlansBase;
         public const string Update = GetById;
         public const string Delete = GetById;
     }

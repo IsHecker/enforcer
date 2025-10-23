@@ -31,7 +31,7 @@ internal sealed class UpdateApiServiceCommandHandler(IApiServiceRepository apiSe
         if (updateResult.IsFailure)
             return updateResult.Error;
 
-        await apiServiceRepository.UpdateAsync(service, cancellationToken);
+        apiServiceRepository.Update(service);
 
         return Result.Success;
     }

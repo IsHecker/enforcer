@@ -21,6 +21,7 @@ internal sealed class ChangeSubscriptionPlanCommandHandler(
             return SubscriptionErrors.AlreadyOnPlan(targetPlanId);
 
         var targetPlan = await planRepository.GetByIdAsync(targetPlanId, cancellationToken);
+
         if (targetPlan is null)
             return PlanErrors.NotFound(targetPlanId);
 
@@ -28,10 +29,11 @@ internal sealed class ChangeSubscriptionPlanCommandHandler(
             return PlanErrors.PlanDoesNotBelongToService;
 
         var changePlanResult = subscription.ChangePlan(targetPlan);
+
         if (changePlanResult.IsFailure)
             return changePlanResult.Error;
 
-        await subscriptionRepository.UpdateAsync(subscription, cancellationToken);
+        subscriptionRepository.Update(subscription);
 
         return Result.Success;
     }

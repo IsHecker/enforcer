@@ -40,7 +40,7 @@ internal sealed class UpdateEndpointCommandHandler(IEndpointRepository endpointR
         if (updateResult.IsFailure)
             return updateResult.Error;
 
-        await endpointRepository.UpdateAsync(endpoint, cancellationToken);
+        endpointRepository.Update(endpoint);
 
         return Result.Success;
     }

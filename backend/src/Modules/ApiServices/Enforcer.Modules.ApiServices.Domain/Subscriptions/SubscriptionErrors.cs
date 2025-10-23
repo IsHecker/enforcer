@@ -19,6 +19,9 @@ public static class SubscriptionErrors
     public static readonly Error InvalidConsumerId =
         Error.Validation("Subscription.InvalidConsumerId", "ConsumerId cannot be empty.");
 
+    public static readonly Error AlreadySubscribed =
+        Error.Validation("Subscription.AlreadySubscribed", "There's an existing subscription to this service.");
+
     public static readonly Error AlreadyCanceled =
         Error.Validation("Subscription.AlreadyCanceled", "This subscription has already been canceled.");
 
@@ -36,4 +39,7 @@ public static class SubscriptionErrors
 
     public static readonly Error CannotChangePlanWhenCanceled =
     Error.Validation("Subscription.CannotChangePlanWhenCanceled", "Cannot change plan for a canceled subscription.");
+
+    public static readonly Error CannotChangePlanWhenExpired =
+    Error.Validation("Subscription.CannotChangePlanWhenExpired", "Cannot change plan for an expired subscription.");
 }

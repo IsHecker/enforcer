@@ -11,6 +11,10 @@ internal sealed class CreateSubscriptionCommandHandler(
 {
     public async Task<Result<Guid>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {
+        var isExist = await subscriptionRepository.ExistsAsync(request.ConsumerId, request.ApiServiceId, cancellationToken);
+        if (isExist)
+            return SubscriptionErrors.AlreadySubscribed;
+
         var plan = await planRepository.GetByIdAsync(request.PlanId, cancellationToken);
         if (plan is null)
             return PlanErrors.NotFound(request.PlanId);

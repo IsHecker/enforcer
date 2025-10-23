@@ -1,3 +1,4 @@
+using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
@@ -5,41 +6,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.Subscriptions;
 
-internal sealed class SubscriptionRepository(ApiServicesDbContext context) : ISubscriptionRepository
+internal sealed class SubscriptionRepository(ApiServicesDbContext context)
+    : Repository<Subscription>(context), ISubscriptionRepository
 {
-    public async Task<Subscription?> GetByIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
+    public override Task<Subscription?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await context.Subscriptions
+        return context.Subscriptions
             .AsNoTracking()
             .Include(sub => sub.Plan)
-            .FirstOrDefaultAsync(s =>
-                s.Id == subscriptionId
-                , cancellationToken);
+            .FirstOrDefaultAsync(entity => entity.Id == id, ct);
     }
-
-    public async Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default)
-    {
-        await context.Subscriptions.AddAsync(subscription, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateAsync(Subscription subscription, CancellationToken cancellationToken = default)
-    {
-        context.Subscriptions.Update(subscription);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteAsync(Subscription subscription, CancellationToken cancellationToken = default)
-    {
-        context.Subscriptions.Remove(subscription);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
     public async Task<List<Subscription>> ListByConsumerAsync(Guid consumerId, CancellationToken cancellationToken = default)
     {
         return await context.Subscriptions
             .AsNoTracking()
-            .Where(s => s.ConsumerId == consumerId && (!s.ExpiresAt.HasValue || s.ExpiresAt >= DateTime.UtcNow))
+            .Where(sub => sub.ConsumerId == consumerId)
             .ToListAsync(cancellationToken);
     }
 
@@ -47,20 +28,19 @@ internal sealed class SubscriptionRepository(ApiServicesDbContext context) : ISu
     {
         return await context.Subscriptions
             .AsNoTracking()
-            .Where(s => s.ApiServiceId == apiServiceId)
+            .Where(sub => sub.ApiServiceId == apiServiceId)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsActiveSubscriptionAsync(
+    public async Task<bool> ExistsAsync(
         Guid consumerId,
         Guid apiServiceId,
         CancellationToken cancellationToken = default)
     {
         return await context.Subscriptions
             .AsNoTracking()
-            .AnyAsync(s => s.ConsumerId == consumerId
-                           && s.ApiServiceId == apiServiceId
-                           && (!s.ExpiresAt.HasValue || s.ExpiresAt >= DateTime.UtcNow),
+            .AnyAsync(sub => sub.ConsumerId == consumerId
+                           && sub.ApiServiceId == apiServiceId,
                 cancellationToken);
     }
 }

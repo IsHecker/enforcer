@@ -40,7 +40,7 @@ internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) :
         if (updateFeaturesResult.IsFailure)
             return updateFeaturesResult;
 
-        await planRepository.UpdateAsync(plan, cancellationToken);
+        planRepository.Update(plan);
 
         return Result.Success;
     }

@@ -29,20 +29,21 @@ internal sealed class SubscriptionCreatedEventHandler(
         plan.IncrementSubscriptions();
         apiService.IncrementSubscriptions();
 
-        await CreateQuotaUsage(domainEvent.SubscriptionId, plan);
+        await CreateQuotaUsageAsync(domainEvent.SubscriptionId, plan, cancellationToken);
 
-        await planRepository.UpdateAsync(plan, cancellationToken);
-        await apiServiceRepository.UpdateAsync(apiService, cancellationToken);
+        planRepository.Update(plan);
+        apiServiceRepository.Update(apiService);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task CreateQuotaUsage(Guid subscriptionId, Plan plan)
+    private async Task CreateQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct = default)
     {
         var quotaUsage = QuotaUsage.Create(subscriptionId, plan.QuotaLimit, plan.QuotaResetPeriod);
 
         if (quotaUsage.IsFailure)
             throw new EnforcerException("couldn't create quota usage");
 
-        await quotaRepository.AddAsync(quotaUsage.Value);
+        await quotaRepository.AddAsync(quotaUsage.Value, ct);
     }
 }

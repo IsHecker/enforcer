@@ -21,7 +21,7 @@ internal sealed class CancelSubscriptionCommandHandler(
         if (cancelResult.IsFailure)
             return cancelResult.Error;
 
-        await subscriptionRepository.UpdateAsync(subscription, cancellationToken);
+        subscriptionRepository.Update(subscription);
 
         return Result.Success;
     }
