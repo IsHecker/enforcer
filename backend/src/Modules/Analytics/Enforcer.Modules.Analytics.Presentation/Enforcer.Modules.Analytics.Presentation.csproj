@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Enforcer.Common.Presentation\Enforcer.Common.Presentation.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.Analytics.Application\Enforcer.Modules.Analytics.Application.csproj" />
+    <ProjectReference Include="..\..\ApiServices\Enforcer.Modules.ApiServices.IntegrationEvents\Enforcer.Modules.ApiServices.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\Gateway\Enforcer.Modules.Gateway.IntegrationEvents\Enforcer.Modules.Gateway.IntegrationEvents.csproj" />
+  </ItemGroup>
+</Project>

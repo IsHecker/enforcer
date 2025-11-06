@@ -1,13 +1,10 @@
 ﻿using Enforcer.Common.Application.Data;
-using Enforcer.Common.Infrastructure;
+using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Common.Infrastructure.Interceptors;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Application.Endpoints;
-using Enforcer.Modules.ApiServices.Application.Plans;
-using Enforcer.Modules.ApiServices.Application.QuotaUsages;
-using Enforcer.Modules.ApiServices.Application.Subscriptions;
+using Enforcer.Modules.ApiServices.Infrastructure.ApiKeyBans;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiServices;
 using Enforcer.Modules.ApiServices.Infrastructure.BackgroundJobs;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
@@ -59,6 +56,7 @@ public static class ApiServicesModule
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IQuotaUsageRepository, QuotaUsageRepository>();
+        services.AddScoped<IApiKeyBanRepositoy, ApiKeyBanRepositoy>();
 
         services.AddScoped<QuotaEnforcementService>();
 

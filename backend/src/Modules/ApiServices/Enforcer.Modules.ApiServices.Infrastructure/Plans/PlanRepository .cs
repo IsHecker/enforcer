@@ -1,5 +1,5 @@
 using Enforcer.Common.Infrastructure.Data;
-using Enforcer.Modules.ApiServices.Application.Plans;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;

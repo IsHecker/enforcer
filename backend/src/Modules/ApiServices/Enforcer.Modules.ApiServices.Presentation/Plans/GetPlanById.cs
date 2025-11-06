@@ -1,7 +1,9 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Plans.GetPlanById;
+using Enforcer.Modules.ApiServices.Contracts.Plans;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +22,7 @@ internal sealed class GetPlanById : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Plans)
+        .Produces<PlanResponse>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(GetPlanById));
     }
 }

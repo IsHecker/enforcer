@@ -2,6 +2,7 @@ using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
@@ -14,7 +15,7 @@ internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) :
         if (plan is null)
             return PlanErrors.NotFound(request.PlanId);
 
-        var updateResult = plan.UpdateDetails(
+        var updateResult = plan.Update(
             request.PlanType.ToEnum<PlanType>(),
             request.Name,
             request.Price,

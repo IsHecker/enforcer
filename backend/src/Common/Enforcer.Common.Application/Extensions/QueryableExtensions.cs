@@ -5,24 +5,24 @@ namespace Enforcer.Common.Application.Extensions;
 
 public static class QueryableExtensions
 {
-    public static async Task<PagedResult<T>> ToPagedResultAsync<T>(
-        this IQueryable<T> query,
-        int pageNumber,
-        int pageSize)
+    public static IQueryable<T> Paginate<T>(this IQueryable<T> query, Pagination pagination)
     {
-        var totalCount = await query.CountAsync();
+        return query.Skip(pagination.PageSize * (pagination.PageNumber - 1)).Take(pagination.PageSize);
+    }
 
-        var items = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+    public static async Task<PagedResponse<T>> ToPagedResponseAsync<T>(
+        this IEnumerable<T> source,
+        Pagination pagination,
+        int totalCount)
+    {
+        var items = await ((IQueryable<T>)source).ToListAsync();
 
-        return new PagedResult<T>
+        return new PagedResponse<T>
         {
             Items = items,
             TotalCount = totalCount,
-            PageNumber = pageNumber,
-            PageSize = pageSize
+            PageNumber = pagination.PageNumber,
+            PageSize = pagination.PageSize
         };
     }
 }

@@ -1,6 +1,6 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
@@ -15,8 +15,8 @@ internal sealed class ListUserSubscriptionsQueryHandler(ISubscriptionRepository 
         if (request.ConsumerId == Guid.Empty)
             return SubscriptionErrors.InvalidConsumerId;
 
-        var subscriptionsResponse = await subscriptionRepository.ListByConsumerAsync(request.ConsumerId, cancellationToken);
+        var subscriptions = await subscriptionRepository.ListByConsumerAsync(request.ConsumerId, cancellationToken);
 
-        return subscriptionsResponse.Select(s => s.ToResponse()).ToResult();
+        return subscriptions.Select(s => s.ToResponse()).ToResult();
     }
 }

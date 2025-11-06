@@ -78,7 +78,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
 
     public virtual IQueryable<TEntity> Query()
     {
-        return _dbSet.AsQueryable();
+        return _dbSet.AsNoTracking().AsQueryable();
     }
 
     public Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)

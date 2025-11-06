@@ -1,0 +1,2 @@
+- dotnet ef migrations add migrationName -p "dbContext project relative path" -s "src\API\Enforcer.Api\Enforcer.Api.csproj"  --context [dbContextName]
+- dotnet ef database update -p "dbContext project relative path" -s "src\API\Enforcer.Api\Enforcer.Api.csproj"

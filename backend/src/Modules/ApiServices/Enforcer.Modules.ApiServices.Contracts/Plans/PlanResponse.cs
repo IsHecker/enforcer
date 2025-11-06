@@ -8,16 +8,15 @@ public sealed record PlanResponse(
     Guid CreatorId,
     string Name,
     string Type,
-    int? Price,
+    float? Price,
     string? BillingPeriod,
     int QuotaLimit,
     string QuotaResetPeriod,
     int RateLimit,
     RateLimitWindow RateLimitWindow,
     IEnumerable<string>? Features,
-    int? OveragePrice,
+    float? OveragePrice,
     int? MaxOverage,
     bool IsActive,
-    int SubscriptionsCount,
     int TierLevel
 );

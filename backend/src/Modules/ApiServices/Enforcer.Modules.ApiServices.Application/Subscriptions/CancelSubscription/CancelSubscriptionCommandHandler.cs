@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CancelSubscription;

@@ -1,12 +1,11 @@
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.ListApiServices;
 
-public sealed record ListApiServicesQuery(
-    int PageNumber,
-    int PageSize,
+public readonly record struct ListApiServicesQuery(
     string? Category,
-    bool? IsPublic,
-    string? Search
-) : IQuery<IReadOnlyList<ApiServiceResponse>>;
+    string? Search,
+    Pagination Pagination
+) : IQuery<PagedResponse<ApiServiceResponse>>;

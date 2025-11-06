@@ -46,9 +46,9 @@ public sealed class QuotaUsage : Entity
         return Result.Success;
     }
 
-    public Result ResetQuota(int quotaLimit, QuotaResetPeriod resetPeriod, bool hardReset = false)
+    public Result ResetQuota(int quotaLimit, QuotaResetPeriod resetPeriod, bool forceReset = false)
     {
-        if (DateTime.UtcNow < ResetAt && !hardReset)
+        if (DateTime.UtcNow < ResetAt && !forceReset)
             return Result.Success;
 
         if (quotaLimit < 0)

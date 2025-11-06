@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
@@ -38,17 +39,17 @@ internal sealed class UpdatePlan : IEndpoint
         .WithOpenApiName(nameof(UpdatePlan));
     }
 
-    internal sealed record Request(
+    internal readonly record struct Request(
         string PlanType,
         string Name,
-        int? Price,
+        float? Price,
         string? BillingPeriod,
         int QuotaLimit,
         string QuotaResetPeriod,
         int RateLimit,
         string RateLimitWindow,
         IEnumerable<string> Features,
-        int? OveragePrice,
+        float? OveragePrice,
         int? MaxOverage,
         int TierLevel,
         bool IsActive

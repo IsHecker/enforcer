@@ -6,7 +6,7 @@ public sealed record UpdatePlanCommand(
     Guid PlanId,
     string PlanType,
     string Name,
-    int? Price,
+    float? Price,
     string? BillingPeriod,
     int QuotaLimit,
     string QuotaResetPeriod,
@@ -14,7 +14,7 @@ public sealed record UpdatePlanCommand(
     string RateLimitWindow,
     bool IsActive,
     IEnumerable<string> Features,
-    int? OveragePrice,
+    float? OveragePrice,
     int? MaxOverage,
     int TierLevel
 ) : ICommand;

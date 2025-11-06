@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.CancelSubscription;
@@ -15,7 +16,9 @@ internal sealed class CancelSubscription : IEndpoint
     {
         app.MapPatch(ApiEndpoints.Subscriptions.CancelSubscription, async (Guid subscriptionId, ISender sender) =>
         {
-            var result = await sender.Send(new CancelSubscriptionCommand(subscriptionId, Guid.Parse("5866E98E-BBB5-4CC9-B6C0-53D982739957")));
+            var result = await sender.Send(new CancelSubscriptionCommand(
+                subscriptionId,
+                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6")));
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })

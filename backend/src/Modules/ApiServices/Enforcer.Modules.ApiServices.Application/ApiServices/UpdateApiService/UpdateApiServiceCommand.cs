@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Messaging;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.UpdateApiService;
 
-public sealed record UpdateApiServiceCommand(
+public readonly record struct UpdateApiServiceCommand(
     Guid ApiServiceId,
     string Name,
     string Description,

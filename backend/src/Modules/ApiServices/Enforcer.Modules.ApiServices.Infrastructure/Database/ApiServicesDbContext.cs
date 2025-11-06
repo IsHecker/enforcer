@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Infrastructure;
+using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
@@ -10,7 +11,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database;
 
 public sealed class ApiServicesDbContext : DbContext, IUnitOfWork, IApiServicesDbContext
 {
-   public ApiServicesDbContext(DbContextOptions options) : base(options) { }
+   public ApiServicesDbContext(DbContextOptions<ApiServicesDbContext> options) : base(options) { }
 
    public DbSet<ApiService> ApiServices { get; init; }
    public DbSet<Endpoint> Endpoints { get; init; }
@@ -22,7 +23,7 @@ public sealed class ApiServicesDbContext : DbContext, IUnitOfWork, IApiServicesD
    public DbSet<Plan> Plans { get; init; }
    public DbSet<PlanFeature> PlanFeatures { get; init; }
 
-   public DbSet<ApiKeyBlacklist> ApiKeyBlacklist { get; init; }
+   public DbSet<ApiKeyBan> ApiKeyBans { get; init; }
 
    protected override void OnModelCreating(ModelBuilder modelBuilder)
    {

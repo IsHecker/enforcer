@@ -18,9 +18,9 @@ public interface IApiServicesApi
 
     Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(string apiKey, string serviceKey, CancellationToken ct = default);
 
-    Task<ApiKeyBlacklistResponse?> GetBlacklistedApiKeyAsync(string apiKey, CancellationToken ct = default);
+    Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken ct = default);
 
-    Task LiftBanFromApiKeyAsync(string apiKey, CancellationToken ct = default);
+    Task UnbanApiKeyAsync(string apiKey, CancellationToken ct = default);
 
     Task<bool> IsSubscribedToRequiredPlanAsync(PlanResponse subscribedPlan, Guid requiredPlanId, CancellationToken ct = default);
 

@@ -1,17 +1,19 @@
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Application.ApiKeyBlacklists;
+using Enforcer.Modules.ApiServices.Application.ApiKeyBans;
 using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForService;
 using Enforcer.Modules.ApiServices.Application.QuotaUsages;
-using Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
+using Enforcer.Modules.ApiServices.Application.Subscriptions;
 using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
 using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Contracts.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.ApiServices.ValueObjects;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.PublicApi;
 using MediatR;
@@ -29,6 +31,10 @@ internal class ApiServicesApi(
         string serviceKey,
         CancellationToken ct = default)
     {
+        var keyResult = ServiceKey.Create(serviceKey);
+        if (keyResult.IsFailure)
+            return null;
+
         var apiService = await serviceRepository.GetByServiceKeyAsync(serviceKey, ct);
         return apiService?.ToResponse();
     }
@@ -57,20 +63,18 @@ internal class ApiServicesApi(
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<ApiKeyBlacklistResponse?> GetBlacklistedApiKeyAsync(
-        string apiKey,
-        CancellationToken ct = default)
+    public async Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken ct = default)
     {
-        return await context.ApiKeyBlacklist
+        return await context.ApiKeyBans
             .AsNoTracking()
-            .Where(bl => bl.ApiKey == apiKey)
-            .Select(bl => bl.ToResponse())
+            .Where(ban => ban.ApiKey == apiKey)
+            .Select(ban => ban.ToResponse())
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task LiftBanFromApiKeyAsync(string apiKey, CancellationToken ct = default)
+    public async Task UnbanApiKeyAsync(string apiKey, CancellationToken ct = default)
     {
-        await context.ApiKeyBlacklist
+        await context.ApiKeyBans
             .AsNoTracking()
             .Where(bl => bl.ApiKey == apiKey)
             .ExecuteDeleteAsync(ct);

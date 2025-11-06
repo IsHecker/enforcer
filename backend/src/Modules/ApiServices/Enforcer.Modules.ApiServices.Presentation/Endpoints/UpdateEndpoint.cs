@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Endpoints.UpdateEndpoint;
@@ -32,7 +33,7 @@ internal sealed class UpdateEndpoint : IEndpoint
         .WithOpenApiName(nameof(UpdateEndpoint));
     }
 
-    internal record Request(
+    internal readonly record struct Request(
         Guid PlanId,
         string HttpMethod,
         string PublicPath,

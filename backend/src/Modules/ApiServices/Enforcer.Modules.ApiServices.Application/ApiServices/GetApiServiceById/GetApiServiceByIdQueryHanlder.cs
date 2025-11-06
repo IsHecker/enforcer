@@ -19,19 +19,6 @@ internal sealed class GetApiServiceByIdQueryHanlder(IApiServicesDbContext contex
         if (service is null)
             return ApiServiceErrors.NotFound(request.ApiServiceId);
 
-        return new ApiServiceResponse(
-            service.Id,
-            service.Name,
-            service.Description,
-            service.Category.ToString(),
-            service.ServiceKey,
-            service.TargetBaseUrl.ToString(),
-            service.LogoUrl?.ToString(),
-            service.IsPublic,
-            service.Status.ToString(),
-            service.SubscriptionsCount,
-            service.ApiDocId,
-            service.Version
-        );
+        return service.ToResponse();
     }
 }

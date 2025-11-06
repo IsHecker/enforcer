@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Messaging;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.CreatePlan;
 
-public sealed record CreatePlanCommand(
+public readonly record struct CreatePlanCommand(
     Guid ApiServiceId,
     Guid CreatorId,
     string PlanType,

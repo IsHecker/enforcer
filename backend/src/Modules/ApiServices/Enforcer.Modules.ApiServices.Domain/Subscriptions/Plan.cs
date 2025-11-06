@@ -7,11 +7,13 @@ namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 public sealed class Plan : Entity
 {
+    private const int baseTierLevel = 1;
+
     public Guid ApiServiceId { get; private set; }
     public Guid CreatorId { get; private set; }
     public PlanType Type { get; private set; }
     public string Name { get; private set; } = null!;
-    public int? Price { get; private set; }
+    public float? Price { get; private set; }
     public BillingPeriod? BillingPeriod { get; private set; }
     public int QuotaLimit { get; private set; }
     public QuotaResetPeriod QuotaResetPeriod { get; private set; }
@@ -19,9 +21,8 @@ public sealed class Plan : Entity
     public RateLimitWindow RateLimitWindow { get; private set; }
     public Guid FeaturesId { get; private set; }
     public bool IsActive { get; private set; }
-    public int? OveragePrice { get; private set; }
+    public float? OveragePrice { get; private set; }
     public int? MaxOverage { get; private set; }
-    public int SubscriptionsCount { get; private set; }
     public int TierLevel { get; private set; }
     public bool IsDeleted { get; private set; }
 
@@ -34,15 +35,15 @@ public sealed class Plan : Entity
         Guid creatorId,
         PlanType type,
         string name,
-        int? price,
-        BillingPeriod? billingPeriod,
+        float? price,
         int quotaLimit,
         QuotaResetPeriod quotaResetPeriod,
         int rateLimit,
         RateLimitWindow rateLimitWindow,
-        int? overagePrice,
-        int? maxOverage,
-        int tierLevel)
+        int tierLevel,
+        BillingPeriod? billingPeriod = null,
+        float? overagePrice = null,
+        int? maxOverage = null)
     {
         if (apiServiceId == Guid.Empty)
             return PlanErrors.InvalidApiServiceId;
@@ -53,7 +54,7 @@ public sealed class Plan : Entity
         if (string.IsNullOrWhiteSpace(name))
             return PlanErrors.EmptyName;
 
-        if (tierLevel < 0)
+        if (tierLevel < baseTierLevel)
             return PlanErrors.InvalidTierLevel;
 
         var plan = new Plan
@@ -72,13 +73,42 @@ public sealed class Plan : Entity
             OveragePrice = overagePrice,
             MaxOverage = maxOverage,
             IsActive = true,
-            SubscriptionsCount = 0,
             TierLevel = tierLevel
         };
 
         plan.Raise(new PlanCreatedEvent(plan.Id, plan.ApiServiceId, plan.CreatorId, plan.Type));
 
         return plan;
+    }
+
+
+    public static Plan CreateDefaultFreePlan(
+        Guid apiServiceId,
+        Guid creatorId)
+    {
+        const PlanType defaultType = PlanType.Free;
+        const string defaultName = "Free Tier";
+
+        const int defaultPrice = 0;
+
+        const int defaultQuotaLimit = 10000;
+        const QuotaResetPeriod defaultQuotaResetPeriod = QuotaResetPeriod.Monthly;
+
+        const int defaultRateLimit = 100;
+        const RateLimitWindow defaultRateLimitWindow = RateLimitWindow.Second;
+
+        return Create(
+            apiServiceId,
+            creatorId,
+            defaultType,
+            defaultName,
+            defaultPrice,
+            defaultQuotaLimit,
+            defaultQuotaResetPeriod,
+            defaultRateLimit,
+            defaultRateLimitWindow,
+            baseTierLevel
+        ).Value;
     }
 
     public void Activate()
@@ -101,21 +131,21 @@ public sealed class Plan : Entity
         Raise(new PlanDeactivatedEvent(Id));
     }
 
-    public Result UpdateDetails(
+    public Result Update(
         PlanType type,
         string name,
-        int? price,
+        float? price,
         BillingPeriod? billingPeriod,
         int quotaLimit,
         QuotaResetPeriod quotaResetPeriod,
         int rateLimit,
         RateLimitWindow rateLimitWindow,
         bool isActive,
-        int? overagePrice,
+        float? overagePrice,
         int? maxOverage,
         int tierLevel)
     {
-        if (tierLevel < 1)
+        if (tierLevel < baseTierLevel)
             return PlanErrors.InvalidTierLevel;
 
         if (isActive)
@@ -135,22 +165,6 @@ public sealed class Plan : Entity
         MaxOverage = maxOverage;
         TierLevel = tierLevel;
 
-        return Result.Success;
-    }
-
-    public void IncrementSubscriptions()
-    {
-        SubscriptionsCount++;
-        Raise(new PlanSubscriptionAddedEvent(Id, SubscriptionsCount));
-    }
-
-    public Result DecrementSubscriptions()
-    {
-        if (SubscriptionsCount == 0)
-            return PlanErrors.NoSubscriptionsToRemove;
-
-        SubscriptionsCount--;
-        Raise(new PlanSubscriptionRemovedEvent(Id, SubscriptionsCount));
         return Result.Success;
     }
 

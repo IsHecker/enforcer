@@ -2,4 +2,4 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscript
 
 using Enforcer.Common.Application.Messaging;
 
-public record ChangeSubscriptionPlanCommand(Guid SubscriptionId, Guid TargetPlanId) : ICommand;
+public readonly record struct ChangeSubscriptionPlanCommand(Guid SubscriptionId, Guid TargetPlanId) : ICommand;

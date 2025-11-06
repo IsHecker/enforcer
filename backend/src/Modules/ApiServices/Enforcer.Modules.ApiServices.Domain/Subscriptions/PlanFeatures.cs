@@ -20,8 +20,6 @@ public sealed class PlanFeature : Entity
             Content = features.Distinct().ToList()
         };
 
-        planFeatures.Raise(new PlanFeaturesCreatedEvent(planFeatures.Id, planFeatures.Content));
-
         return planFeatures;
     }
 
@@ -31,8 +29,6 @@ public sealed class PlanFeature : Entity
             return PlanFeatureErrors.EmptyFeatures;
 
         Content = features.Distinct().ToList();
-
-        Raise(new PlanFeaturesUpdatedEvent(Id, Content));
 
         return Result.Success;
     }

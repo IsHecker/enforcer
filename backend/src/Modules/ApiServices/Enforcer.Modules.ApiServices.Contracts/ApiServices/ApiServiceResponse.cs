@@ -10,7 +10,6 @@ public sealed record ApiServiceResponse(
     string? LogoUrl,
     bool IsPublic,
     string Status,
-    int SubscriptionsCount,
     Guid? ApiDocId,
     string Version
 );

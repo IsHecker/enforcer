@@ -3,4 +3,4 @@ using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 
-public sealed record GetApiServiceByIdQuery(Guid ApiServiceId) : IQuery<ApiServiceResponse>;
+public readonly record struct GetApiServiceByIdQuery(Guid ApiServiceId) : IQuery<ApiServiceResponse>;

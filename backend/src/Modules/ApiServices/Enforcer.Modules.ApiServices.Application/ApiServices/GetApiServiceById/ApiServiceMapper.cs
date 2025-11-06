@@ -13,10 +13,9 @@ public static class ApiServiceMapper
             service.Category.ToString(),
             service.ServiceKey,
             service.TargetBaseUrl.ToString(),
-            service.LogoUrl?.ToString(),
+            service.LogoUrl != null ? service.LogoUrl.ToString() : null,
             service.IsPublic,
             service.Status.ToString(),
-            service.SubscriptionsCount,
             service.ApiDocId,
             service.Version
         );

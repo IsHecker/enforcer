@@ -17,8 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\Gateway\Enforcer.Modules.Gateway\Enforcer.Modules.Gateway.csproj" />
+    <ProjectReference Include="..\..\Modules\Gateway\Enforcer.Modules.Gateway.Core\Enforcer.Modules.Gateway.Core.csproj" />
     <ProjectReference Include="..\..\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure\Enforcer.Modules.ApiServices.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Analytics\Enforcer.Modules.Analytics.Infrastructure\Enforcer.Modules.Analytics.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,6 +13,6 @@ internal sealed class ApiServiceRepository(ApiServicesDbContext context)
     {
         return await context.ApiServices
             .AsNoTracking()
-            .FirstOrDefaultAsync(api => api.ServiceKey == serviceKey.ToLowerInvariant(), ct);
+            .FirstOrDefaultAsync(api => api.ServiceKey == serviceKey, ct);
     }
 }

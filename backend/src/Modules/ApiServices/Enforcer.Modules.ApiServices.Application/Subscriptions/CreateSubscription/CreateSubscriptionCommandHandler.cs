@@ -1,6 +1,6 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Application.Plans;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
@@ -18,6 +18,9 @@ internal sealed class CreateSubscriptionCommandHandler(
         var plan = await planRepository.GetByIdAsync(request.PlanId, cancellationToken);
         if (plan is null)
             return PlanErrors.NotFound(request.PlanId);
+
+        if (plan.ApiServiceId != request.ApiServiceId)
+            return SubscriptionErrors.PlanDoesNotBelongToService;
 
         var subscriptionResult = Subscription.Create(request.ConsumerId, plan);
 

@@ -51,6 +51,7 @@ public sealed class Subscription : Entity
 
         subscription.Raise(new SubscriptionCreatedEvent(
             subscription.Id,
+            subscription.ConsumerId,
             subscription.PlanId,
             subscription.ApiServiceId));
 

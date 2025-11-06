@@ -6,6 +6,8 @@ namespace Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 public sealed class ApiService : Entity
 {
+    public Guid CreatorId { get; init; }
+
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public ApiCategory Category { get; private set; }
@@ -17,13 +19,12 @@ public sealed class ApiService : Entity
     public bool IsPublic { get; private set; }
     public ServiceStatus Status { get; private set; }
     public Guid? ApiDocId { get; private set; }
-    public int SubscriptionsCount { get; private set; }
     public string Version { get; private set; } = null!;
 
     private ApiService() { }
 
-
     public static Result<ApiService> Create(
+        Guid creatorId,
         string name,
         string description,
         ApiCategory category,
@@ -33,17 +34,26 @@ public sealed class ApiService : Entity
         bool isPublic,
         ServiceStatus status)
     {
+        if (creatorId == Guid.Empty)
+            return ApiServiceErrors.InvalidCreatorId;
+
         if (string.IsNullOrWhiteSpace(name))
-            return Result<ApiService>.Failure(ApiServiceErrors.NameEmpty);
+            return ApiServiceErrors.NameEmpty;
+
+        // var normalizedKeyResult = NormalizeServiceKey(serviceKey);
+
+        // if (normalizedKeyResult.IsFailure)
+        //     return normalizedKeyResult.Error;
 
         if (description?.Length > 400)
-            return Result<ApiService>.Failure(ApiServiceErrors.DescriptionTooLong);
+            return ApiServiceErrors.DescriptionTooLong;
 
         if (targetBaseUrl is null)
-            return Result<ApiService>.Failure(ApiServiceErrors.TargetBaseUrlRequired);
+            return ApiServiceErrors.TargetBaseUrlRequired;
 
         var service = new ApiService
         {
+            CreatorId = creatorId,
             Name = name.Trim(),
             Description = description!,
             Category = category,
@@ -56,10 +66,12 @@ public sealed class ApiService : Entity
             Version = "1.0.0"
         };
 
+        service.Raise(new ApiServiceCreatedEvent(service.Id, creatorId));
+
         return service;
     }
 
-    public Result UpdateDetails(
+    public Result Update(
         string name,
         string description,
         ApiCategory category,
@@ -71,6 +83,7 @@ public sealed class ApiService : Entity
         string version)
     {
         var updateVersionResult = UpdateVersion(version);
+
         if (updateVersionResult.IsFailure)
             return updateVersionResult.Error;
 
@@ -84,7 +97,6 @@ public sealed class ApiService : Entity
         Status = status;
         Version = version;
 
-        Raise(new ApiServiceUpdatedEvent(Id));
         return Result.Success;
     }
 
@@ -94,7 +106,6 @@ public sealed class ApiService : Entity
             return Result.Failure(ApiServiceErrors.AlreadyPublished);
 
         Status = ServiceStatus.Published;
-        Raise(new ApiServicePublishedEvent(Id));
 
         return Result.Success;
     }
@@ -105,18 +116,6 @@ public sealed class ApiService : Entity
             return Result.Failure(ApiServiceErrors.AlreadyDeprecated);
 
         Status = ServiceStatus.Deprecated;
-        Raise(new ApiServiceDeprecatedEvent(Id));
-
-        return Result.Success;
-    }
-
-    public void IncrementSubscriptions() => SubscriptionsCount++;
-    public Result DecrementSubscriptions()
-    {
-        if (SubscriptionsCount < 1)
-            return Result.Failure(ApiServiceErrors.CannotDecrementSubscriptions);
-
-        SubscriptionsCount--;
 
         return Result.Success;
     }
@@ -127,7 +126,7 @@ public sealed class ApiService : Entity
 
         var currentVersion = System.Version.Parse(Version);
 
-        if (newVersionParsed <= currentVersion)
+        if (newVersionParsed < currentVersion)
             return Result.Failure(ApiServiceErrors.VersionMustBeHigher(Version, newVersion));
 
         Version = newVersion;

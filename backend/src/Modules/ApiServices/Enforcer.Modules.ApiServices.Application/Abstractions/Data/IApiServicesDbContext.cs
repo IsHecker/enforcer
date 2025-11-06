@@ -17,5 +17,5 @@ public interface IApiServicesDbContext
     DbSet<Plan> Plans { get; }
     DbSet<PlanFeature> PlanFeatures { get; }
 
-    DbSet<ApiKeyBlacklist> ApiKeyBlacklist { get; }
+    DbSet<ApiKeyBan> ApiKeyBans { get; }
 }

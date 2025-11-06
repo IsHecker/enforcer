@@ -3,5 +3,5 @@ using Enforcer.Modules.ApiServices.Contracts.Plans;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.ListPlansForService;
 
-public sealed record ListPlansForServiceQuery(Guid ApiServiceId)
-: IQuery<IReadOnlyList<PlanResponse>>;
+public readonly record struct ListPlansForServiceQuery(Guid ApiServiceId)
+: IQuery<IEnumerable<PlanResponse>>;

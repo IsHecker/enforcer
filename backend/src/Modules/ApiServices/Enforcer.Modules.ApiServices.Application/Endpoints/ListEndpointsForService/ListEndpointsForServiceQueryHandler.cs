@@ -25,10 +25,9 @@ internal sealed class ListEndpointsForServiceQueryHandler(IApiServicesDbContext 
         var endpoints = await context.Endpoints
             .AsNoTracking()
             .Where(e => e.ApiServiceId == request.ApiServiceId)
+            .Select(e => e.ToResponse())
             .ToListAsync(cancellationToken);
 
-        var response = endpoints.Select(e => e.ToResponse()).ToList();
-
-        return response;
+        return endpoints;
     }
 }

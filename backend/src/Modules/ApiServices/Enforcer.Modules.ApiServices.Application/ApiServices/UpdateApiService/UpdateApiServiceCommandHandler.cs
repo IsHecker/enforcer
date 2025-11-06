@@ -16,7 +16,7 @@ internal sealed class UpdateApiServiceCommandHandler(IApiServiceRepository apiSe
         if (service is null)
             return Result.Failure(ApiServiceErrors.NotFound(request.ApiServiceId));
 
-        var updateResult = service.UpdateDetails(
+        var updateResult = service.Update(
             request.Name,
             request.Description,
             request.Category.ToEnum<ApiCategory>(),

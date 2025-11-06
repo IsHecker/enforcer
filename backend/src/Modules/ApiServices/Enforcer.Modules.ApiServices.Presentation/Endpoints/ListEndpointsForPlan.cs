@@ -1,7 +1,9 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForPlan;
+using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,11 +17,12 @@ internal sealed class ListEndpointsForPlan : IEndpoint
     {
         app.MapGet(ApiEndpoints.Endpoints.ListEndpointsForPlan, async (Guid planId, ISender sender) =>
         {
-            var result = await sender.Send(new ListEndpointsForPlanQuery(planId));
+            Common.Domain.Results.Result<IEnumerable<Contracts.Endpoints.EndpointResponse>> result = await sender.Send(new ListEndpointsForPlanQuery(planId));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Endpoints)
+        .Produces<IEnumerable<EndpointResponse>>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(ListEndpointsForPlan));
     }
 }

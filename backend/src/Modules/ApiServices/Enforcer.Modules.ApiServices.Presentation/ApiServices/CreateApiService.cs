@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
@@ -16,6 +17,7 @@ internal sealed class CreateApiService : IEndpoint
         app.MapPost(ApiEndpoints.ApiServices.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreateApiServiceCommand(
+                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
                 request.Name,
                 request.Description,
                 request.Category,
@@ -29,10 +31,11 @@ internal sealed class CreateApiService : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.ApiServices)
+        .Produces<Guid>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(CreateApiService));
     }
 
-    internal record Request(
+    internal readonly record struct Request(
         string Name,
         string Description,
         string Category,

@@ -20,8 +20,6 @@ public sealed class OpenApiDocumentation : Entity
             Documentation = documentation
         };
 
-        doc.Raise(new DocumentationCreatedEvent(doc.Id));
-
         return doc;
     }
 

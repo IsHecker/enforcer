@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.UpdateApiService;
@@ -34,7 +35,7 @@ internal sealed class UpdateApiService : IEndpoint
         .WithOpenApiName(nameof(UpdateApiService));
     }
 
-    internal sealed record Request(
+    internal readonly record struct Request(
         string Name,
         string Description,
         string Category,

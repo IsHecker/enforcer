@@ -25,10 +25,9 @@ internal sealed class ListEndpointsForPlanQueryHandler(IApiServicesDbContext con
         var endpoints = await context.Endpoints
             .AsNoTracking()
             .Where(e => e.PlanId == request.PlanId)
+            .Select(e => e.ToResponse())
             .ToListAsync(cancellationToken);
 
-        var response = endpoints.Select(e => e.ToResponse()).ToList();
-
-        return response;
+        return endpoints;
     }
 }

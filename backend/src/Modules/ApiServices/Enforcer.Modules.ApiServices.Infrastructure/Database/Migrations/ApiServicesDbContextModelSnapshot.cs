@@ -36,6 +36,12 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -58,12 +64,12 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubscriptionsCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("TargetBaseUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Version")
                         .IsRequired()
@@ -93,6 +99,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<Guid>("ApiServiceId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("HTTPMethod")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -117,6 +126,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PlanId");
@@ -133,9 +145,15 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Documentation")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -153,6 +171,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
                     b.Property<string>("BillingPeriod")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uniqueidentifier");
@@ -173,11 +194,11 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OveragePrice")
-                        .HasColumnType("int");
+                    b.Property<float?>("OveragePrice")
+                        .HasColumnType("real");
 
-                    b.Property<int?>("Price")
-                        .HasColumnType("int");
+                    b.Property<float?>("Price")
+                        .HasColumnType("real");
 
                     b.Property<int>("QuotaLimit")
                         .HasColumnType("int");
@@ -193,15 +214,15 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubscriptionsCount")
-                        .HasColumnType("int");
-
                     b.Property<int>("TierLevel")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -224,6 +245,12 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("PlanFeatures", "ApiServices");
@@ -245,6 +272,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<Guid>("ConsumerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("datetime2");
 
@@ -255,6 +285,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("SubscribedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -272,7 +305,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.ToTable("Subscriptions", "ApiServices");
                 });
 
-            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.ApiKeyBlacklist", b =>
+            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.ApiKeyBan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -280,7 +313,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
                     b.Property<string>("ApiKey")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("BannedAt")
                         .HasColumnType("datetime2");
@@ -288,16 +321,24 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<Guid>("BannedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("Duration")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ApiKeyBlacklist", "ApiServices");
+                    b.HasIndex("ApiKey");
+
+                    b.ToTable("ApiKeyBans", "ApiServices");
                 });
 
             modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Usages.QuotaUsage", b =>
@@ -305,6 +346,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("QuotasLeft")
                         .HasColumnType("int");
@@ -314,6 +358,9 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
                     b.Property<Guid>("SubscriptionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

@@ -2,6 +2,7 @@ using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.CreatePlan;
@@ -18,14 +19,14 @@ internal sealed class CreatePlanCommandHandler(IPlanRepository planRepository)
             request.PlanType.ToEnum<PlanType>(),
             request.Name,
             request.Price,
-            request.BillingPeriod?.ToEnum<BillingPeriod>(),
             request.QuotaLimit,
             request.QuotaResetPeriod.ToEnum<QuotaResetPeriod>(),
             request.RateLimit,
             request.RateLimitWindow.ToEnum<RateLimitWindow>(),
+            request.TierLevel,
+            request.BillingPeriod?.ToEnum<BillingPeriod>(),
             request.OveragePrice,
-            request.MaxOverage,
-            request.TierLevel
+            request.MaxOverage
         );
 
         if (planResult.IsFailure)

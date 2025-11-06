@@ -1,7 +1,7 @@
 using Enforcer.Common.Application.Caching;
 using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Application.QuotaUsages;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Usages;
 using Microsoft.Extensions.Logging;

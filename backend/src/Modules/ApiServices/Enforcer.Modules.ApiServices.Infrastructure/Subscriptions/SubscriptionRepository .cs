@@ -1,5 +1,5 @@
 using Enforcer.Common.Infrastructure.Data;
-using Enforcer.Modules.ApiServices.Application.Subscriptions;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -42,5 +42,10 @@ internal sealed class SubscriptionRepository(ApiServicesDbContext context)
             .AnyAsync(sub => sub.ConsumerId == consumerId
                            && sub.ApiServiceId == apiServiceId,
                 cancellationToken);
+    }
+
+    public Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken ct = default)
+    {
+        return context.Subscriptions.AnyAsync(sub => sub.ApiKey == apiKey, ct);
     }
 }

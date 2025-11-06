@@ -16,6 +16,10 @@ public static class SubscriptionErrors
         "Subscription.Unauthorized",
         "The subscription does not belong to this consumer.");
 
+    public static readonly Error PlanDoesNotBelongToService = Error.Validation(
+        "Subscription.PlanDoesNotBelongToService",
+        "The selected plan does not belong to the specified API service.");
+
     public static readonly Error InvalidConsumerId =
         Error.Validation("Subscription.InvalidConsumerId", "ConsumerId cannot be empty.");
 
@@ -39,7 +43,4 @@ public static class SubscriptionErrors
 
     public static readonly Error CannotChangePlanWhenCanceled =
     Error.Validation("Subscription.CannotChangePlanWhenCanceled", "Cannot change plan for a canceled subscription.");
-
-    public static readonly Error CannotChangePlanWhenExpired =
-    Error.Validation("Subscription.CannotChangePlanWhenExpired", "Cannot change plan for an expired subscription.");
 }

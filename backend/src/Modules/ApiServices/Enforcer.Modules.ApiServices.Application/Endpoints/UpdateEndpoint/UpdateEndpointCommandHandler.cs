@@ -2,6 +2,7 @@ using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.UpdateEndpoint;

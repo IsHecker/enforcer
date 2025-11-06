@@ -4,6 +4,9 @@ namespace Enforcer.Modules.ApiServices.Domain.Usages;
 
 public static class QuotaUsageErrors
 {
+    public static Error NotFound(Guid subscriptionId) =>
+        Error.NotFound("QuotaUsage.NotFound", $"Quota usage with subscription id '{subscriptionId}' was not found.");
+
     public static Error QuotaExceeded(string resetPeriod) =>
         Error.TooManyRequests("QuotaUsage.QuotaExceeded", $"{resetPeriod} quota exceeded. Please upgrade your plan.");
     public static readonly Error InvalidSubscriptionId =

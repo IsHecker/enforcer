@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Enforcer.Modules.Analytics.Application\Enforcer.Modules.Analytics.Application.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.Analytics.Presentation\Enforcer.Modules.Analytics.Presentation.csproj" />
+    <ProjectReference Include="..\..\..\Common\Enforcer.Common.Infrastructure\Enforcer.Common.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

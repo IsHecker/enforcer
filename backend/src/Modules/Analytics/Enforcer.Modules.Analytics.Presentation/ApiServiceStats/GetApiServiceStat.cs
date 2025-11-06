@@ -1,0 +1,28 @@
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
+using Enforcer.Common.Presentation.Extensions;
+using Enforcer.Common.Presentation.Results;
+using Enforcer.Modules.Analytics.Application.ApiServiceStats.GetApiServiceStat;
+using Enforcer.Modules.Analytics.Contracts;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
+namespace Enforcer.Modules.Analytics.Presentation.ApiServiceStats;
+
+internal sealed class GetApiServiceStat : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        app.MapGet(ApiEndpoints.ApiServices.GetStats, async (Guid apiServiceId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetApiServiceStatQuery(apiServiceId));
+
+            return result.MatchResponse(Results.Ok, ApiResults.Problem);
+        })
+        .WithTags(Tags.Analytics)
+        .WithOpenApiName(nameof(GetApiServiceStat))
+        .Produces<ApiServiceStatResponse>(StatusCodes.Status200OK);
+    }
+}

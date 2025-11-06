@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\API\Enforcer.Api\Enforcer.Api.csproj" />
+    <ProjectReference Include="..\src\Modules\Gateway\Enforcer.Modules.Gateway.Core\Enforcer.Modules.Gateway.Core.csproj" />
+    <ProjectReference Include="..\src\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure\Enforcer.Modules.ApiServices.Infrastructure.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.5" />
+  </ItemGroup>
+</Project>

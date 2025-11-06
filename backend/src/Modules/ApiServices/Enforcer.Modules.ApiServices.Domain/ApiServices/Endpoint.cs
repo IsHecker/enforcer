@@ -113,7 +113,6 @@ public sealed class Endpoint : Entity
         RateLimit = rateLimit;
         RateLimitWindow = window;
 
-        Raise(new EndpointRateLimitChangedEvent(Id, rateLimit, window));
         return Result.Success;
     }
 

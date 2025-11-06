@@ -15,11 +15,6 @@ internal sealed class UpdateApiServiceValidator : AbstractValidator<UpdateApiSer
         RuleFor(x => x.Description)
             .MaximumLength(400).WithMessage("Description must not exceed 400 characters.");
 
-        RuleFor(x => x.ServiceKey)
-            .NotEmpty().WithMessage("Service Key is required.")
-            .Matches("^[a-z0-9]+(-[a-z0-9]+)*$")
-            .WithMessage("Service Key must contain only lowercase letters and single hyphens between words.");
-
         RuleFor(x => x.TargetBaseUrl)
             .NotEmpty().WithMessage("Target URL is required.")
             .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))

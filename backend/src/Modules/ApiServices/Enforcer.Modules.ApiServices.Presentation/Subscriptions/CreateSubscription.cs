@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
@@ -16,7 +17,7 @@ internal sealed class CreateSubscription : IEndpoint
         app.MapPost(ApiEndpoints.Subscriptions.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreateSubscriptionCommand(
-                Guid.NewGuid(),
+                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
                 request.PlanId,
                 request.ApiServiceId
             ));
@@ -24,10 +25,11 @@ internal sealed class CreateSubscription : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Subscriptions)
+        .Produces<Guid>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(CreateSubscription));
     }
 
-    internal sealed record Request(
+    internal readonly record struct Request(
         Guid PlanId,
         Guid ApiServiceId
     );

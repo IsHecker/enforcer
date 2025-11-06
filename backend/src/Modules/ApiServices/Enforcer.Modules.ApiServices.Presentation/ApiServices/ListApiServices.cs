@@ -1,7 +1,10 @@
-﻿using Enforcer.Common.Presentation.Endpoints;
+﻿using Enforcer.Common.Application.Data;
+using Enforcer.Common.Presentation;
+using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.ApiServices.ListApiServices;
+using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -13,27 +16,27 @@ internal sealed class ListApiServices : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet(ApiEndpoints.ApiServices.List, async ([AsParameters] QueryParameters query, ISender sender) =>
+        app.MapGet(ApiEndpoints.ApiServices.List, async (
+            [AsParameters] QueryParameters query,
+            [AsParameters] Pagination pagination,
+            ISender sender) =>
         {
             var result = await sender.Send(new ListApiServicesQuery(
-                query.PageNumber.GetValueOrDefault(),
-                query.PageSize.GetValueOrDefault(),
                 query.Category,
-                query.IsPublic,
-                query.Search
+                query.Search,
+                pagination
             ));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.ApiServices)
-        .WithOpenApiName(nameof(ListApiServices));
+        .Produces<IEnumerable<ApiServiceResponse>>(StatusCodes.Status200OK)
+        .WithOpenApiName(nameof(ListApiServices))
+        .RequireCors("AllowAll");
     }
 
-    internal record struct QueryParameters(
-        int? PageNumber = 1,
-        int? PageSize = 20,
+    internal readonly record struct QueryParameters(
         string? Category = null,
-        bool? IsPublic = null,
         string? Search = null
     );
 }

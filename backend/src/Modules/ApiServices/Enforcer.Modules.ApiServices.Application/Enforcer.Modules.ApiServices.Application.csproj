@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Enforcer.Modules.ApiServices.Domain\Enforcer.Modules.ApiServices.Domain.csproj" />
-    <ProjectReference Include="..\Enforcer.Modules.ApiServices.Contracts\Enforcer.Modules.ApiServices.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Common\Enforcer.Common.Application\Enforcer.Common.Application.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.ApiServices.Domain\Enforcer.Modules.ApiServices.Domain.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.ApiServices.IntegrationEvents\Enforcer.Modules.ApiServices.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.ApiServices.Contracts\Enforcer.Modules.ApiServices.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

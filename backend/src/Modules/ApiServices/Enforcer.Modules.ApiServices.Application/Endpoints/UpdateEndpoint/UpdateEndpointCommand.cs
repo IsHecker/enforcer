@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Messaging;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.UpdateEndpoint;
 
-public record UpdateEndpointCommand(
+public readonly record struct UpdateEndpointCommand(
     Guid PlanId,
     Guid EndpointId,
     string HttpMethod,
