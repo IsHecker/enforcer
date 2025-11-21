@@ -1,7 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiKeyBans;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiKeyBans.UnbanApiKey;
 

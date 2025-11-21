@@ -40,11 +40,6 @@ public sealed class ApiService : Entity
         if (string.IsNullOrWhiteSpace(name))
             return ApiServiceErrors.NameEmpty;
 
-        // var normalizedKeyResult = NormalizeServiceKey(serviceKey);
-
-        // if (normalizedKeyResult.IsFailure)
-        //     return normalizedKeyResult.Error;
-
         if (description?.Length > 400)
             return ApiServiceErrors.DescriptionTooLong;
 

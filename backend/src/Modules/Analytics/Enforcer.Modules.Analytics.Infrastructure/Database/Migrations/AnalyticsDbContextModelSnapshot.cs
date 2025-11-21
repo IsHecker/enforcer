@@ -73,9 +73,6 @@ namespace Enforcer.Modules.Analytics.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DailyCountDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("EndpointId")
                         .HasColumnType("uniqueidentifier");
 
@@ -95,9 +92,47 @@ namespace Enforcer.Modules.Analytics.Infrastructure.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("DailyCallCount");
 
+                    b.Property<DateTime>("_dailyCountDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DailyCountDate");
+
                     b.HasKey("Id");
 
                     b.ToTable("EndpointStats", "Analytics");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.Analytics.Domain.PlanStat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ActiveSubscribers")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TotalSubscribers")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("_cancellationsThisMonth")
+                        .HasColumnType("int")
+                        .HasColumnName("CancellationsThisMonth");
+
+                    b.Property<DateTime>("_monthTrackingDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("MonthTrackingDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PlanStats", "Analytics");
                 });
 
             modelBuilder.Entity("Enforcer.Modules.Analytics.Domain.Rating", b =>
@@ -127,6 +162,37 @@ namespace Enforcer.Modules.Analytics.Infrastructure.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Ratings", "Analytics");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.Analytics.Domain.SubscriptionStat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("TotalApiCalls")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("_apiCallsUsedThisMonth")
+                        .HasColumnType("bigint")
+                        .HasColumnName("ApiCallsUsedThisMonth");
+
+                    b.Property<DateTime>("_monthUsageDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("MonthUsageDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubscriptionStats", "Analytics");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,6 @@
 using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Domain.Enums.ApiServices;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Endpoints;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.UpdateEndpoint;

@@ -1,8 +1,8 @@
 using Enforcer.Common.Application.Caching;
 using Enforcer.Common.Application.EventBus;
 using Enforcer.Common.Application.Messaging;
-using Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
-using Enforcer.Modules.ApiServices.IntegrationEvents;
+using Enforcer.Modules.ApiServices.Domain.Endpoints.Events;
+using Enforcer.Modules.ApiServices.IntegrationEvents.Endpoints;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.CreateEndpoint;
 

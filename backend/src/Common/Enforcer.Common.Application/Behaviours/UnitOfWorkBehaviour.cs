@@ -1,12 +1,15 @@
 using System.Transactions;
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Application.Messaging;
+using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Common.Application.Behaviours;
 
-internal class UnitOfWorkBehaviour<TRequest, TResponse>(IEnumerable<IUnitOfWork> units) :
+internal class UnitOfWorkBehaviour<TRequest, TResponse>(IServiceProvider serviceProvider) :
     IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
     where TResponse : Result
@@ -31,29 +34,46 @@ internal class UnitOfWorkBehaviour<TRequest, TResponse>(IEnumerable<IUnitOfWork>
         if (response.IsFailure)
             return response;
 
-        foreach (var unitOfWork in units)
+        var moduleKey = GetModuleName(typeof(TRequest));
+        var unitOfWork = serviceProvider.GetKeyedService<IUnitOfWork>(moduleKey);
+
+        if (unitOfWork is not null)
         {
-            if (IsFromSameModule(typeof(TRequest), unitOfWork.GetType()))
-                await unitOfWork.SaveChangesAsync(cancellationToken);
+            UpdateEntityDates(unitOfWork);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         scope.Complete();
         return response;
     }
 
-    private static bool IsFromSameModule(Type requestType, Type uowType)
+    private static void UpdateEntityDates(IUnitOfWork unitOfWork)
     {
+        var context = (DbContext)unitOfWork;
+
+        var entities = context
+            .ChangeTracker
+            .Entries<Entity>()
+            .Where(entry => entry.State == EntityState.Modified)
+            .Select(entry => entry.Entity);
+
+        foreach (var entity in entities)
+        {
+            entity.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    private static string GetModuleName(Type requestType)
+    {
+        const string expectedPrefix = "Enforcer.Modules.";
+
         ReadOnlySpan<char> requestAssembly = requestType.Assembly.GetName().Name;
-        ReadOnlySpan<char> uowAssembly = uowType.Assembly.GetName().Name;
+        var withoutPrefix = requestAssembly[expectedPrefix.Length..];
+        var lastDotIndex = withoutPrefix.LastIndexOf('.');
 
-        var LastDotIndex = requestAssembly.LastIndexOf('.');
+        if (lastDotIndex < 0)
+            return withoutPrefix.ToString();
 
-        if (LastDotIndex < 0)
-            return false;
-
-        var reqModuleName = requestAssembly[..LastDotIndex];
-        var uowModuleName = uowAssembly[..LastDotIndex];
-
-        return reqModuleName.SequenceEqual(uowModuleName);
+        return withoutPrefix[..lastDotIndex].ToString();
     }
 }

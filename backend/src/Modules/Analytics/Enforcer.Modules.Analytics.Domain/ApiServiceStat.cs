@@ -31,16 +31,12 @@ public class ApiServiceStat : Entity
     public void AddRating(byte rating)
     {
         RecalculateAverageRating(rating, TotalRatings + 1);
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void ReplaceRating(byte oldRating, byte newRating)
     {
         var delta = newRating - oldRating;
         RecalculateAverageRating(delta, TotalRatings);
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void RemoveRating(byte rating)
@@ -49,8 +45,6 @@ public class ApiServiceStat : Entity
             return;
 
         RecalculateAverageRating(-rating, TotalRatings - 1);
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private void RecalculateAverageRating(int ratingDelta, int newTotalRatings)
@@ -69,24 +63,18 @@ public class ApiServiceStat : Entity
 
         if (!IsSuccessfulResponse(statusCode))
             FailedApiCalls++;
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void AddSubscriber()
     {
         TotalSubscribers++;
         ActiveSubscribers++;
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void RemoveSubscriber()
     {
         if (ActiveSubscribers > 0)
             ActiveSubscribers--;
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private static bool IsSuccessfulResponse(HttpStatusCode statusCode) => statusCode < HttpStatusCode.InternalServerError;

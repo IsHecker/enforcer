@@ -1,5 +1,5 @@
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Endpoints;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 

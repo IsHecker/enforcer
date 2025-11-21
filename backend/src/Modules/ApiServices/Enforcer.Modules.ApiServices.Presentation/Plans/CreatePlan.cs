@@ -42,7 +42,7 @@ internal sealed class CreatePlan : IEndpoint
     internal readonly record struct Request(
         string PlanType,
         string Name,
-        int? Price,
+        long Price,
         string? BillingPeriod,
         int QuotaLimit,
         string QuotaResetPeriod,

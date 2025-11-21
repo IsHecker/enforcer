@@ -3,17 +3,18 @@ using Enforcer.Common.Application.EventBus;
 using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
-using Enforcer.Modules.ApiServices.IntegrationEvents;
+using Enforcer.Modules.ApiServices.IntegrationEvents.Subscriptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.ChangeSubscriptionPlan;
 
 internal sealed class SubscriptionPlanChangedEventHandler(
     IPlanRepository planRepository,
-    IQuotaUsageRepository quotaRepository,
+    IApiUsageRepository apiUsageRepository,
     IEventBus eventBus,
-    IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionPlanChangedEvent>
+    [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionPlanChangedEvent>
 {
     public async Task Handle(SubscriptionPlanChangedEvent domainEvent, CancellationToken cancellationToken = default)
     {
@@ -38,8 +39,10 @@ internal sealed class SubscriptionPlanChangedEventHandler(
 
     private async Task ResetQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct)
     {
-        var quotaUsage = await quotaRepository.GetBySubscriptionIdAsync(subscriptionId, ct);
-        quotaUsage!.ResetQuota(plan.QuotaLimit, plan.QuotaResetPeriod, forceReset: true);
-        quotaRepository.Update(quotaUsage);
+        // TODO: handle overages
+
+        var apiUsage = await apiUsageRepository.GetBySubscriptionIdAsync(subscriptionId, ct);
+        apiUsage!.ResetQuota(plan.QuotaLimit, plan.QuotaResetPeriod, forceReset: true);
+        apiUsageRepository.Update(apiUsage);
     }
 }

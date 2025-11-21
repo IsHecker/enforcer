@@ -23,6 +23,5 @@ public sealed class Rating : Entity
     public void Update(byte newValue)
     {
         Value = newValue;
-        UpdatedAt = DateTime.UtcNow;
     }
 }

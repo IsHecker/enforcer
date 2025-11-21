@@ -1,4 +1,3 @@
-using System.Data;
 using Enforcer.Modules.Analytics.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,5 +10,8 @@ public class EndpointStatConfiguration : IEntityTypeConfiguration<EndpointStat>
     {
         builder.Property("_dailyCallCount")
             .HasColumnName("DailyCallCount");
+
+        builder.Property("_dailyCountDate")
+            .HasColumnName("DailyCountDate");
     }
 }

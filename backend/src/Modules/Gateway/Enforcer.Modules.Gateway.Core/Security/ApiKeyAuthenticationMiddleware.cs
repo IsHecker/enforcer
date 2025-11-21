@@ -14,7 +14,7 @@ public sealed class ApiKeyAuthenticationMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context, IApiServicesApi servicesApi)
     {
         var requestContext = context.GetRequestContext();
-        var serviceKey = requestContext.ServiceKey!;
+        var apiServiceId = requestContext.ApiService!.Id;
         var apiKey = ExtractApiKey(context);
 
         if (string.IsNullOrWhiteSpace(apiKey))
@@ -23,7 +23,7 @@ public sealed class ApiKeyAuthenticationMiddleware(RequestDelegate next)
             return;
         }
 
-        var subscription = await servicesApi.GetSubscriptionForServiceAsync(apiKey, serviceKey);
+        var subscription = await servicesApi.GetSubscriptionForServiceAsync(apiKey, apiServiceId);
 
         if (subscription is null)
         {

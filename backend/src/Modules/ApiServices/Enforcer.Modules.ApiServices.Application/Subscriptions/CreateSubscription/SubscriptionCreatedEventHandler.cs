@@ -3,18 +3,20 @@ using Enforcer.Common.Application.EventBus;
 using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.ApiUsages;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
-using Enforcer.Modules.ApiServices.Domain.Usages;
-using Enforcer.Modules.ApiServices.IntegrationEvents;
+using Enforcer.Modules.ApiServices.IntegrationEvents.Subscriptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
 
 internal sealed class SubscriptionCreatedEventHandler(
     IPlanRepository planRepository,
-    IQuotaUsageRepository quotaRepository,
+    IApiUsageRepository apiUsageRepository,
     IEventBus eventBus,
-    IUnitOfWork unitOfWork) : IDomainEventHandler<SubscriptionCreatedEvent>
+    [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork)
+    : IDomainEventHandler<SubscriptionCreatedEvent>
 {
     public async Task Handle(SubscriptionCreatedEvent domainEvent, CancellationToken cancellationToken = default)
     {
@@ -22,7 +24,7 @@ internal sealed class SubscriptionCreatedEventHandler(
         if (plan is null)
             throw new EnforcerException("plan is null");
 
-        await CreateQuotaUsageAsync(domainEvent.SubscriptionId, plan, cancellationToken);
+        await CreateApiUsageAsync(domainEvent.SubscriptionId, plan, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -31,6 +33,7 @@ internal sealed class SubscriptionCreatedEventHandler(
                 domainEvent.Id,
                 domainEvent.OccurredOnUtc,
                 domainEvent.ApiServiceId,
+                domainEvent.SubscriptionId,
                 plan.Id,
                 domainEvent.ConsumerId
             ),
@@ -38,13 +41,13 @@ internal sealed class SubscriptionCreatedEventHandler(
         );
     }
 
-    private async Task CreateQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct = default)
+    private async Task CreateApiUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct = default)
     {
-        var quotaUsage = QuotaUsage.Create(subscriptionId, plan.QuotaLimit, plan.QuotaResetPeriod);
+        var apiUsage = ApiUsage.Create(subscriptionId, plan.QuotaLimit, plan.QuotaResetPeriod);
 
-        if (quotaUsage.IsFailure)
+        if (apiUsage.IsFailure)
             throw new EnforcerException("couldn't create quota usage");
 
-        await quotaRepository.AddAsync(quotaUsage.Value, ct);
+        await apiUsageRepository.AddAsync(apiUsage.Value, ct);
     }
 }

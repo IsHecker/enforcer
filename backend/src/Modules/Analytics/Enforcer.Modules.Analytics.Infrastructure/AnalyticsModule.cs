@@ -7,14 +7,16 @@ using Enforcer.Modules.Analytics.Application.Abstractions.Repositories;
 using Enforcer.Modules.Analytics.Infrastructure.ApiServiceStats;
 using Enforcer.Modules.Analytics.Infrastructure.Database;
 using Enforcer.Modules.Analytics.Infrastructure.EndpointStats;
+using Enforcer.Modules.Analytics.Infrastructure.PlanStats;
 using Enforcer.Modules.Analytics.Infrastructure.Ratings;
 using Enforcer.Modules.Analytics.Infrastructure.SubscriptionStats;
-using Enforcer.Modules.Analytics.Presentation.IntegrationEvents;
+using Enforcer.Modules.Analytics.Presentation.IntegrationEventConsumers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Enforcer.Modules.Analytics.Infrastructure;
 
@@ -40,6 +42,7 @@ public static class AnalyticsModule
         registrationConfigurator.AddConsumer<SubscriptionCreatedIntegrationEventConsumer>();
         registrationConfigurator.AddConsumer<SubscriptionCanceledIntegrationEventConsumer>();
         registrationConfigurator.AddConsumer<SubscriptionPlanChangedIntegrationEventConsumer>();
+        registrationConfigurator.AddConsumer<PlanCreatedIntegrationEventConsumer>();
     }
 
     private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -49,14 +52,16 @@ public static class AnalyticsModule
                     configuration.GetConnectionString("Database"),
                     sqlOpts => sqlOpts
                         .MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Analytics))
-                .AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>()));
+                .AddInterceptors(sp.GetRequiredService<PublishDomainEventsInterceptor>())
+                .LogTo(_ => { }, LogLevel.None));
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AnalyticsDbContext>());
+        services.AddKeyedScoped<IUnitOfWork>(nameof(Analytics), (sp, _) => sp.GetRequiredService<AnalyticsDbContext>());
         services.AddScoped<IAnalyticsDbContext>(sp => sp.GetRequiredService<AnalyticsDbContext>());
 
         services.AddScoped<IApiServiceStatRepository, ApiServiceStatRepository>();
         services.AddScoped<IEndpointStatRepository, EndpointStatRepository>();
-        services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<ISubscriptionStatRepository, SubscriptionStatRepository>();
+        services.AddScoped<IPlanStatRepository, PlanStatRepository>();
+        services.AddScoped<IRatingRepository, RatingRepository>();
     }
 }

@@ -1,4 +1,4 @@
-using Enforcer.Modules.ApiServices.Domain.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiKeyBans;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

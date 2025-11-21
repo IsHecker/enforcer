@@ -14,6 +14,7 @@ public sealed class AnalyticsDbContext : DbContext, IUnitOfWork, IAnalyticsDbCon
    public DbSet<ApiServiceStat> ApiServiceStats { get; init; }
    public DbSet<EndpointStat> EndpointStats { get; init; }
    public DbSet<SubscriptionStat> SubscriptionStats { get; init; }
+   public DbSet<PlanStat> PlanStats { get; init; }
    public DbSet<Rating> Ratings { get; init; }
 
    protected override void OnModelCreating(ModelBuilder modelBuilder)

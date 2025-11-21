@@ -6,18 +6,17 @@ namespace Enforcer.Modules.Analytics.Application.ApiServiceStats;
 public static class ApiServiceStatMapper
 {
     public static ApiServiceStatResponse ToResponse(this ApiServiceStat apiServiceStat) =>
-        new()
-        {
-            Id = apiServiceStat.Id,
-            ApiServiceId = apiServiceStat.ApiServiceId,
-            ActiveSubscribers = apiServiceStat.ActiveSubscribers,
-            AverageRating = apiServiceStat.AverageRating,
-            AverageResponseTimeMs = apiServiceStat.AverageResponseTimeMs,
-            FailedApiCalls = apiServiceStat.FailedApiCalls,
-            SuccessfulApiCalls = apiServiceStat.SuccessfulApiCalls,
-            TotalApiCalls = apiServiceStat.TotalApiCalls,
-            TotalRatings = apiServiceStat.TotalRatings,
-            TotalSubscribers = apiServiceStat.TotalSubscribers,
-            UptimePercentage = apiServiceStat.UptimePercentage
-        };
+        new(
+            apiServiceStat.Id,
+            apiServiceStat.ApiServiceId,
+            apiServiceStat.TotalApiCalls,
+            apiServiceStat.SuccessfulApiCalls,
+            apiServiceStat.FailedApiCalls,
+            apiServiceStat.UptimePercentage,
+            apiServiceStat.AverageResponseTimeMs,
+            apiServiceStat.ActiveSubscribers,
+            apiServiceStat.TotalSubscribers,
+            apiServiceStat.AverageRating,
+            apiServiceStat.TotalRatings
+        );
 }

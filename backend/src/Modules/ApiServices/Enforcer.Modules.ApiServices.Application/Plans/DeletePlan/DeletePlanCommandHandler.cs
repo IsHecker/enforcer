@@ -1,7 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Endpoints;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.DeletePlan;
 

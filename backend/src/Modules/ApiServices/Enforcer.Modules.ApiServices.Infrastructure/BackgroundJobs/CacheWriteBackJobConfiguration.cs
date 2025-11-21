@@ -3,13 +3,16 @@ using Quartz;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.BackgroundJobs;
 
-internal sealed class CacheWriteBackJobConfiguration(IOptions<WriteBackOptions> writeBackOptions)
+internal sealed class CacheWriteBackJobConfiguration(IOptions<WriteBackOptions> options)
     : IConfigureOptions<QuartzOptions>
 {
-    private readonly WriteBackOptions _writeBackOptions = writeBackOptions.Value;
+    private readonly WriteBackOptions _options = options.Value;
 
     public void Configure(QuartzOptions options)
     {
+        if (!_options.Enabled)
+            return;
+
         string jobName = typeof(CacheWriteBackJob).FullName!;
 
         options
@@ -18,6 +21,6 @@ internal sealed class CacheWriteBackJobConfiguration(IOptions<WriteBackOptions> 
                 configure
                     .ForJob(jobName)
                     .WithSimpleSchedule(schedule =>
-                        schedule.WithIntervalInSeconds(_writeBackOptions.IntervalInSeconds).RepeatForever()));
+                        schedule.WithIntervalInSeconds(_options.IntervalInSeconds).RepeatForever()));
     }
 }

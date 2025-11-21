@@ -3,7 +3,7 @@ using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForPlan;

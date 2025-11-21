@@ -1,5 +1,5 @@
 using Enforcer.Common.Application.Data;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Endpoints;
 
 namespace Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 

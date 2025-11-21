@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Enforcer.Common.Presentation\Enforcer.Common.Presentation.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.Billings.Application\Enforcer.Modules.Billings.Application.csproj" />
+  </ItemGroup>
+</Project>

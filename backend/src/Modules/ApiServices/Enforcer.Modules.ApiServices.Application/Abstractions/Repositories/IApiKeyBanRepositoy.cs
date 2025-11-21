@@ -1,5 +1,5 @@
 using Enforcer.Common.Application.Data;
-using Enforcer.Modules.ApiServices.Domain.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiKeyBans;
 
 namespace Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 

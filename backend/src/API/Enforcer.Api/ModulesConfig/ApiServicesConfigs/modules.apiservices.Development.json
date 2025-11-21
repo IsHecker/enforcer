@@ -1,0 +1,13 @@
+{
+  "ApiServices": {
+    "WriteBack": {
+      "Enabled": false,
+      "IntervalInSeconds": 15
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Microsoft.EntityFrameworkCore": "None"
+    }
+  }
+}

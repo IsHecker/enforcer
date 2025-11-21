@@ -8,5 +8,6 @@ public interface IAnalyticsDbContext
     DbSet<ApiServiceStat> ApiServiceStats { get; }
     DbSet<EndpointStat> EndpointStats { get; }
     DbSet<SubscriptionStat> SubscriptionStats { get; }
+    DbSet<PlanStat> PlanStats { get; }
     DbSet<Rating> Ratings { get; }
 }

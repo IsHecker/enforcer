@@ -20,7 +20,7 @@ internal sealed class UpdatePlan : IEndpoint
                 planId,
                 request.PlanType,
                 request.Name,
-                request.Price,
+                request.PriceInCents,
                 request.BillingPeriod,
                 request.QuotaLimit,
                 request.QuotaResetPeriod,
@@ -42,7 +42,7 @@ internal sealed class UpdatePlan : IEndpoint
     internal readonly record struct Request(
         string PlanType,
         string Name,
-        float? Price,
+        long PriceInCents,
         string? BillingPeriod,
         int QuotaLimit,
         string QuotaResetPeriod,

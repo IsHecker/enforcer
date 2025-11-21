@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Checkout & Setup Integration Tester</title>
+
+    <!-- Using Tailwind for a modern, responsive pricing grid and utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- 🎨 Custom Dark Theme Styling -->
+    <style>
+        :root {
+            --color-bg-dark: #0a0a0a;
+            /* Deep Black */
+            --color-surface-dark: #1f1f1f;
+            /* Surface */
+            --color-text-light: #e0e0e0;
+            --color-text-subtle: #a3a3a3;
+            --color-primary: #8b5cf6;
+            /* Violet-500 */
+            --color-primary-hover: #7c3aed;
+            /* Violet-600 */
+            --color-success-bg: #14532d;
+            --color-success-text: #86efac;
+            --color-error-bg: #7f1d1d;
+            --color-error-text: #fca5a5;
+            --color-border: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--color-surface-dark);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .featured-card {
+            border-color: var(--color-primary);
+            background: #252438;
+            /* Slightly darker violet tone */
+            box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2), 0 8px 10px -6px rgba(139, 92, 246, 0.1);
+        }
+
+        .loading-spinner {
+            border-top-color: var(--color-primary);
+            border-left-color: var(--color-primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Custom card style for the setup section */
+        #setup-section .inner-card {
+            background-color: #1e1e1e;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col items-center">
+    <div class="max-w-7xl w-full mx-auto">
+        <header class="text-center py-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-3">Stripe Integration Tester</h1>
+            <p class="text-xl text-violet-300">Test both Subscription Checkout and Payment Method Setup.</p>
+        </header>
+
+        <!-- Global Status Messages Container (Spans full width) -->
+        <div id="status-container" class="my-6 max-w-4xl mx-auto hidden">
+            <!-- Message will be injected here -->
+        </div>
+
+        <!-- MAIN SINGLE-COLUMN LAYOUT (Horizontal Sections) -->
+        <div class="max-w-4xl mx-auto w-full space-y-12">
+
+            <!-- 1. CHECKOUT SESSION SECTION (Subscriptions) -->
+            <div id="checkout-section" class="p-6 card rounded-xl">
+                <h2 class="text-3xl font-bold text-white mb-8">1. Subscription Checkout</h2>
+                <p class="text-gray-400 mb-8">
+                    Initiates a **Checkout Session** for a recurring subscription plan. You will be redirected to the
+                    Stripe-hosted payment page.
+                </p>
+
+                <!-- Use a grid inside the section to showcase the pricing tiers -->
+                <div id="pricing-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Product cards will be dynamically rendered here -->
+                </div>
+            </div>
+
+            <!-- 2. SETUP SESSION SECTION (Payment Method Update) -->
+            <div id="setup-section" class="p-6 card rounded-xl">
+                <h2 class="text-3xl font-bold text-white mb-8">2. Payment Method Setup</h2>
+                <p class="text-gray-400 mb-6">
+                    Initiates a **Setup Session** to securely add or update a payment method (card, bank, etc.) for an
+                    existing customer without charging them.
+                </p>
+
+                <div class="inner-card p-6 rounded-xl border border-violet-500/50">
+                    <h3 class="text-xl font-semibold mb-4 text-violet-300">Update Customer's Card</h3>
+                    <p class="text-sm text-gray-400 mb-4 text-center">
+                        Target Customer ID: <code id="customer-id-display"
+                            class="bg-gray-700 px-2 py-1 rounded-md text-violet-300">Loading...</code>
+                    </p>
+                    <button id="setup-btn" onclick="setupPaymentMethod()"
+                        class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 w-full rounded-lg transition duration-200">
+                        <span id="setup-button-text">Add/Update Payment Method</span>
+                    </button>
+                    <!-- Local status message for Setup Session -->
+                    <div id="setup-status-message" class="mt-4 hidden text-sm"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Loading Indicator (Full Screen Overlay) -->
+        <div id="loading-spinner"
+            class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center z-50">
+            <div class="text-center p-8 bg-gray-800 rounded-xl shadow-2xl">
+                <div class="loading-spinner w-10 h-10 border-4 border-gray-600 rounded-full mx-auto mb-3"></div>
+                <p class="text-white text-lg font-semibold">Redirecting to Stripe...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ⚙️ Configuration -->
+    <script>
+        const CONFIG = {
+            // --- Checkout Session Config ---
+            CHECKOUT_SESSION_URL: "http://localhost:5115/api/payments/create-checkout-session",
+
+            // --- Setup Session Config ---
+            SETUP_SESSION_URL: "http://localhost:5115/api/payments/create-setup-session",
+            CUSTOMER_ID: "cus_AAAAAAAAAAAAAAAAAAAAAA", // 🛑 CHANGE THIS: Test Customer ID
+
+            // Product data for Checkout Sessions. 'Id' should be the Stripe Price ID.
+            products: [
+                {
+                    Id: '87224376-106e-4a4a-b4e3-616c0ea3fbfe',
+                    Name: 'poor tier',
+                    Type: 'Free',
+                    Price: 0.00,
+                    BillingPeriod: 'Monthly',
+                    QuotaLimit: 50,
+                    Features: ["sick"],
+                    TierLevel: 1
+                },
+                {
+                    Id: 'ee15aa00-5c48-4000-9b97-638c1c21221c',
+                    Name: 'sick pro tier',
+                    Type: 'Pro',
+                    Price: 99.00,
+                    BillingPeriod: 'Monthly',
+                    QuotaLimit: 1000,
+                    Features: ["Feature set #597", "includes quotas", "rate-limits", "premium endpoints."],
+                    TierLevel: 2
+                },
+                {
+                    Id: 'e67ef12b-49d3-490a-afa7-82d6fef2b47f',
+                    Name: 'test plan',
+                    Type: 'Enterprise',
+                    Price: 5150.00,
+                    BillingPeriod: 'Yearly',
+                    QuotaLimit: 3000,
+                    Features: ["test please"],
+                    TierLevel: 3
+                }
+            ]
+        };
+    </script>
+
+    <!-- 🖥️ Functionality (JavaScript) -->
+    <script>
+        const gridEl = document.getElementById('pricing-grid');
+        const statusContainerEl = document.getElementById('status-container');
+        const loadingEl = document.getElementById('loading-spinner');
+
+        // =======================================================
+        // UTILITY FUNCTIONS
+        // =======================================================
+
+        /**
+         * Shows a success or error message banner in the global container.
+         * @param {string} message - The message text.
+         * @param {boolean} isError - True for error, false for success.
+         */
+        function showMessage(message, isError = false) {
+            statusContainerEl.classList.remove('hidden');
+            statusContainerEl.innerHTML = `
+                <div class="p-4 rounded-xl font-semibold text-center transition-opacity duration-500
+                    ${isError ? 'bg-red-900/50 text-error-text border border-red-700' : 'bg-green-900/50 text-success-text border border-green-700'}">
+                    ${message}
+                </div>
+            `;
+        }
+
+        /**
+         * Shows or hides the full-screen loading overlay.
+         * @param {boolean} isLoading - Whether to show the spinner.
+         */
+        function showLoading(isLoading) {
+            loadingEl.classList.toggle('hidden', !isLoading);
+
+            // Toggle opacity/interactivity on the main sections when loading
+            document.getElementById('checkout-section').classList.toggle('opacity-30', isLoading);
+            document.getElementById('checkout-section').classList.toggle('pointer-events-none', isLoading);
+            document.getElementById('setup-section').classList.toggle('opacity-30', isLoading);
+            document.getElementById('setup-section').classList.toggle('pointer-events-none', isLoading);
+        }
+
+        // Utility function to get the current base URL without query parameters
+        function getCurrentBaseUrl() {
+            // This grabs the protocol, host, and path of the current page.
+            return window.location.href.split('?')[0];
+        }
+
+
+        // =======================================================
+        // 1. CHECKOUT SESSION LOGIC (Subscriptions)
+        // =======================================================
+
+        /**
+         * Initiates a Stripe Checkout Session on the backend.
+         * @param {string} productId - The ID of the Product/Price to subscribe to (used as ProductId in the backend request).
+         */
+        async function createCheckoutSession(productId) {
+            showLoading(true);
+            statusContainerEl.classList.add('hidden'); // Clear previous global messages
+
+            // Return URL includes success/canceled query parameters
+            const returnUrl = getCurrentBaseUrl();
+
+            try {
+                const response = await fetch(CONFIG.CHECKOUT_SESSION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        // Must match the C# record structure: Request(ReturnUrl, ProductItems)
+                        ReturnUrl: returnUrl,
+                        PlanId: productId
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+
+                const stripeCheckoutUrl = data.url;
+
+                if (stripeCheckoutUrl) {
+                    // Redirect to Stripe's hosted Checkout Page
+                    window.location.href = stripeCheckoutUrl;
+                } else {
+                    throw new Error("Missing 'url' property in the backend response. Cannot redirect.");
+                }
+
+            } catch (error) {
+                console.error('Checkout Session Error:', error);
+                showMessage(`Failed to start Checkout: ${error.message}`, true);
+                showLoading(false);
+            }
+        }
+
+
+        // =======================================================
+        // 2. SETUP SESSION LOGIC (Add Payment Method)
+        // =======================================================
+
+        async function setupPaymentMethod() {
+            const setupButtonText = document.getElementById('setup-button-text');
+            const setupStatusEl = document.getElementById('setup-status-message');
+
+            showLoading(true);
+            setupButtonText.textContent = "Redirecting to Stripe...";
+            setupStatusEl.classList.add('hidden'); // Clear local message
+
+            // Return URL includes stripe-status query parameter
+            const returnUrl = getCurrentBaseUrl();
+
+            try {
+                const response = await fetch(CONFIG.SETUP_SESSION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerId: CONFIG.CUSTOMER_ID,
+                        returnUrl: returnUrl
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || `Server status ${response.status}`);
+                }
+
+                const stripeCheckoutUrl = data.url;
+
+                if (stripeCheckoutUrl) {
+                    window.location.href = stripeCheckoutUrl;
+                } else {
+                    throw new Error("Missing 'url' property in the backend response. Cannot redirect.");
+                }
+
+            } catch (error) {
+                console.error('Setup Session error:', error);
+
+                // Show error message locally in the setup section
+                setupStatusEl.classList.remove('hidden');
+                setupStatusEl.innerHTML = `<div class="p-3 rounded-lg bg-red-900/50 text-error-text border border-red-700">Setup Failed: ${error.message}</div>`;
+
+                // Re-enable button and reset text
+                setupButtonText.textContent = "Add/Update Payment Method";
+                showLoading(false); // Hide global loading overlay
+            }
+        }
+
+
+        // =======================================================
+        // UI RENDERING AND INITIALIZATION
+        // =======================================================
+
+        /**
+         * Renders a single product card element.
+         * @param {object} product - The product plan object.
+         */
+        function renderProductCard(product) {
+            const isFeatured = product.TierLevel === 2; // Feature the Pro plan
+
+            const cardClass = isFeatured
+                ? 'card featured-card ring-2 ring-violet-500'
+                : 'card';
+
+            const buttonClass = isFeatured
+                ? 'bg-violet-500 hover:bg-violet-400 text-white font-bold py-3 px-6 shadow-xl'
+                : 'bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6';
+
+            // Feature list rendering
+            const featuresHtml = product.Features ? product.Features.map(feature => `
+                <li class="flex items-start mb-2">
+                    <svg class="h-5 w-5 text-green-400 mr-2 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-sm text-gray-300">${feature}</span>
+                </li>
+            `).join('') : '';
+
+            const card = document.createElement('div');
+            card.className = `${cardClass} rounded-xl p-6 flex flex-col justify-between`;
+            card.innerHTML = `
+                <div>
+                    <h3 class="text-2xl font-extrabold ${isFeatured ? 'text-violet-300' : 'text-white'} mb-2">${product.Name}</h3>
+                    <p class="text-sm text-gray-400 mb-6">${product.BillingPeriod} billing</p>
+
+                    <div class="mb-6">
+                        <span class="text-5xl font-extrabold text-white">$${product.Price.toFixed(2)}</span>
+                        <span class="text-lg font-medium text-gray-400">/${product.BillingPeriod.toLowerCase().slice(0, 3)}</span>
+                    </div>
+
+                    <ul class="text-left space-y-3 mb-8">
+                        ${featuresHtml}
+                    </ul>
+                </div>
+
+                <button 
+                    onclick="createCheckoutSession('${product.Id}')"
+                    class="${buttonClass} w-full rounded-lg transition duration-200">
+                    Subscribe Now
+                </button>
+            `;
+            gridEl.appendChild(card);
+        }
+
+        /**
+         * Initializes the page by rendering products and checking for return status.
+         */
+        function initialize() {
+            // 1. Render all product cards
+            CONFIG.products.forEach(renderProductCard);
+
+            // Display Customer ID for Setup section
+            document.getElementById('customer-id-display').textContent = CONFIG.CUSTOMER_ID;
+
+            // 2. Check for return status from Stripe
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // --- Checkout Status ---
+            const successParam = urlParams.get('success');
+            const canceledParam = urlParams.get('canceled');
+
+            if (successParam === 'true') {
+                showMessage('Checkout successful! Subscription created/updated. Check your backend logs for the event data.', false);
+            } else if (canceledParam === 'true') {
+                showMessage('Checkout canceled by the user. No changes were made.', true);
+            }
+
+            // --- Setup Session Status ---
+            const setupStatus = urlParams.get('stripe-status');
+            const setupStatusEl = document.getElementById('setup-status-message');
+
+            if (setupStatus === 'success') {
+                setupStatusEl.classList.remove('hidden');
+                setupStatusEl.innerHTML = '<div class="p-3 rounded-lg bg-green-900/50 text-success-text border border-green-700">Payment method successfully saved!</div>';
+            } else if (setupStatus === 'canceled') {
+                setupStatusEl.classList.remove('hidden');
+                setupStatusEl.innerHTML = '<div class="p-3 rounded-lg bg-red-900/50 text-error-text border border-red-700">Payment method setup canceled.</div>';
+            }
+
+            // Clean up the URL params after displaying the message to allow re-testing
+            if (successParam || canceledParam || setupStatus) {
+                // Use history.replaceState to remove query params without full page reload
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+
+</html>

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions;
@@ -68,13 +69,17 @@ public sealed class Subscription : Entity
 
         ExpiresAt = CalculateExpiration(DateTime.UtcNow, Plan.BillingPeriod)!;
 
-        Raise(new SubscriptionRenewedEvent(Id, ConsumerId, PlanId, ExpiresAt.Value));
-
         return Result.Success;
     }
 
-    public Result Cancel()
+    public Result Cancel(bool isImmediate = false)
     {
+        if (isImmediate)
+        {
+            Raise(new SubscriptionCanceledEvent(Id, ApiServiceId, PlanId));
+            return Result.Success;
+        }
+
         if (IsCanceled)
             return SubscriptionErrors.AlreadyCanceled;
 
@@ -83,7 +88,7 @@ public sealed class Subscription : Entity
 
         IsCanceled = true;
 
-        Raise(new SubscriptionCanceledEvent(Id, ApiServiceId, PlanId, ExpiresAt));
+        Raise(new SubscriptionCanceledEvent(Id, ApiServiceId, PlanId));
 
         return Result.Success;
     }

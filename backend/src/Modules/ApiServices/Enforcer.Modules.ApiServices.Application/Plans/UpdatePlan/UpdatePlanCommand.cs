@@ -6,7 +6,7 @@ public sealed record UpdatePlanCommand(
     Guid PlanId,
     string PlanType,
     string Name,
-    float? Price,
+    long PriceInCents,
     string? BillingPeriod,
     int QuotaLimit,
     string QuotaResetPeriod,

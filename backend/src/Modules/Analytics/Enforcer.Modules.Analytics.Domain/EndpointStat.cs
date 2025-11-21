@@ -6,14 +6,12 @@ namespace Enforcer.Modules.Analytics.Domain;
 public class EndpointStat : Entity
 {
     private long _dailyCallCount;
+    private DateTime _dailyCountDate;
 
     public Guid EndpointId { get; private set; }
 
     public long TotalApiCalls { get; private set; }
     public long FailedApiCalls { get; private set; }
-
-    public DateTime DailyCountDate { get; private set; }
-
     public float TotalResponseTimeMs { get; private set; }
 
     public float AverageResponseTimeMs => TotalApiCalls == 0 ? 0 : float.Round(TotalResponseTimeMs / TotalApiCalls, 3);
@@ -42,20 +40,24 @@ public class EndpointStat : Entity
         if (!IsSuccessfulResponse(statusCode))
             FailedApiCalls++;
 
-        if (ShouldResetDailyCount())
-        {
-            _dailyCallCount = 0;
-            DailyCountDate = DateTime.UtcNow.Date;
-        }
-
+        _dailyCallCount = GetCurrentDailyCallCount();
         _dailyCallCount++;
-
-        UpdatedAt = DateTime.UtcNow;
     }
 
-    public long GetCurrentDailyCallCount() => ShouldResetDailyCount() ? 0 : _dailyCallCount;
+    public long GetCurrentDailyCallCount()
+    {
+        if (!IsNewDay())
+        {
+            return _dailyCallCount;
+        }
 
-    private bool ShouldResetDailyCount() => DailyCountDate.Date != DateTime.UtcNow.Date;
+        _dailyCallCount = 0;
+        _dailyCountDate = DateTime.UtcNow.Date;
+
+        return _dailyCallCount;
+    }
+
+    private bool IsNewDay() => _dailyCountDate.Date != DateTime.UtcNow.Date;
 
     private static bool IsSuccessfulResponse(HttpStatusCode statusCode) => statusCode < HttpStatusCode.InternalServerError;
 }

@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Enforcer.Modules.Billings.Application\Enforcer.Modules.Billings.Application.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.Billings.Presentation\Enforcer.Modules.Billings.Presentation.csproj" />
+    <ProjectReference Include="..\..\..\Common\Enforcer.Common.Infrastructure\Enforcer.Common.Infrastructure.csproj" />
+
+    <ProjectReference Include="..\..\ApiServices\Enforcer.Modules.ApiServices.PublicApi\Enforcer.Modules.ApiServices.PublicApi.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Stripe.net" Version="49.2.0" />
+  </ItemGroup>
+</Project>

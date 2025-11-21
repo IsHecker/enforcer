@@ -1,2 +1,7 @@
-- dotnet ef migrations add migrationName -p "dbContext project relative path" -s "src\API\Enforcer.Api\Enforcer.Api.csproj"  --context [dbContextName]
-- dotnet ef database update -p "dbContext project relative path" -s "src\API\Enforcer.Api\Enforcer.Api.csproj"
+- dotnet ef migrations add migrationName -p "src\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj" -o Database\Migrations --context ApiServicesDbContext
+- dotnet ef migrations add migrationName -p "src\Modules\Analytics\Enforcer.Modules.Analytics.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj" -o Database\Migrations --context AnalyticsDbContext
+- dotnet ef migrations add migrationName -p "src\Modules\Billings\Enforcer.Modules.Billings.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj" -o Database\Migrations --context BillingsDbContext
+
+- dotnet ef database update -p "src\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj"  --context ApiServicesDbContext
+- dotnet ef database update -p "src\Modules\Analytics\Enforcer.Modules.Analytics.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj" --context AnalyticsDbContext
+- dotnet ef database update -p "src\Modules\Billings\Enforcer.Modules.Billings.Infrastructure" -s "src\API\Enforcer.Api\Enforcer.Api.csproj" --context BillingsDbContext

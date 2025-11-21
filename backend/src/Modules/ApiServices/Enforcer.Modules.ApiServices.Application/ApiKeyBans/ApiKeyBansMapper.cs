@@ -1,5 +1,5 @@
 using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
-using Enforcer.Modules.ApiServices.Domain.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiKeyBans;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiKeyBans;
 

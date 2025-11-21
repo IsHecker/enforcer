@@ -4,28 +4,39 @@ namespace Enforcer.Modules.Analytics.Domain;
 
 public class SubscriptionStat : Entity
 {
+    private long _apiCallsUsedThisMonth;
+    private DateTime _monthUsageDate;
+
     public Guid SubscriptionId { get; private set; }
     public long TotalApiCalls { get; private set; }
-    public long ApiCallsUsedThisMonth { get; private set; }
-    public decimal MonthlyUsageRate { get; private set; }
-    public int DaysRemainingInBilling { get; private set; }
-    public decimal CurrentBill { get; private set; }
-    public decimal MonthlySpend { get; private set; }
-    public DateTime MonthUsageDate { get; private set; }
+
+    public static SubscriptionStat Create(Guid subscriptionId)
+    {
+        return new SubscriptionStat
+        {
+            SubscriptionId = subscriptionId
+        };
+    }
 
     public void RecordApiCall()
     {
         TotalApiCalls++;
 
-        // Reset monthly counter if new month
-        if (MonthUsageDate.Month != DateTime.UtcNow.Month ||
-            MonthUsageDate.Year != DateTime.UtcNow.Year)
-        {
-            ApiCallsUsedThisMonth = 0;
-            MonthUsageDate = DateTime.UtcNow.Date;
-        }
-
-        ApiCallsUsedThisMonth++;
-        UpdatedAt = DateTime.UtcNow;
+        _apiCallsUsedThisMonth = GetApiCallsUsedThisMonth();
+        _apiCallsUsedThisMonth++;
     }
+
+    public long GetApiCallsUsedThisMonth()
+    {
+        if (!IsNewMonth())
+            return _apiCallsUsedThisMonth;
+
+        _apiCallsUsedThisMonth = 0;
+        _monthUsageDate = DateTime.UtcNow.Date;
+
+        return _apiCallsUsedThisMonth;
+    }
+
+    private bool IsNewMonth() => _monthUsageDate.Month != DateTime.UtcNow.Month
+        || _monthUsageDate.Year != DateTime.UtcNow.Year;
 }

@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.GetPlanById;

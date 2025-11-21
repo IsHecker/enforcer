@@ -3,7 +3,7 @@ using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
 
@@ -18,7 +18,7 @@ internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) :
         var updateResult = plan.Update(
             request.PlanType.ToEnum<PlanType>(),
             request.Name,
-            request.Price,
+            request.PriceInCents,
             request.BillingPeriod?.ToEnum<BillingPeriod>(),
             request.QuotaLimit,
             request.QuotaResetPeriod.ToEnum<QuotaResetPeriod>(),

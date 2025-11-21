@@ -8,15 +8,18 @@ public class SubscriptionCreatedIntegrationEvent : IntegrationEvent
         Guid id,
         DateTime occurredOnUtc,
         Guid apiServiceId,
+        Guid subscriptionId,
         Guid planId,
         Guid consumerId) : base(id, occurredOnUtc)
     {
         ApiServiceId = apiServiceId;
         PlanId = planId;
         ConsumerId = consumerId;
+        SubscriptionId = subscriptionId;
     }
 
     public Guid ApiServiceId { get; init; }
     public Guid PlanId { get; init; }
+    public Guid SubscriptionId { get; init; }
     public Guid ConsumerId { get; init; }
 }

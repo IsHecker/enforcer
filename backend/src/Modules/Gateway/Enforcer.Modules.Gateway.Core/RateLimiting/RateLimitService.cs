@@ -9,7 +9,7 @@ public sealed class RateLimitService(ICacheService cacheService, ILogger<RateLim
 {
     private static readonly TimeSpan TokenBucketExpiration = TimeSpan.FromMinutes(5);
 
-    internal async Task<Result> ConsumeRateLimitTokenAsync(Guid subscriptionId, RateLimitConfig config)
+    internal async Task<Result> ConsumeRateLimitTokenAsync(Guid subscriptionId, RateLimitConfiguration config)
     {
         var tokenBucket = await GetOrCreateBucketAsync(subscriptionId, config);
 
@@ -38,7 +38,7 @@ public sealed class RateLimitService(ICacheService cacheService, ILogger<RateLim
         return Result.Success;
     }
 
-    private async Task<TokenBucket> GetOrCreateBucketAsync(Guid subscriptionId, RateLimitConfig config)
+    private async Task<TokenBucket> GetOrCreateBucketAsync(Guid subscriptionId, RateLimitConfiguration config)
     {
         var cached = await GetFromCacheAsync(subscriptionId, config.SourceId);
         if (cached.HasValue)

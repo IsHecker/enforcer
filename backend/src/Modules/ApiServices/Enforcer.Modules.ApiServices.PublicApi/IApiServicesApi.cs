@@ -4,7 +4,6 @@ using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
-using Enforcer.Modules.ApiServices.Contracts.Usages;
 
 namespace Enforcer.Modules.ApiServices.PublicApi;
 
@@ -16,7 +15,9 @@ public interface IApiServicesApi
     Task<IEnumerable<EndpointResponse>> ListEndpointsForServiceAsync(Guid apiServiceId,
         CancellationToken cancellationToken = default);
 
-    Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(string apiKey, string serviceKey, CancellationToken ct = default);
+    Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(string apiKey, Guid apiServiceId, CancellationToken ct = default);
+
+    Task<PlanResponse?> GetPlanByIdAsync(Guid planId, CancellationToken ct = default);
 
     Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken ct = default);
 
@@ -24,13 +25,10 @@ public interface IApiServicesApi
 
     Task<bool> IsSubscribedToRequiredPlanAsync(PlanResponse subscribedPlan, Guid requiredPlanId, CancellationToken ct = default);
 
-    Task<QuotaUsageResponse?> GetQuotaUsageAsync(
-        Guid subscriptionId,
-        Guid apiServiceId,
-        CancellationToken ct = default);
+    Task<Result> ConsumeQuotaAsync(Guid subscriptionId, PlanResponse plan);
 
-    Task<Result> ConsumeQuotaAsync(
-        Guid subscriptionId,
-        int quotaLimit,
-        string resetPeriod);
+    Task<List<SubscriptionResponse>> GetExpiredSubscriptions(int size, CancellationToken ct = default);
+
+    Task RenewSubscription(Guid subscriptionId, CancellationToken ct = default);
+    Task<int> DeleteExpiredSubscriptions(int size, CancellationToken ct = default);
 }

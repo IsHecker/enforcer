@@ -14,15 +14,21 @@ internal sealed class CancelSubscription : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPatch(ApiEndpoints.Subscriptions.CancelSubscription, async (Guid subscriptionId, ISender sender) =>
+        app.MapPatch(ApiEndpoints.Subscriptions.CancelSubscription, async (
+            Guid subscriptionId,
+            Request request,
+            ISender sender) =>
         {
             var result = await sender.Send(new CancelSubscriptionCommand(
                 subscriptionId,
-                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6")));
+                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
+                request.CancelImmediately));
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
         .WithTags(Tags.Subscriptions)
         .WithOpenApiName(nameof(CancelSubscription));
     }
+
+    internal readonly record struct Request(bool CancelImmediately);
 }

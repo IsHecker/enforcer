@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <UserSecretsId>f96eb13b-d421-42dc-b12f-2b0660b8df90</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
     <ProjectReference Include="..\..\Modules\Gateway\Enforcer.Modules.Gateway.Core\Enforcer.Modules.Gateway.Core.csproj" />
     <ProjectReference Include="..\..\Modules\ApiServices\Enforcer.Modules.ApiServices.Infrastructure\Enforcer.Modules.ApiServices.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Analytics\Enforcer.Modules.Analytics.Infrastructure\Enforcer.Modules.Analytics.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Billings\Enforcer.Modules.Billings.Infrastructure\Enforcer.Modules.Billings.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

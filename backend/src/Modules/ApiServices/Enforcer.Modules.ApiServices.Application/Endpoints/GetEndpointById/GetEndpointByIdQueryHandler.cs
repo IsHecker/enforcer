@@ -2,7 +2,7 @@ using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
-using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.Endpoints;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;

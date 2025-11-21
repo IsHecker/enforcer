@@ -1,7 +1,7 @@
 using Enforcer.Common.Application.EventBus;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
-using Enforcer.Modules.ApiServices.IntegrationEvents;
+using Enforcer.Modules.ApiServices.IntegrationEvents.Subscriptions;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CancelSubscription;
 

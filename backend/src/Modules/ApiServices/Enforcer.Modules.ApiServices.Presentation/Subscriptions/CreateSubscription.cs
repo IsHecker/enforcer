@@ -30,7 +30,7 @@ internal sealed class CreateSubscription : IEndpoint
     }
 
     internal readonly record struct Request(
-        Guid PlanId,
-        Guid ApiServiceId
+        Guid ApiServiceId,
+        Guid PlanId
     );
 }

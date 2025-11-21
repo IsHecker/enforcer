@@ -30,11 +30,9 @@ public sealed class RateLimitMiddleware(
             return;
         }
 
-        var plan = subscription.Plan!;
         var quotaResult = await servicesApi.ConsumeQuotaAsync(
             subscription.Id,
-            plan.QuotaLimit,
-            plan.QuotaResetPeriod);
+            subscription.Plan!);
 
         if (quotaResult.IsFailure)
         {
@@ -45,14 +43,14 @@ public sealed class RateLimitMiddleware(
         await next(context);
     }
 
-    private static RateLimitConfig DetermineRateLimitConfig(
+    private static RateLimitConfiguration DetermineRateLimitConfig(
         PlanResponse plan,
         EndpointResponse endpoint)
     {
         if (endpoint.RateLimit.HasValue)
             return new(endpoint.RateLimit.Value, endpoint.RateLimitWindow!.Value, endpoint.Id);
 
-        return new(plan.RateLimit, plan.RateLimitWindow, plan.PlanId);
+        return new(plan.RateLimit, plan.RateLimitWindow, plan.Id);
     }
 
     private static async Task ErrorResponse(HttpContext context, Error error)

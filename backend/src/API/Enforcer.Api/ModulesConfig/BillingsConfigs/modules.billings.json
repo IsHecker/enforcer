@@ -1,0 +1,22 @@
+{
+  "Billings": {
+    "SubscriptionRenewal": {
+      "Enabled": true,
+      "RunIntervalInMinutes": 5,
+      "BatchSize": 1000,
+      "MaxFailedPaymentRetries": 3,
+      "RetryDelayHours": 24,
+      "RenewalTimeoutSeconds": 60,
+      "ConcurrentRenewals": 10
+    },
+    "ExpiredSubscriptionCleanup": {
+      "Enabled": true,
+      "RunIntervalInMinutes": 15,
+      "BatchSize": 1000,
+      "ConcurrentCleanups": 5
+    },
+    "Stripe": {
+      "SuccessUrl": "whsec_123"
+    }
+  }
+}

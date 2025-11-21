@@ -1,14 +1,13 @@
 namespace Enforcer.Modules.Analytics.Contracts;
 
-public class EndpointStatResponse
-{
-    public Guid Id { get; init; }
-    public Guid EndpointId { get; init; }
-    public long TotalApiCalls { get; init; }
-    public long SuccessfulApiCalls { get; init; }
-    public long FailedApiCalls { get; init; }
-    public long DailyCallCount { get; init; }
-    public float SuccessRate { get; init; }
-    public float ErrorRate { get; init; }
-    public float AverageResponseTimeMs { get; init; }
-}
+public sealed record EndpointStatResponse(
+    Guid Id,
+    Guid EndpointId,
+    long TotalApiCalls,
+    long SuccessfulApiCalls,
+    long FailedApiCalls,
+    long DailyCallCount,
+    float SuccessRate,
+    float ErrorRate,
+    float AverageResponseTimeMs
+);

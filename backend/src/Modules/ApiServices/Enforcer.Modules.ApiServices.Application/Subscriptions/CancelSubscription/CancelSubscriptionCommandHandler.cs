@@ -18,11 +18,18 @@ internal sealed class CancelSubscriptionCommandHandler(
         if (subscription.ConsumerId != request.ConsumerId)
             return SubscriptionErrors.Unauthorized;
 
-        var cancelResult = subscription.Cancel();
+        var cancelResult = subscription.Cancel(request.IsImmediate);
         if (cancelResult.IsFailure)
             return cancelResult.Error;
 
-        subscriptionRepository.Update(subscription);
+        if (request.IsImmediate)
+        {
+            subscriptionRepository.Delete(subscription);
+        }
+        else
+        {
+            subscriptionRepository.Update(subscription);
+        }
 
         return Result.Success;
     }

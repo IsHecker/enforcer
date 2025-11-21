@@ -3,15 +3,17 @@ using Enforcer.Common.Application.EventBus;
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Domain.ApiServices.Events;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
-using Enforcer.Modules.ApiServices.IntegrationEvents;
+using Enforcer.Modules.ApiServices.Domain.Plans;
+using Enforcer.Modules.ApiServices.IntegrationEvents.ApiServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.ApiServices.Application.ApiServices.CreateApiService;
 
 public class ApiServiceCreatedEventHandler(
     IPlanRepository planRepository,
     IEventBus eventBus,
-    IUnitOfWork unitOfWork) : IDomainEventHandler<ApiServiceCreatedEvent>
+    [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork)
+    : IDomainEventHandler<ApiServiceCreatedEvent>
 {
     public async Task Handle(ApiServiceCreatedEvent domainEvent, CancellationToken cancellationToken)
     {

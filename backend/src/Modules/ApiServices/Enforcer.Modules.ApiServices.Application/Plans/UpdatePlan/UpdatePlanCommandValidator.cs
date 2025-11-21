@@ -1,6 +1,6 @@
 using Enforcer.Common.Application.Extensions;
 using Enforcer.Common.Domain.Enums.ApiServices;
-using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.ApiServices.Domain.Plans;
 using FluentValidation;
 
 namespace Enforcer.Modules.ApiServices.Application.Plans.UpdatePlan;
@@ -17,8 +17,9 @@ internal class UpdatePlanCommandValidator : AbstractValidator<UpdatePlanCommand>
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required.");
 
-        RuleFor(x => x.Price)
-            .GreaterThanOrEqualTo(0).When(x => x.Price.HasValue);
+        RuleFor(x => x.PriceInCents)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Price cannot be negative.");
 
         RuleFor(x => x.BillingPeriod!)
             .MustBeEnumValue<UpdatePlanCommand, BillingPeriod>()

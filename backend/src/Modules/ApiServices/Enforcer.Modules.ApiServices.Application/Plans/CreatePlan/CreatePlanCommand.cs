@@ -7,7 +7,7 @@ public readonly record struct CreatePlanCommand(
     Guid CreatorId,
     string PlanType,
     string Name,
-    int? Price,
+    long PriceInCents,
     string? BillingPeriod,
     int QuotaLimit,
     string QuotaResetPeriod,

@@ -1,6 +1,6 @@
 using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Domain.Usages;
+using Enforcer.Modules.ApiServices.Domain.ApiKeyBans;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 

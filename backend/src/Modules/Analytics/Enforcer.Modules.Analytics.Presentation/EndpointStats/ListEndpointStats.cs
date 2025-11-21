@@ -26,7 +26,7 @@ internal sealed class ListEndpointStats : IEndpoint
         })
         .WithTags(Tags.Analytics)
         .WithOpenApiName(nameof(ListEndpointStats))
-        .Produces<IReadOnlyList<EndpointStatResponse>>(StatusCodes.Status200OK);
+        .Produces<IEnumerable<EndpointStatResponse>>(StatusCodes.Status200OK);
     }
 
     internal readonly record struct QueryParameters(Guid[] EndpointIds);
