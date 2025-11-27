@@ -21,4 +21,11 @@ public class PaymentMethodRepository(BillingsDbContext context)
             .AsNoTracking()
             .FirstOrDefaultAsync(pm => pm.StripePaymentMethodId == stripePaymentMethodId, ct);
     }
+
+    public Task<PaymentMethod?> GetDefaultAsync(Guid consumerId, CancellationToken ct = default)
+    {
+        return context.PaymentMethods
+            .AsNoTracking()
+            .FirstOrDefaultAsync(pm => pm.ConsumerId == consumerId && pm.IsDefault, ct);
+    }
 }

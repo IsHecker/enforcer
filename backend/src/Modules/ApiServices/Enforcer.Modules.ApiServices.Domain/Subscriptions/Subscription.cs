@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Enforcer.Common.Domain.DomainEvents;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Domain.ApiServices;
+using Enforcer.Modules.ApiServices.Domain.ApiUsages;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
@@ -24,6 +25,7 @@ public sealed class Subscription : Entity
     public bool IsFree => !ExpiresAt.HasValue;
 
     public Plan Plan { get; private set; } = null!;
+    public ApiUsage ApiUsage { get; private set; } = null!;
     public ApiService ApiService { get; init; } = null!;
 
     private Subscription() { }
@@ -93,13 +95,13 @@ public sealed class Subscription : Entity
         return Result.Success;
     }
 
-    public Result ChangePlan(Plan targetPlan)
+    public Result SwitchPlan(Plan targetPlan)
     {
         if (IsCanceled)
-            return SubscriptionErrors.CannotChangePlanWhenCanceled;
+            return SubscriptionErrors.CannotSwitchPlanWhenCanceled;
 
         if (IsExpired)
-            return SubscriptionErrors.CannotChangePlanWhenCanceled;
+            return SubscriptionErrors.CannotSwitchPlanWhenCanceled;
 
         if (!targetPlan.IsActive)
             return SubscriptionErrors.InactivePlan;
@@ -107,12 +109,12 @@ public sealed class Subscription : Entity
         var oldPlanId = PlanId;
         var oldExpirationDate = ExpiresAt;
 
+        ExpiresAt = DeterminePlanChangeExpiration(targetPlan);
+
         PlanId = targetPlan.Id;
         Plan = targetPlan;
 
-        ExpiresAt = DeterminePlanChangeExpiration(targetPlan);
-
-        Raise(new SubscriptionPlanChangedEvent(
+        Raise(new PlanSwitchedEvent(
             Id,
             oldPlanId,
             targetPlan.Id,
@@ -127,11 +129,7 @@ public sealed class Subscription : Entity
         if (targetPlan.BillingPeriod == Plan.BillingPeriod)
             return ExpiresAt;
 
-        var baseDate = targetPlan.BillingPeriod > Plan.BillingPeriod
-            ? SubscribedAt
-            : DateTime.UtcNow;
-
-        return CalculateExpiration(baseDate, targetPlan.BillingPeriod);
+        return CalculateExpiration(DateTime.UtcNow, targetPlan.BillingPeriod);
     }
 
     private static string GenerateApiKey()
@@ -165,16 +163,16 @@ public sealed class Subscription : Entity
         static char RandomNumber() => (char)RandomNumberGenerator.GetInt32(48, 58);
     }
 
-    private static DateTime? CalculateExpiration(DateTime subscriptionDate, BillingPeriod? billingPeriod)
+    private static DateTime? CalculateExpiration(DateTime startDate, BillingPeriod? billingPeriod)
     {
         if (billingPeriod is null)
             return null;
 
         return billingPeriod switch
         {
-            BillingPeriod.Monthly => subscriptionDate.AddMonths(1),
-            BillingPeriod.Yearly => subscriptionDate.AddYears(1),
-            _ => subscriptionDate.AddMonths(1)
+            BillingPeriod.Monthly => startDate.AddMonths(1),
+            BillingPeriod.Yearly => startDate.AddYears(1),
+            _ => startDate.AddMonths(1)
         };
     }
 }

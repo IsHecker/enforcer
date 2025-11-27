@@ -10,7 +10,7 @@ public static class SubscriptionErrors
 
     public static Error AlreadyOnPlan(Guid planId) => Error.Conflict(
         "Subscription.AlreadyOnPlan",
-        $"The subscription is already on plan '{planId}'. Cannot change to the same plan.");
+        $"The subscription is already on plan '{planId}'. Cannot switch to the same plan.");
 
     public static readonly Error Unauthorized = Error.Unauthorized(
         "Subscription.Unauthorized",
@@ -41,6 +41,6 @@ public static class SubscriptionErrors
     public static readonly Error NoExpirationToRenew =
         Error.Validation("Subscription.NoExpirationToRenew", "This subscription does not have an expiration date to renew.");
 
-    public static readonly Error CannotChangePlanWhenCanceled =
-    Error.Validation("Subscription.CannotChangePlanWhenCanceled", "Cannot change plan for a canceled subscription.");
+    public static readonly Error CannotSwitchPlanWhenCanceled =
+    Error.Validation("Subscription.CannotSwitchPlanWhenCanceled", "Cannot switch plan for a canceled subscription.");
 }

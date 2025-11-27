@@ -15,7 +15,7 @@ public sealed record PlanResponse(
     int RateLimit,
     RateLimitWindow RateLimitWindow,
     IEnumerable<string>? Features,
-    float? OveragePrice,
+    long? OveragePriceInCents,
     int? MaxOverage,
     bool IsActive,
     int TierLevel

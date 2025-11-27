@@ -1,3 +1,4 @@
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.ApiKeyBans;
@@ -13,18 +14,21 @@ using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.ApiServices.ValueObjects;
+using Enforcer.Modules.ApiServices.Infrastructure.ApiUsages;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.PublicApi;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.ApiServices.Infrastructure.PublicApi;
 
-internal class ApiServicesApi(
+internal sealed class ApiServicesApi(
     ApiServicesDbContext context,
     IApiServiceRepository serviceRepository,
     ISubscriptionRepository subscriptionRepository,
     ApiUsageEnforcementService enforcementService,
+    [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork,
     ISender sender) : IApiServicesApi
 {
     public async Task<ApiServiceResponse?> GetApiServiceByServiceKeyAsync(
@@ -102,8 +106,10 @@ internal class ApiServicesApi(
     {
         return await context.Subscriptions
             .AsNoTracking()
+            .Include(sub => sub.Plan)
+            .Include(sub => sub.ApiUsage)
             .Where(sub => sub.ExpiresAt.HasValue
-                && sub.ExpiresAt <= DateTime.UtcNow)
+                && sub.ExpiresAt <= DateTime.UtcNow && sub.ConsumerId == Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"))
             .Take(size)
             .Select(sub => sub.ToResponse())
             .ToListAsync(ct);
@@ -111,8 +117,21 @@ internal class ApiServicesApi(
 
     public async Task RenewSubscription(Guid subscriptionId, CancellationToken ct = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
-        subscription!.Renew();
+        var subscription = await context.Subscriptions
+            .AsNoTracking()
+            .Include(sub => sub.Plan)
+            .Include(sub => sub.ApiUsage)
+            .FirstAsync(sub => sub.Id == subscriptionId, ct);
+
+        subscription.Renew();
+
+        var plan = subscription.Plan;
+
+        subscription.ApiUsage.ResetUsage(plan.QuotaLimit, plan.QuotaResetPeriod, true);
+
+        subscriptionRepository.Update(subscription);
+
+        await unitOfWork.SaveChangesAsync(ct);
     }
 
     public async Task<int> DeleteExpiredSubscriptions(int size, CancellationToken ct = default)

@@ -2,7 +2,7 @@ using Enforcer.Common.Domain.DomainEvents;
 
 namespace Enforcer.Modules.ApiServices.Domain.Subscriptions.Events;
 
-public sealed class SubscriptionPlanChangedEvent(
+public sealed class PlanSwitchedEvent(
     Guid subscriptionId,
     Guid oldPlanId,
     Guid newPlanId,

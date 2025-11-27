@@ -1,9 +1,8 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
-using Enforcer.Modules.Billings.Infrastructure.Invoices;
-using Enforcer.Modules.Billings.Infrastructure.PaymentMethods;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Microsoft.Extensions.DependencyInjection;
 using Stripe;
@@ -12,9 +11,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvent
 
 [StripeEvent(EventTypes.PaymentIntentSucceeded)]
 internal sealed class PaymentIntentSucceededHandler(
-    InvoiceRepository invoiceRepository,
+    IInvoiceRepository invoiceRepository,
+    IPaymentMethodRepository paymentMethodRepository,
     PaymentRepository paymentRepository,
-    PaymentMethodRepository paymentMethodRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IStripeEventHandler
 {
     public async Task<Result> HandleAsync(Event stripeEvent)
@@ -35,29 +34,24 @@ internal sealed class PaymentIntentSucceededHandler(
 
         if (paymentMethod is null)
         {
-            var paymentIntentService = new PaymentIntentService();
-            var options = new PaymentIntentGetOptions
-            {
-                Expand = ["payment_method"]
-            };
+            var stripePaymentMethod = await new PaymentMethodService().GetAsync(paymentIntent.PaymentMethodId);
 
-            paymentIntent = await paymentIntentService.GetAsync(paymentIntent.Id, options);
-
-            var card = paymentIntent.PaymentMethod.Card;
+            var card = stripePaymentMethod.Card;
 
             paymentMethod = Domain.PaymentMethods.PaymentMethod.Create(
                 consumerId,
-                paymentIntent.CustomerId,
-                paymentIntent.PaymentMethodId,
+                stripePaymentMethod.CustomerId,
+                stripePaymentMethod.Id,
                 PaymentMethodType.CreditCard,
                 card.Fingerprint,
                 card.Last4,
                 card.Brand,
                 card.ExpMonth,
                 card.ExpYear,
-                paymentIntent.PaymentMethod.BillingDetails.Address.ToJson(),
-                true
+                stripePaymentMethod.BillingDetails.Address.ToJson()
             );
+
+            paymentMethod.SetAsDefault();
 
             await paymentMethodRepository.AddAsync(paymentMethod);
         }

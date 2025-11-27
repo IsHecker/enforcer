@@ -13,6 +13,7 @@ public static class ApiEndpoints
     private const string AnalyticsBase = $"{ApiBase}/analytics";
 
     private const string PaymentsBase = $"{ApiBase}/payments";
+    private const string PaymentMethodsBase = $"{ApiBase}/payment-methods";
 
     public static class ApiServices
     {
@@ -60,7 +61,7 @@ public static class ApiEndpoints
         public const string Create = SubscriptionsBase;
 
         public const string CancelSubscription = $"{GetById}/cancel";
-        public const string ChangeSubscriptionPlan = $"{GetById}/change-plan";
+        public const string SwitchSubscriptionPlan = $"{GetById}/switch-plan";
         public const string RenewSubscription = $"{GetById}/renew";
         public const string IsUserSubscribedToService = $"{ApiServices.GetById}/subscriptions/me";
 
@@ -94,9 +95,19 @@ public static class ApiEndpoints
 
     public static class Payments
     {
-        public const string CreateSetupSession = $"{PaymentsBase}/create-setup-session";
         public const string CreateCheckoutSession = $"{PaymentsBase}/create-checkout-session";
 
         public const string StripeWebhook = $"{PaymentsBase}/stripe/webhook";
+    }
+
+    public static class PaymentMethods
+    {
+        public const string ListByConsumer = PaymentMethodsBase;
+        public const string GetById = $"{PaymentMethodsBase}/{{paymentMethodId:guid}}";
+
+        public const string Create = PaymentMethodsBase;
+        public const string Delete = GetById;
+
+        public const string SetDefault = $"{GetById}/default";
     }
 }

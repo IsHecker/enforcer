@@ -6,4 +6,6 @@ namespace Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 public interface IPaymentMethodRepository : IRepository<PaymentMethod>
 {
     Task<int> GetCountByConsumerIdAsync(Guid consumerId, CancellationToken ct = default);
+    Task<PaymentMethod?> GetByStripePaymentMethodId(string stripePaymentMethodId, CancellationToken ct = default);
+    Task<PaymentMethod?> GetDefaultAsync(Guid consumerId, CancellationToken ct = default);
 }

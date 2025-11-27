@@ -1,4 +1,5 @@
 using Enforcer.Common.Domain.DomainEvents;
+using Enforcer.Common.Domain.Results;
 
 namespace Enforcer.Modules.Billings.Domain.PaymentMethods;
 
@@ -42,8 +43,7 @@ public sealed class PaymentMethod : Entity
         string? cardBrand,
         long? cardExpMonth,
         long? cardExpYear,
-        string billingAddress,
-        bool isDefault = false)
+        string billingAddress)
     {
         return new PaymentMethod
         {
@@ -57,11 +57,23 @@ public sealed class PaymentMethod : Entity
             StripeCustomerId = stripeCustomerId,
             StripePaymentMethodId = stripePaymentMethodId,
             BillingAddress = billingAddress,
-            IsDefault = isDefault,
             IsActive = true,
             IsVerified = true,
             VerifiedAt = DateTime.UtcNow,
             FailedAttempts = 0
         };
+    }
+
+    public Result SetAsDefault(PaymentMethod? oldPaymentMethod = null)
+    {
+        if (IsDefault)
+            return PaymentMethodErrors.IsAlreadyDefault;
+
+        if (oldPaymentMethod is not null)
+            oldPaymentMethod.IsDefault = false;
+
+        IsDefault = true;
+
+        return Result.Success;
     }
 }

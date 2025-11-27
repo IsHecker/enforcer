@@ -1,3 +1,4 @@
+using Enforcer.Modules.ApiServices.Application.ApiUsages;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
@@ -17,5 +18,6 @@ public static class SubscriptionMapper
             s.SubscribedAt,
             s.ExpiresAt,
             s.IsCanceled,
-            s.Plan?.ToResponse());
+            s.Plan?.ToResponse(),
+            s.ApiUsage?.ToResponse());
 }

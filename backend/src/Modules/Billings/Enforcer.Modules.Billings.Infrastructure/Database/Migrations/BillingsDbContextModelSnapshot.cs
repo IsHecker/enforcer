@@ -23,6 +23,51 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.InvoiceLineItems.InvoiceLineItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("PeriodEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PeriodStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TotalAmount")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("UnitPrice")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceLineItems", "Billings");
+                });
+
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Invoices.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -35,6 +80,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<DateTime?>("BillingPeriodStart")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("ConsumerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -43,54 +91,41 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<decimal?>("DiscountAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<long>("DiscountTotal")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("DueDate")
+                    b.Property<DateTime>("DueAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("IssueDate")
+                    b.Property<DateTime>("IssuedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("OverageCharges")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("PaidDate")
+                    b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("PaymentAttempts")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("PlanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PromoCodeApplied")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Subtotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<Guid?>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("TaxAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<long>("TaxTotal")
+                        .HasColumnType("bigint");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<long>("Total")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -297,6 +332,15 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.ToTable("ProcessedStripeEvents", "Billings");
                 });
 
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.InvoiceLineItems.InvoiceLineItem", b =>
+                {
+                    b.HasOne("Enforcer.Modules.Billings.Domain.Invoices.Invoice", null)
+                        .WithMany("LineItems")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Payments.Payment", b =>
                 {
                     b.HasOne("Enforcer.Modules.Billings.Domain.Invoices.Invoice", null)
@@ -310,6 +354,11 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Invoices.Invoice", b =>
+                {
+                    b.Navigation("LineItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -35,8 +35,8 @@ internal class UpdatePlanCommandValidator : AbstractValidator<UpdatePlanCommand>
 
         RuleFor(x => x.RateLimitWindow).MustBeEnumValue<UpdatePlanCommand, RateLimitWindow>();
 
-        RuleFor(x => x.OveragePrice)
-            .GreaterThanOrEqualTo(0).When(x => x.OveragePrice.HasValue);
+        RuleFor(x => x.OveragePriceInCents)
+            .GreaterThanOrEqualTo(0).When(x => x.OveragePriceInCents.HasValue);
 
         RuleFor(x => x.MaxOverage)
             .GreaterThanOrEqualTo(0).When(x => x.MaxOverage.HasValue);

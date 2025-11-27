@@ -2,6 +2,7 @@ using Enforcer.Common.Application.Data;
 using Enforcer.Common.Infrastructure;
 using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Modules.Billings.Application.Abstractions.Data;
+using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
@@ -17,6 +18,7 @@ public sealed class BillingsDbContext : DbContext, IUnitOfWork, IBillingsDbConte
    public DbSet<PaymentMethod> PaymentMethods { get; init; }
    public DbSet<Payment> Payments { get; init; }
    public DbSet<Invoice> Invoices { get; init; }
+   public DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
 
    public DbSet<ProcessedStripeEvent> ProcessedStripeEvents { get; init; }
 

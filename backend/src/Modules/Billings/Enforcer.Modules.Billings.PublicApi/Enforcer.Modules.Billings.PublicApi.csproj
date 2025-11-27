@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\Enforcer.Modules.Billing.Contracts\Enforcer.Modules.Billing.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Common\Enforcer.Common.Domain\Enforcer.Common.Domain.csproj" />
+
+    <ProjectReference Include="..\..\ApiServices\Enforcer.Modules.ApiServices.Contracts\Enforcer.Modules.ApiServices.Contracts.csproj" />
+    </ItemGroup>
+</Project>

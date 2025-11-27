@@ -1,3 +1,4 @@
+using Enforcer.Modules.ApiServices.Contracts.ApiUsages;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 
 namespace Enforcer.Modules.ApiServices.Contracts.Subscriptions;
@@ -11,7 +12,8 @@ public sealed record SubscriptionResponse(
     DateTime SubscribedAt,
     DateTime? ExpiresAt,
     bool IsCanceled,
-    PlanResponse? Plan
+    PlanResponse? Plan,
+    ApiUsageResponse? ApiUsage = null!
 )
 {
     public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;

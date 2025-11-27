@@ -5,6 +5,8 @@ public enum InvoiceItemType
     Subscription,
     Overage,
     Fee,
-    Adjustment,
-    Tax
+    Tax,
+    Discount,
+    Credit,
+    Adjustment
 }

@@ -52,7 +52,7 @@ public sealed class ApiUsage : Entity
         OverageUsed++;
     }
 
-    public Result ResetQuota(int quotaLimit, QuotaResetPeriod resetPeriod, bool forceReset = false)
+    public Result ResetUsage(int quotaLimit, QuotaResetPeriod resetPeriod, bool forceReset = false)
     {
         if (DateTime.UtcNow < ResetAt && !forceReset)
             return Result.Success;
@@ -66,6 +66,8 @@ public sealed class ApiUsage : Entity
             return ApiUsageErrors.InvalidResetDate;
 
         QuotasLeft = quotaLimit;
+        OverageUsed = 0;
+
         ResetAt = newResetAt;
 
         return Result.Success;

@@ -19,7 +19,7 @@ public static class PlanMapper
             response.RateLimitWindow,
             response.TierLevel,
             response.BillingPeriod?.ToEnum<BillingPeriod>(),
-            response.OveragePrice,
+            response.OveragePriceInCents,
             response.MaxOverage
         ).Value;
 
@@ -37,7 +37,7 @@ public static class PlanMapper
             plan.RateLimit,
             plan.RateLimitWindow,
             plan.Features?.Content,
-            plan.OveragePrice,
+            plan.OveragePriceInCents,
             plan.MaxOverage,
             plan.IsActive,
             plan.TierLevel);

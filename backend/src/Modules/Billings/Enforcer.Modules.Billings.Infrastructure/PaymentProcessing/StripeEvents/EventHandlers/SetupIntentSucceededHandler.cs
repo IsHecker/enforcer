@@ -34,9 +34,11 @@ internal sealed class SetupIntentSucceededHandler(
             card.Brand,
             card.ExpMonth,
             card.ExpYear,
-            stripePaymentMethod.BillingDetails.Address.ToJson(),
-            methodsCount == 0
+            stripePaymentMethod.BillingDetails.Address.ToJson()
         );
+
+        if (methodsCount == 0)
+            paymentMethod.SetAsDefault();
 
         await paymentMethodRepository.AddAsync(paymentMethod);
 

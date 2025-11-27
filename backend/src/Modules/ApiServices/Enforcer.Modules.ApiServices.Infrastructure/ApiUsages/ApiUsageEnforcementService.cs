@@ -2,12 +2,11 @@ using Enforcer.Common.Application.Caching;
 using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
-using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Domain.ApiUsages;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Microsoft.Extensions.Logging;
 
-namespace Enforcer.Modules.ApiServices.Infrastructure.PublicApi;
+namespace Enforcer.Modules.ApiServices.Infrastructure.ApiUsages;
 
 internal sealed class ApiUsageEnforcementService(
     ICacheService cacheService,
@@ -20,7 +19,7 @@ internal sealed class ApiUsageEnforcementService(
     {
         var apiUsage = await GetApiUsageAsync(subscriptionId);
 
-        var resetResult = apiUsage.ResetQuota(plan.QuotaLimit, plan.QuotaResetPeriod);
+        var resetResult = apiUsage.ResetUsage(plan.QuotaLimit, plan.QuotaResetPeriod);
 
         if (resetResult.IsFailure)
             return resetResult.Error;

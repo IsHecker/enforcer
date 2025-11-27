@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\..\Common\Enforcer.Common.Infrastructure\Enforcer.Common.Infrastructure.csproj" />
 
     <ProjectReference Include="..\..\ApiServices\Enforcer.Modules.ApiServices.PublicApi\Enforcer.Modules.ApiServices.PublicApi.csproj" />
+    <ProjectReference Include="..\Enforcer.Modules.Billings.PublicApi\Enforcer.Modules.Billings.PublicApi.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Stripe.net" Version="49.2.0" />

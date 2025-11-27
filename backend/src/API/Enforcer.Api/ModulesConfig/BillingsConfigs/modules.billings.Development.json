@@ -1,9 +1,9 @@
 {
   "Billings": {
     "SubscriptionRenewal": {
-      "Enabled": true,
+      "Enabled": false,
       "RunIntervalInMinutes": 0.5,
-      "BatchSize": 5,
+      "BatchSize": 1,
       "MaxFailedPaymentRetries": 3,
       "RetryDelayHours": 24,
       "RenewalTimeoutSeconds": 60,

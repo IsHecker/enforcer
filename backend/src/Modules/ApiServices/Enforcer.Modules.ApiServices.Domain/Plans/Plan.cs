@@ -21,7 +21,7 @@ public sealed class Plan : Entity
     public RateLimitWindow RateLimitWindow { get; private set; }
     public Guid FeaturesId { get; private set; }
     public bool IsActive { get; private set; }
-    public float? OveragePrice { get; private set; }
+    public long? OveragePriceInCents { get; private set; }
     public int? MaxOverage { get; private set; }
     public int TierLevel { get; private set; }
     public bool IsDeleted { get; private set; }
@@ -42,7 +42,7 @@ public sealed class Plan : Entity
         RateLimitWindow rateLimitWindow,
         int tierLevel,
         BillingPeriod? billingPeriod = null,
-        float? overagePrice = null,
+        long? overagePriceInCents = null,
         int? maxOverage = null)
     {
         if (apiServiceId == Guid.Empty)
@@ -70,7 +70,7 @@ public sealed class Plan : Entity
             RateLimit = rateLimit,
             RateLimitWindow = rateLimitWindow,
             FeaturesId = Guid.Empty,
-            OveragePrice = overagePrice,
+            OveragePriceInCents = overagePriceInCents,
             MaxOverage = maxOverage,
             IsActive = true,
             TierLevel = tierLevel
@@ -136,7 +136,7 @@ public sealed class Plan : Entity
         int rateLimit,
         RateLimitWindow rateLimitWindow,
         bool isActive,
-        float? overagePrice,
+        long? overagePriceInCents,
         int? maxOverage,
         int tierLevel)
     {
@@ -156,7 +156,7 @@ public sealed class Plan : Entity
         QuotaResetPeriod = quotaResetPeriod;
         RateLimit = rateLimit;
         RateLimitWindow = rateLimitWindow;
-        OveragePrice = overagePrice;
+        OveragePriceInCents = overagePriceInCents;
         MaxOverage = maxOverage;
         TierLevel = tierLevel;
 

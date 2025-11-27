@@ -28,7 +28,7 @@ internal sealed class UpdatePlan : IEndpoint
                 request.RateLimitWindow,
                 request.IsActive,
                 request.Features,
-                request.OveragePrice,
+                request.OveragePriceInCents,
                 request.MaxOverage,
                 request.TierLevel
             ));
@@ -49,7 +49,7 @@ internal sealed class UpdatePlan : IEndpoint
         int RateLimit,
         string RateLimitWindow,
         IEnumerable<string> Features,
-        float? OveragePrice,
+        long? OveragePriceInCents,
         int? MaxOverage,
         int TierLevel,
         bool IsActive

@@ -5,5 +5,4 @@ namespace Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 
 public interface IInvoiceRepository : IRepository<Invoice>
 {
-
 }

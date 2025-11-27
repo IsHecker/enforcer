@@ -1,11 +1,8 @@
-﻿using Enforcer.Common.Domain.Results;
-using Enforcer.Modules.ApiServices.Contracts.Plans;
-using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
+﻿using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.PublicApi;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
-using Stripe;
 
 namespace Enforcer.Modules.Billings.Infrastructure.BackgroundJobs.SubscriptionRenewal;
 
@@ -13,90 +10,56 @@ namespace Enforcer.Modules.Billings.Infrastructure.BackgroundJobs.SubscriptionRe
 internal sealed class SubscriptionRenewalJob(
     IOptions<SubscriptionRenewalOptions> options,
     IApiServicesApi servicesApi,
+    SubscriptionRenewalService renewalService,
     ILogger<SubscriptionRenewalJob> logger) : IJob
 {
     private readonly SubscriptionRenewalOptions _options = options.Value;
 
     public async Task Execute(IJobExecutionContext context)
     {
+        var ct = context.CancellationToken;
+
         logger.LogInformation("Starting subscription renewal job");
 
-        var expiredSubscriptions = await servicesApi.GetExpiredSubscriptions(_options.BatchSize, context.CancellationToken);
+        var candidates = await servicesApi.GetExpiredSubscriptions(_options.BatchSize, ct);
 
-        logger.LogInformation(
-            "Found {Count} subscriptions to renew",
-            expiredSubscriptions.Count);
+        logger.LogInformation("Found {Count} subscriptions to renew", candidates.Count);
 
+        await ProcessRenewalsAsync(candidates, ct);
+    }
+
+    private async Task ProcessRenewalsAsync(
+        IReadOnlyList<SubscriptionResponse> subscriptions,
+        CancellationToken cancellationToken)
+    {
         var successCount = 0;
         var failureCount = 0;
 
-        foreach (var subscription in expiredSubscriptions)
+        foreach (var subscription in subscriptions)
         {
             try
             {
-                var paymentResult = await ChargeAsync(
-                    subscription,
-                    null!,
-                    "paymentMethodId",
-                    "customerId",
-                    Guid.Empty
-                );
+                var result = await renewalService.RenewAsync(subscription, cancellationToken);
 
-                if (paymentResult.IsSuccess)
+                if (!result.IsSuccess)
                 {
-                    await servicesApi.RenewSubscription(subscription.Id, context.CancellationToken);
-                    successCount++;
-
-                    logger.LogDebug(
-                        "Successfully renewed subscription {SubscriptionId}",
-                        subscription.Id);
+                    failureCount++;
+                    continue;
                 }
 
+                successCount++;
+                logger.LogDebug("Renewed subscription {SubscriptionId}", subscription.Id);
             }
             catch (Exception ex)
             {
                 failureCount++;
-
-                logger.LogError(ex,
-                    "Failed to renew subscription {SubscriptionId}",
-                    subscription.Id);
+                logger.LogError(ex, "Unexpected error renewing subscription {SubscriptionId}", subscription.Id);
             }
         }
 
         logger.LogInformation(
             "Subscription renewal completed. Success: {SuccessCount}, Failed: {FailureCount}",
-            successCount, failureCount);
-    }
-
-    private async Task<Result> ChargeAsync(
-        SubscriptionResponse subscription,
-        PlanResponse plan,
-        string stripePaymentMethodId,
-        string stripeCustomerId,
-        Guid paymentMethodId)
-    {
-        var invoice = Domain.Invoices.Invoice.Create("USD");
-
-        var paymentIntent = await new PaymentIntentService().CreateAsync(new()
-        {
-            Amount = plan.PriceInCents,
-            Currency = "usd",
-            Customer = stripeCustomerId,
-            PaymentMethod = stripePaymentMethodId,
-            Description = $"{plan.Name} - {plan.BillingPeriod}",
-            OffSession = true,
-            Confirm = true,
-            Metadata = new Dictionary<string, string>
-            {
-                ["InvoiceId"] = invoice.Id.ToString(),
-                ["PaymentMethodId"] = paymentMethodId.ToString()
-            }
-        });
-
-        return paymentIntent.Status == "success" ?
-            Result.Success
-            : Error.Failure(
-                paymentIntent.LastPaymentError.Code,
-                paymentIntent.LastPaymentError.Message);
+            successCount,
+            failureCount);
     }
 }

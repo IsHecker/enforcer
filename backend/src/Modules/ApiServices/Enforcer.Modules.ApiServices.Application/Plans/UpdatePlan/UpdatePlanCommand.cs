@@ -14,7 +14,7 @@ public sealed record UpdatePlanCommand(
     string RateLimitWindow,
     bool IsActive,
     IEnumerable<string> Features,
-    float? OveragePrice,
+    long? OveragePriceInCents,
     int? MaxOverage,
     int TierLevel
 ) : ICommand;

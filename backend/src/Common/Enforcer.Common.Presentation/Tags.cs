@@ -11,6 +11,6 @@ public static class Tags
 
     public const string Analytics = "Analytics";
 
-    public const string Billings = "Billings";
     public const string Payments = "Payments";
+    public const string PaymentMethods = "PaymentMethods";
 }

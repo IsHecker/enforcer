@@ -25,7 +25,7 @@ internal sealed class UpdatePlanCommandHandler(IPlanRepository planRepository) :
             request.RateLimit,
             request.RateLimitWindow.ToEnum<RateLimitWindow>(),
             request.IsActive,
-            request.OveragePrice,
+            request.OveragePriceInCents,
             request.MaxOverage,
             request.TierLevel
         );

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Enforcer.Modules.Billings.Presentation.Payments;
+namespace Enforcer.Modules.Billings.Presentation.PaymentProcessing;
 
 internal sealed class StripeWebhook : IEndpoint
 {

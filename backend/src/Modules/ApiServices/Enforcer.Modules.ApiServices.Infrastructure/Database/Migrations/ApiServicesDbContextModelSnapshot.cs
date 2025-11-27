@@ -152,7 +152,8 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionId");
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique();
 
                     b.ToTable("ApiUsages", "ApiServices");
                 });
@@ -261,8 +262,8 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("OveragePrice")
-                        .HasColumnType("real");
+                    b.Property<long?>("OveragePriceInCents")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("PriceInCents")
                         .HasColumnType("bigint");
@@ -382,8 +383,8 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
             modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.ApiUsages.ApiUsage", b =>
                 {
                     b.HasOne("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", null)
-                        .WithMany()
-                        .HasForeignKey("SubscriptionId")
+                        .WithOne("ApiUsage")
+                        .HasForeignKey("Enforcer.Modules.ApiServices.Domain.ApiUsages.ApiUsage", "SubscriptionId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
@@ -437,6 +438,12 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Navigation("ApiService");
 
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", b =>
+                {
+                    b.Navigation("ApiUsage")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

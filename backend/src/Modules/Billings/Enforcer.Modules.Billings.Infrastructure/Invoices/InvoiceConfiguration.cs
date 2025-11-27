@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enforcer.Modules.Billings.Infrastructure.Invoices;
 
-public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
+internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 {
     public void Configure(EntityTypeBuilder<Invoice> builder)
     {
