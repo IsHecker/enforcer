@@ -10,13 +10,10 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvent
 internal sealed class RefundUpdatedHandler(
     RefundTransactionRepository refundRepository,
     IInvoiceRepository invoiceRepository,
-    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IStripeEventHandler
+    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<Stripe.Refund>
 {
-    public async Task<Result> HandleAsync(Stripe.Event stripeEvent)
+    public override async Task<Result> HandleAsync(Stripe.Refund stripeRefund)
     {
-        if (stripeEvent.Data.Object is not Stripe.Refund stripeRefund)
-            return Error.Validation();
-
         if (stripeRefund.Status != "succeeded")
             return Result.Success;
 

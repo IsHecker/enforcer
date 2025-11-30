@@ -16,13 +16,10 @@ internal sealed class PaymentIntentSucceededHandler(
     IInvoiceRepository invoiceRepository,
     IPaymentMethodRepository paymentMethodRepository,
     PaymentRepository paymentRepository,
-    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IStripeEventHandler
+    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<PaymentIntent>
 {
-    public async Task<Result> HandleAsync(Event stripeEvent)
+    public override async Task<Result> HandleAsync(PaymentIntent paymentIntent)
     {
-        if (stripeEvent.Data.Object is not PaymentIntent paymentIntent)
-            return Error.Validation();
-
         var consumerId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
 
         var invoiceId = paymentIntent.Metadata["InvoiceId"];

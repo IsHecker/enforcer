@@ -10,13 +10,10 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvent
 [StripeEvent(EventTypes.SetupIntentSucceeded)]
 internal sealed class SetupIntentSucceededHandler(
     IPaymentMethodRepository paymentMethodRepository,
-    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IStripeEventHandler
+    [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<SetupIntent>
 {
-    public async Task<Result> HandleAsync(Event stripeEvent)
+    public override async Task<Result> HandleAsync(SetupIntent setupIntent)
     {
-        if (stripeEvent.Data.Object is not SetupIntent setupIntent)
-            return Error.Validation();
-
         var consumerId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
 
         var stripePaymentMethod = await new PaymentMethodService().GetAsync(setupIntent.PaymentMethodId);
