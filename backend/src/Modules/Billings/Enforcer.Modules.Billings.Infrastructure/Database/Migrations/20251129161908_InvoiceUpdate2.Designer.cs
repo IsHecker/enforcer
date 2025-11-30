@@ -4,16 +4,19 @@ using Enforcer.Modules.Billings.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Enforcer.Modules.Billings.Infrastructure.Migrations
+namespace Enforcer.Modules.Billings.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(BillingsDbContext))]
-    partial class BillingsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129161908_InvoiceUpdate2")]
+    partial class InvoiceUpdate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -309,62 +312,6 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Payments", "Billings");
-                });
-
-            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.RefundTransactions.RefundTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("ConsumerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FailureReason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("InvoiceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PaymentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ProcessedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RefundNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeRefundId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RefundTransactions", "Billings");
                 });
 
             modelBuilder.Entity("Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripeEvents.ProcessedStripeEvent", b =>

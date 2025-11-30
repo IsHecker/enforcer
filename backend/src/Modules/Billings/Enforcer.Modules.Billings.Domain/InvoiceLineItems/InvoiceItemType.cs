@@ -7,6 +7,5 @@ public enum InvoiceItemType
     Fee,
     Tax,
     Discount,
-    Credit,
-    Adjustment
+    Credit
 }

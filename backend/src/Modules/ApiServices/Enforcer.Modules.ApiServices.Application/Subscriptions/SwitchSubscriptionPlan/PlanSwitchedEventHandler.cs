@@ -37,11 +37,11 @@ internal sealed class PlanSwitchedEventHandler(
         );
     }
 
-    private async Task ResetQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct)
+    private async Task ResetQuotaUsageAsync(Guid subscriptionId, Plan plan, CancellationToken cancellationToken)
     {
         // TODO: handle overages
 
-        var apiUsage = await apiUsageRepository.GetBySubscriptionIdAsync(subscriptionId, ct);
+        var apiUsage = await apiUsageRepository.GetBySubscriptionIdAsync(subscriptionId, cancellationToken);
         apiUsage!.ResetUsage(plan.QuotaLimit, plan.QuotaResetPeriod, forceReset: true);
         apiUsageRepository.Update(apiUsage);
     }

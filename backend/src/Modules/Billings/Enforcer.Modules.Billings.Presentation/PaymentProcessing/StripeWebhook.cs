@@ -22,7 +22,7 @@ internal sealed class StripeWebhook : IEndpoint
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
-        .WithTags(Tags.Payments)
+        .WithTags(Tags.PaymentProcessing)
         .WithOpenApiName(nameof(StripeWebhook));
     }
 }

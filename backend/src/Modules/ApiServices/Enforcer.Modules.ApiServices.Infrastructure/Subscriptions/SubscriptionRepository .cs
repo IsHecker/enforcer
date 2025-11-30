@@ -9,12 +9,12 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Subscriptions;
 internal sealed class SubscriptionRepository(ApiServicesDbContext context)
     : Repository<Subscription>(context), ISubscriptionRepository
 {
-    public override Task<Subscription?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public override Task<Subscription?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return context.Subscriptions
             .AsNoTracking()
             .Include(sub => sub.Plan)
-            .FirstOrDefaultAsync(entity => entity.Id == id, ct);
+            .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
     public async Task<List<Subscription>> ListByConsumerAsync(Guid consumerId, CancellationToken cancellationToken = default)
     {
@@ -44,8 +44,8 @@ internal sealed class SubscriptionRepository(ApiServicesDbContext context)
                 cancellationToken);
     }
 
-    public Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken ct = default)
+    public Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
     {
-        return context.Subscriptions.AnyAsync(sub => sub.ApiKey == apiKey, ct);
+        return context.Subscriptions.AnyAsync(sub => sub.ApiKey == apiKey, cancellationToken);
     }
 }

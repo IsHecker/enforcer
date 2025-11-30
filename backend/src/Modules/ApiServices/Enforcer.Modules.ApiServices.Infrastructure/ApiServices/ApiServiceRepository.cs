@@ -9,10 +9,10 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.ApiServices;
 internal sealed class ApiServiceRepository(ApiServicesDbContext context)
     : Repository<ApiService>(context), IApiServiceRepository
 {
-    public async Task<ApiService?> GetByServiceKeyAsync(string serviceKey, CancellationToken ct = default)
+    public async Task<ApiService?> GetByServiceKeyAsync(string serviceKey, CancellationToken cancellationToken = default)
     {
         return await context.ApiServices
             .AsNoTracking()
-            .FirstOrDefaultAsync(api => api.ServiceKey == serviceKey, ct);
+            .FirstOrDefaultAsync(api => api.ServiceKey == serviceKey, cancellationToken);
     }
 }

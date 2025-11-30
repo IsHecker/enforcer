@@ -15,6 +15,8 @@ using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripe
 using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvents;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Enforcer.Modules.Billings.Infrastructure.PublicApi;
+using Enforcer.Modules.Billings.Infrastructure.PublicApi.Services;
+using Enforcer.Modules.Billings.Infrastructure.RefundTransactions;
 using Enforcer.Modules.Billings.PublicApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -71,8 +73,9 @@ public static class BillingsModule
         services.Configure<StripeOptions>(configuration.GetSection(StripeOptions.SectionName));
 
         services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
-        services.AddScoped<PaymentRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<PaymentRepository>();
+        services.AddScoped<RefundTransactionRepository>();
         services.AddScoped<ProcessedStripeEventRepository>();
 
         services.AddScoped<IStripeEventDispatcher, StripeEventDispatcher>();
@@ -81,6 +84,7 @@ public static class BillingsModule
 
         services.AddScoped<SubscriptionRenewalService>();
         services.AddScoped<PlanSwitchBillingService>();
+        services.AddScoped<SubscriptionCancellationRefundService>();
 
         services.AddScoped<IBillingsApi, BillingsApi>();
     }

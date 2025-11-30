@@ -5,5 +5,5 @@ namespace Enforcer.Modules.Analytics.Application.Abstractions.Repositories;
 
 public interface IEndpointStatRepository : IRepository<EndpointStat>
 {
-    Task<EndpointStat?> GetByEndpointIdAsync(Guid endpointId, CancellationToken ct = default);
+    Task<EndpointStat?> GetByEndpointIdAsync(Guid endpointId, CancellationToken cancellationToken = default);
 }

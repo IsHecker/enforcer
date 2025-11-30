@@ -9,10 +9,10 @@ namespace Enforcer.Modules.Analytics.Infrastructure.Ratings;
 public class RatingRepository(AnalyticsDbContext context)
     : Repository<Rating>(context), IRatingRepository
 {
-    public Task<Rating?> GetAsync(Guid consumerId, Guid apiServiceId, CancellationToken ct)
+    public Task<Rating?> GetAsync(Guid consumerId, Guid apiServiceId, CancellationToken cancellationToken)
     {
         return context.Ratings
             .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.ConsumerId == consumerId && r.ApiServiceId == apiServiceId, ct);
+            .FirstOrDefaultAsync(r => r.ConsumerId == consumerId && r.ApiServiceId == apiServiceId, cancellationToken);
     }
 }

@@ -9,10 +9,10 @@ namespace Enforcer.Modules.Analytics.Infrastructure.ApiServiceStats;
 public class ApiServiceStatRepository(AnalyticsDbContext context)
     : Repository<ApiServiceStat>(context), IApiServiceStatRepository
 {
-    public Task<ApiServiceStat?> GetByApiServiceIdAsync(Guid apiServiceId, CancellationToken ct = default)
+    public Task<ApiServiceStat?> GetByApiServiceIdAsync(Guid apiServiceId, CancellationToken cancellationToken = default)
     {
         return context.ApiServiceStats
             .AsNoTracking()
-            .FirstOrDefaultAsync(api => api.ApiServiceId == apiServiceId, ct);
+            .FirstOrDefaultAsync(api => api.ApiServiceId == apiServiceId, cancellationToken);
     }
 }

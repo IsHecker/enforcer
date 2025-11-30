@@ -1,16 +1,19 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
+using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.Billings.PublicApi;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
 
 internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
-    IPlanRepository planRepository) : ICommandHandler<CreateSubscriptionCommand, Guid>
+    IPlanRepository planRepository,
+    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, string>
 {
-    public async Task<Result<Guid>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {
         var isExist = await subscriptionRepository.ExistsAsync(request.ConsumerId, request.ApiServiceId, cancellationToken);
         if (isExist)
@@ -32,6 +35,13 @@ internal sealed class CreateSubscriptionCommandHandler(
 
         await subscriptionRepository.AddAsync(subscription, cancellationToken);
 
-        return subscription.Id;
+        var checkoutUrl = await billingsApi.CreateSubscriptionCheckoutSessionAsync(
+            request.ConsumerId,
+            subscription.ToResponse(),
+            plan.ToResponse(),
+            request.ReturnUrl,
+            cancellationToken);
+
+        return checkoutUrl;
     }
 }

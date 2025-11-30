@@ -13,7 +13,7 @@ public sealed class Payment : Entity
     public string Currency { get; private set; }
     public decimal RefundedAmount { get; private set; }
 
-    public Guid PaymentMethodId { get; private set; }
+    public Guid? PaymentMethodId { get; private set; }
     public string PaymentTransactionId { get; private set; } // Stripe PaymentIntent ID
 
     public PaymentStatus Status { get; private set; }
@@ -36,7 +36,7 @@ public sealed class Payment : Entity
     public static Payment Create(
         Guid invoiceId,
         Guid consumerId,
-        Guid paymentMethodId,
+        Guid? paymentMethodId,
         string paymentTransactionId,
         decimal amount,
         string currency,

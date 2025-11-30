@@ -5,5 +5,6 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscript
 public readonly record struct CreateSubscriptionCommand(
     Guid ConsumerId,
     Guid PlanId,
-    Guid ApiServiceId
-) : ICommand<Guid>;
+    Guid ApiServiceId,
+    string ReturnUrl
+) : ICommand<string>;

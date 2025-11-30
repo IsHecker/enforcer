@@ -41,13 +41,13 @@ internal sealed class SubscriptionCreatedEventHandler(
         );
     }
 
-    private async Task CreateApiUsageAsync(Guid subscriptionId, Plan plan, CancellationToken ct = default)
+    private async Task CreateApiUsageAsync(Guid subscriptionId, Plan plan, CancellationToken cancellationToken = default)
     {
         var apiUsage = ApiUsage.Create(subscriptionId, plan.QuotaLimit, plan.QuotaResetPeriod);
 
         if (apiUsage.IsFailure)
             throw new EnforcerException("couldn't create quota usage");
 
-        await apiUsageRepository.AddAsync(apiUsage.Value, ct);
+        await apiUsageRepository.AddAsync(apiUsage.Value, cancellationToken);
     }
 }

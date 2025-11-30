@@ -17,15 +17,15 @@ internal sealed class SubscriptionRenewalJob(
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var ct = context.CancellationToken;
+        var cancellationToken = context.CancellationToken;
 
         logger.LogInformation("Starting subscription renewal job");
 
-        var candidates = await servicesApi.GetExpiredSubscriptions(_options.BatchSize, ct);
+        var candidates = await servicesApi.GetExpiredSubscriptions(_options.BatchSize, cancellationToken);
 
         logger.LogInformation("Found {Count} subscriptions to renew", candidates.Count);
 
-        await ProcessRenewalsAsync(candidates, ct);
+        await ProcessRenewalsAsync(candidates, cancellationToken);
     }
 
     private async Task ProcessRenewalsAsync(

@@ -19,7 +19,8 @@ public sealed class Subscription : Entity
     public DateTime SubscribedAt { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
 
-    public bool IsCanceled { get; private set; } = false;
+    public bool IsCanceled { get; private set; }
+    public bool IsActivated { get; private set; }
 
     public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;
     public bool IsFree => !ExpiresAt.HasValue;
@@ -49,7 +50,9 @@ public sealed class Subscription : Entity
             ApiServiceId = plan.ApiServiceId,
             ApiKey = GenerateApiKey(),
             SubscribedAt = subscriptionDate,
-            ExpiresAt = CalculateExpiration(subscriptionDate, plan.BillingPeriod)
+            ExpiresAt = CalculateExpiration(subscriptionDate, plan.BillingPeriod),
+            IsActivated = false,
+            IsCanceled = false
         };
 
         subscription.Raise(new SubscriptionCreatedEvent(
@@ -60,6 +63,8 @@ public sealed class Subscription : Entity
 
         return subscription;
     }
+
+    public void Activate() => IsActivated = true;
 
     public Result Renew()
     {

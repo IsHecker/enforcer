@@ -15,20 +15,25 @@ public interface IApiServicesApi
     Task<IEnumerable<EndpointResponse>> ListEndpointsForServiceAsync(Guid apiServiceId,
         CancellationToken cancellationToken = default);
 
-    Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(string apiKey, Guid apiServiceId, CancellationToken ct = default);
+    Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken cancellationToken = default);
 
-    Task<PlanResponse?> GetPlanByIdAsync(Guid planId, CancellationToken ct = default);
-
-    Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken ct = default);
-
-    Task UnbanApiKeyAsync(string apiKey, CancellationToken ct = default);
-
-    Task<bool> IsSubscribedToRequiredPlanAsync(PlanResponse subscribedPlan, Guid requiredPlanId, CancellationToken ct = default);
+    Task UnbanApiKeyAsync(string apiKey, CancellationToken cancellationToken = default);
 
     Task<Result> ConsumeQuotaAsync(Guid subscriptionId, PlanResponse plan);
 
-    Task<List<SubscriptionResponse>> GetExpiredSubscriptions(int size, CancellationToken ct = default);
+    Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(
+        string apiKey,
+        Guid apiServiceId,
+        CancellationToken cancellationToken = default);
 
-    Task RenewSubscription(Guid subscriptionId, CancellationToken ct = default);
-    Task<int> DeleteExpiredSubscriptions(int size, CancellationToken ct = default);
+    Task<bool> IsSubscribedToRequiredPlanAsync(
+        PlanResponse subscribedPlan,
+        Guid requiredPlanId,
+        CancellationToken cancellationToken = default);
+
+    Task<List<SubscriptionResponse>> GetExpiredSubscriptions(int size, CancellationToken cancellationToken = default);
+
+    Task RenewSubscription(Guid subscriptionId, CancellationToken cancellationToken = default);
+    Task ActivateSubscription(Guid subscriptionId, CancellationToken cancellationToken = default);
+    Task<int> DeleteExpiredSubscriptions(int size, CancellationToken cancellationToken = default);
 }

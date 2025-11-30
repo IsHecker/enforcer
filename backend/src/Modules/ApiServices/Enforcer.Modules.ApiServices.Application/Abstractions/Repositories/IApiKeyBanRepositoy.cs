@@ -5,7 +5,7 @@ namespace Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 
 public interface IApiKeyBanRepositoy : IRepository<ApiKeyBan>
 {
-    Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken ct = default);
+    Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default);
 
-    Task<int> DeleteByApiKeyAsync(string apiKey, CancellationToken ct = default);
+    Task<int> DeleteByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default);
 }

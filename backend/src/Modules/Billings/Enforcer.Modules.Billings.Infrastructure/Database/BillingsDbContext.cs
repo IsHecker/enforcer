@@ -6,6 +6,7 @@ using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
+using Enforcer.Modules.Billings.Domain.RefundTransactions;
 using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripeEvents;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ public sealed class BillingsDbContext : DbContext, IUnitOfWork, IBillingsDbConte
    public DbSet<Payment> Payments { get; init; }
    public DbSet<Invoice> Invoices { get; init; }
    public DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
+   public DbSet<RefundTransaction> RefundTransactions { get; init; }
 
    public DbSet<ProcessedStripeEvent> ProcessedStripeEvents { get; init; }
 

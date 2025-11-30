@@ -53,7 +53,6 @@ internal sealed class SubscriptionRenewalService(
         var subscriptionLineItem = InvoiceLineItem.Create(
             InvoiceItemType.Subscription,
             $"{subscription.Plan!.Name} - Renewal",
-            1,
             subscription.Plan.PriceInCents
         );
         lineItems.Add(subscriptionLineItem);
@@ -64,8 +63,8 @@ internal sealed class SubscriptionRenewalService(
             var overageLineItem = InvoiceLineItem.Create(
                 InvoiceItemType.Overage,
                 $"Overage: {subscription.ApiUsage.OverageUsed} additional API calls",
-                subscription.ApiUsage.OverageUsed,
-                subscription.Plan.OveragePriceInCents.Value
+                subscription.Plan.OveragePriceInCents.Value,
+                subscription.ApiUsage.OverageUsed
             );
             lineItems.Add(overageLineItem);
         }
@@ -74,7 +73,9 @@ internal sealed class SubscriptionRenewalService(
             subscription.ConsumerId,
             "USD",
             lineItems,
-            subscription.Id
+            subscription.Id,
+            DateTime.UtcNow,
+            subscription.ExpiresAt
         );
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);

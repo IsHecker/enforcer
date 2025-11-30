@@ -5,5 +5,5 @@ namespace Enforcer.Modules.Analytics.Application.Abstractions.Repositories;
 
 public interface IPlanStatRepository : IRepository<PlanStat>
 {
-    Task<PlanStat?> GetByPlanIdAsync(Guid planId, CancellationToken ct = default);
+    Task<PlanStat?> GetByPlanIdAsync(Guid planId, CancellationToken cancellationToken = default);
 }

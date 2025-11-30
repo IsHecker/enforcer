@@ -19,7 +19,8 @@ internal sealed class CreateSubscription : IEndpoint
             var result = await sender.Send(new CreateSubscriptionCommand(
                 Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
                 request.PlanId,
-                request.ApiServiceId
+                request.ApiServiceId,
+                request.ReturnUrl
             ));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
@@ -31,6 +32,7 @@ internal sealed class CreateSubscription : IEndpoint
 
     internal readonly record struct Request(
         Guid ApiServiceId,
-        Guid PlanId
+        Guid PlanId,
+        string ReturnUrl
     );
 }

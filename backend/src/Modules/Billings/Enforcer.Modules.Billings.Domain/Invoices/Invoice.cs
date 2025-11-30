@@ -21,8 +21,6 @@ public sealed class Invoice : Entity
     public DateTime IssuedAt { get; private set; }
     public DateTime DueAt { get; private set; }
     public DateTime? PaidAt { get; private set; }
-    public DateTime? VoidedAt { get; private set; }
-    public string? VoidReason { get; private set; }
 
     public int PaymentAttempts { get; private set; }
 
@@ -73,6 +71,8 @@ public sealed class Invoice : Entity
 
         Status = InvoiceStatus.Paid;
         PaidAt = DateTime.UtcNow;
+
+        PaymentAttempts++;
     }
 
     public void MarkAsFailed()
@@ -81,14 +81,14 @@ public sealed class Invoice : Entity
         PaymentAttempts++;
     }
 
-    public void Void(string reason)
+    public void MarkAsRefunded()
     {
-        if (Status == InvoiceStatus.Paid)
-            throw new InvalidOperationException("Cannot void a paid invoice");
+        Status = InvoiceStatus.Refunded;
+    }
 
-        Status = InvoiceStatus.Void;
-        VoidedAt = DateTime.UtcNow;
-        VoidReason = reason;
+    public void MarkAsPartiallyRefunded()
+    {
+        Status = InvoiceStatus.PartiallyRefunded;
     }
 
     private void CalculateTotals()

@@ -9,10 +9,10 @@ namespace Enforcer.Modules.Analytics.Infrastructure.SubscriptionStats;
 public class SubscriptionStatRepository(AnalyticsDbContext context)
     : Repository<SubscriptionStat>(context), ISubscriptionStatRepository
 {
-    public async Task<SubscriptionStat?> GetBySubscriptionIdAsync(Guid subscriptionId, CancellationToken ct = default)
+    public async Task<SubscriptionStat?> GetBySubscriptionIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
         return await context.SubscriptionStats
             .AsNoTracking()
-            .FirstOrDefaultAsync(sub => sub.SubscriptionId == subscriptionId, ct);
+            .FirstOrDefaultAsync(sub => sub.SubscriptionId == subscriptionId, cancellationToken);
     }
 }

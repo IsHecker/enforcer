@@ -21,8 +21,8 @@ public sealed class InvoiceLineItem : Entity
     public static InvoiceLineItem Create(
         InvoiceItemType type,
         string description,
-        int quantity,
         long unitPrice,
+        int quantity = 1,
         DateTime? periodStart = null,
         DateTime? periodEnd = null)
     {

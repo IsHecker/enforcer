@@ -4,6 +4,7 @@ using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ApiServicesDbContext))]
-    partial class ApiServicesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129194949_SubscriptionEdit2")]
+    partial class SubscriptionEdit2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -388,7 +391,7 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.HasOne("Enforcer.Modules.ApiServices.Domain.Subscriptions.Subscription", null)
                         .WithOne("ApiUsage")
                         .HasForeignKey("Enforcer.Modules.ApiServices.Domain.ApiUsages.ApiUsage", "SubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

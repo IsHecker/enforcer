@@ -9,10 +9,10 @@ namespace Enforcer.Modules.Analytics.Infrastructure.EndpointStats;
 public class EndpointStatRepository(AnalyticsDbContext context)
     : Repository<EndpointStat>(context), IEndpointStatRepository
 {
-    public Task<EndpointStat?> GetByEndpointIdAsync(Guid endpointId, CancellationToken ct = default)
+    public Task<EndpointStat?> GetByEndpointIdAsync(Guid endpointId, CancellationToken cancellationToken = default)
     {
         return context.EndpointStats
             .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.EndpointId == endpointId, ct);
+            .FirstOrDefaultAsync(e => e.EndpointId == endpointId, cancellationToken);
     }
 }

@@ -9,10 +9,10 @@ namespace Enforcer.Modules.Analytics.Infrastructure.PlanStats;
 public class PlanStatRepository(AnalyticsDbContext context)
     : Repository<PlanStat>(context), IPlanStatRepository
 {
-    public async Task<PlanStat?> GetByPlanIdAsync(Guid planId, CancellationToken ct = default)
+    public async Task<PlanStat?> GetByPlanIdAsync(Guid planId, CancellationToken cancellationToken = default)
     {
         return await context.PlanStats
             .AsNoTracking()
-            .FirstOrDefaultAsync(ps => ps.PlanId == planId, ct);
+            .FirstOrDefaultAsync(ps => ps.PlanId == planId, cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.PublicApi;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
@@ -11,6 +12,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvent
 
 [StripeEvent(EventTypes.PaymentIntentSucceeded)]
 internal sealed class PaymentIntentSucceededHandler(
+    IApiServicesApi servicesApi,
     IInvoiceRepository invoiceRepository,
     IPaymentMethodRepository paymentMethodRepository,
     PaymentRepository paymentRepository,
@@ -30,36 +32,20 @@ internal sealed class PaymentIntentSucceededHandler(
 
         invoiceRepository.Update(invoice);
 
+        if (paymentIntent.Metadata.TryGetValue("CheckoutMode", out var _))
+        {
+            await servicesApi.ActivateSubscription(invoice.SubscriptionId.GetValueOrDefault());
+        }
+
         var paymentMethod = await paymentMethodRepository.GetByStripePaymentMethodId(paymentIntent.PaymentMethodId);
 
-        if (paymentMethod is null)
-        {
-            var stripePaymentMethod = await new PaymentMethodService().GetAsync(paymentIntent.PaymentMethodId);
-
-            var card = stripePaymentMethod.Card;
-
-            paymentMethod = Domain.PaymentMethods.PaymentMethod.Create(
-                consumerId,
-                stripePaymentMethod.CustomerId,
-                stripePaymentMethod.Id,
-                PaymentMethodType.CreditCard,
-                card.Fingerprint,
-                card.Last4,
-                card.Brand,
-                card.ExpMonth,
-                card.ExpYear,
-                stripePaymentMethod.BillingDetails.Address.ToJson()
-            );
-
-            paymentMethod.SetAsDefault();
-
-            await paymentMethodRepository.AddAsync(paymentMethod);
-        }
+        if (paymentMethod is null && IsSaveAllowed(paymentIntent))
+            paymentMethod = await CreatePaymentMethodAsync(paymentIntent, consumerId);
 
         var payment = Payment.Create(
             invoice!.Id,
             consumerId,
-            paymentMethod!.Id,
+            paymentMethod?.Id,
             paymentIntent.Id,
             paymentIntent.Amount,
             paymentIntent.Currency,
@@ -71,5 +57,34 @@ internal sealed class PaymentIntentSucceededHandler(
         await unitOfWork.SaveChangesAsync();
 
         return Result.Success;
+    }
+
+    private static bool IsSaveAllowed(PaymentIntent paymentIntent) => paymentIntent.SetupFutureUsage == "off_session";
+
+    private async Task<Domain.PaymentMethods.PaymentMethod> CreatePaymentMethodAsync(
+        PaymentIntent paymentIntent,
+        Guid consumerId)
+    {
+        var stripePaymentMethod = await new PaymentMethodService().GetAsync(paymentIntent.PaymentMethodId);
+
+        var card = stripePaymentMethod.Card;
+
+        var paymentMethod = Domain.PaymentMethods.PaymentMethod.Create(
+            consumerId,
+            paymentIntent.CustomerId,
+            stripePaymentMethod.Id,
+            PaymentMethodType.CreditCard,
+            card.Fingerprint,
+            card.Last4,
+            card.Brand,
+            card.ExpMonth,
+            card.ExpYear,
+            stripePaymentMethod.BillingDetails.Address.ToJson()
+        );
+
+        paymentMethod.SetAsDefault();
+
+        await paymentMethodRepository.AddAsync(paymentMethod);
+        return paymentMethod;
     }
 }

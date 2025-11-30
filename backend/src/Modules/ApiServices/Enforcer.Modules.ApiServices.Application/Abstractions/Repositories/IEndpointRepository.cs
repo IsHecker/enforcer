@@ -9,5 +9,5 @@ public interface IEndpointRepository : IRepository<Endpoint>
         Guid apiServiceId,
         HTTPMethod httpMethod,
         string publicPath,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
 }

@@ -9,13 +9,13 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.ApiKeyBans;
 public class ApiKeyBanRepositoy(ApiServicesDbContext context)
     : Repository<ApiKeyBan>(context), IApiKeyBanRepositoy
 {
-    public Task<int> DeleteByApiKeyAsync(string apiKey, CancellationToken ct = default)
+    public Task<int> DeleteByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
     {
-        return context.ApiKeyBans.Where(ban => ban.ApiKey == apiKey).ExecuteDeleteAsync(ct);
+        return context.ApiKeyBans.Where(ban => ban.ApiKey == apiKey).ExecuteDeleteAsync(cancellationToken);
     }
 
-    public Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken ct = default)
+    public Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
     {
-        return context.ApiKeyBans.AnyAsync(ban => ban.ApiKey == apiKey, ct);
+        return context.ApiKeyBans.AnyAsync(ban => ban.ApiKey == apiKey, cancellationToken);
     }
 }

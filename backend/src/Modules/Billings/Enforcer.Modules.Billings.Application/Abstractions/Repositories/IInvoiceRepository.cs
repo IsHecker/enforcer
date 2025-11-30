@@ -5,4 +5,5 @@ namespace Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 
 public interface IInvoiceRepository : IRepository<Invoice>
 {
+    Task<Invoice?> GetLastPaidBySubscriptionIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
 }

@@ -8,5 +8,5 @@ public interface ISubscriptionRepository : IRepository<Subscription>
     Task<List<Subscription>> ListByConsumerAsync(Guid consumerId, CancellationToken cancellationToken = default);
     Task<List<Subscription>> ListByApiServiceAsync(Guid apiServiceId, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(Guid consumerId, Guid apiServiceId, CancellationToken cancellationToken = default);
-    Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken ct = default);
+    Task<bool> ExistsByApiKeyAsync(string apiKey, CancellationToken cancellationToken = default);
 }

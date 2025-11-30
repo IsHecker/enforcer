@@ -9,5 +9,16 @@ public interface IBillingsApi
     Task<Result> ProcessPlanSwitchBillingAsync(
         SubscriptionResponse subscription,
         PlanResponse targetPlan,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
+
+    Task<Result> ProcessCancellationRefundAsync(
+        SubscriptionResponse subscription,
+        CancellationToken cancellationToken = default);
+
+    Task<string> CreateSubscriptionCheckoutSessionAsync(
+        Guid consumerId,
+        SubscriptionResponse subscription,
+        PlanResponse plan,
+        string returnUrl,
+        CancellationToken cancellationToken = default);
 }

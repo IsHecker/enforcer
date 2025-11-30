@@ -5,5 +5,5 @@ namespace Enforcer.Modules.Analytics.Application.Abstractions.Repositories;
 
 public interface IApiServiceStatRepository : IRepository<ApiServiceStat>
 {
-    Task<ApiServiceStat?> GetByApiServiceIdAsync(Guid apiServiceId, CancellationToken ct = default);
+    Task<ApiServiceStat?> GetByApiServiceIdAsync(Guid apiServiceId, CancellationToken cancellationToken = default);
 }

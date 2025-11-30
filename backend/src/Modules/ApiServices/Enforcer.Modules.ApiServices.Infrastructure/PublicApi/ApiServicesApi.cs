@@ -6,8 +6,8 @@ using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForService;
 using Enforcer.Modules.ApiServices.Application.Plans;
-using Enforcer.Modules.ApiServices.Application.Plans.GetPlanById;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
+using Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
 using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
 using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
@@ -33,20 +33,20 @@ internal sealed class ApiServicesApi(
 {
     public async Task<ApiServiceResponse?> GetApiServiceByServiceKeyAsync(
         string serviceKey,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         var keyResult = ServiceKey.Create(serviceKey);
         if (keyResult.IsFailure)
             return null;
 
-        var apiService = await serviceRepository.GetByServiceKeyAsync(serviceKey, ct);
+        var apiService = await serviceRepository.GetByServiceKeyAsync(serviceKey, cancellationToken);
         return apiService?.ToResponse();
     }
 
     public async Task<IEnumerable<EndpointResponse>> ListEndpointsForServiceAsync(Guid apiServiceId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new ListEndpointsForServiceQuery(apiServiceId), ct);
+        var result = await sender.Send(new ListEndpointsForServiceQuery(apiServiceId), cancellationToken);
         if (result.IsFailure)
             return [];
 
@@ -56,7 +56,7 @@ internal sealed class ApiServicesApi(
     public async Task<SubscriptionResponse?> GetSubscriptionForServiceAsync(
         string apiKey,
         Guid apiServiceId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         return await context.Subscriptions
             .AsNoTracking()
@@ -64,37 +64,37 @@ internal sealed class ApiServicesApi(
             .Where(s => s.ApiKey == apiKey
                         && s.ApiService.Id == apiServiceId)
             .Select(s => s.ToResponse())
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken ct = default)
+    public async Task<ApiKeyBanResponse?> GetApiKeyBanAsync(string apiKey, CancellationToken cancellationToken = default)
     {
         return await context.ApiKeyBans
             .AsNoTracking()
             .Where(ban => ban.ApiKey == apiKey)
             .Select(ban => ban.ToResponse())
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task UnbanApiKeyAsync(string apiKey, CancellationToken ct = default)
+    public async Task UnbanApiKeyAsync(string apiKey, CancellationToken cancellationToken = default)
     {
         await context.ApiKeyBans
             .AsNoTracking()
             .Where(bl => bl.ApiKey == apiKey)
-            .ExecuteDeleteAsync(ct);
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
     public async Task<bool> IsSubscribedToRequiredPlanAsync(
         PlanResponse subscribedPlan,
         Guid requiredPlanId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         if (subscribedPlan.Id == requiredPlanId)
             return true;
 
         return await context.Plans
             .Where(p => p.Id == requiredPlanId && subscribedPlan.TierLevel >= p.TierLevel)
-            .AnyAsync(ct);
+            .AnyAsync(cancellationToken);
     }
 
     public Task<Result> ConsumeQuotaAsync(Guid subscriptionId, PlanResponse plan)
@@ -102,7 +102,7 @@ internal sealed class ApiServicesApi(
 
     public async Task<List<SubscriptionResponse>> GetExpiredSubscriptions(
         int size,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         return await context.Subscriptions
             .AsNoTracking()
@@ -112,16 +112,16 @@ internal sealed class ApiServicesApi(
                 && sub.ExpiresAt <= DateTime.UtcNow && sub.ConsumerId == Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"))
             .Take(size)
             .Select(sub => sub.ToResponse())
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task RenewSubscription(Guid subscriptionId, CancellationToken ct = default)
+    public async Task RenewSubscription(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
         var subscription = await context.Subscriptions
             .AsNoTracking()
             .Include(sub => sub.Plan)
             .Include(sub => sub.ApiUsage)
-            .FirstAsync(sub => sub.Id == subscriptionId, ct);
+            .FirstAsync(sub => sub.Id == subscriptionId, cancellationToken);
 
         subscription.Renew();
 
@@ -131,10 +131,10 @@ internal sealed class ApiServicesApi(
 
         subscriptionRepository.Update(subscription);
 
-        await unitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<int> DeleteExpiredSubscriptions(int size, CancellationToken ct = default)
+    public async Task<int> DeleteExpiredSubscriptions(int size, CancellationToken cancellationToken = default)
     {
         var expiredIds = await context.Subscriptions
             .AsNoTracking()
@@ -143,20 +143,21 @@ internal sealed class ApiServicesApi(
                 && sub.IsCanceled == true)
             .Take(size)
             .Select(sub => sub.Id)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         if (expiredIds.Count == 0)
             return 0;
 
         return await context.Subscriptions
             .Where(sub => expiredIds.Contains(sub.Id))
-            .ExecuteDeleteAsync(ct);
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task<PlanResponse?> GetPlanByIdAsync(Guid planId, CancellationToken ct = default)
+    public async Task ActivateSubscription(Guid subscriptionId, CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetPlanByIdQuery(planId), ct);
-
-        return result.IsFailure ? null : result.Value;
+        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken);
+        subscription!.Activate();
+        subscriptionRepository.Update(subscription);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -11,7 +11,6 @@ internal sealed class ApiUsageConfiguration : IEntityTypeConfiguration<ApiUsage>
     {
         builder.HasOne<Subscription>()
             .WithOne(sub => sub.ApiUsage)
-            .HasForeignKey<ApiUsage>(qu => qu.SubscriptionId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey<ApiUsage>(qu => qu.SubscriptionId);
     }
 }

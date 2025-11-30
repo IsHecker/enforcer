@@ -5,18 +5,18 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedSt
 
 public class ProcessedStripeEventRepository(BillingsDbContext context)
 {
-    public Task<bool> IsEventProcessedAsync(string eventId, CancellationToken ct = default)
+    public Task<bool> IsEventProcessedAsync(string eventId, CancellationToken cancellationToken = default)
     {
-        return context.ProcessedStripeEvents.AnyAsync(e => e.EventId == eventId, ct);
+        return context.ProcessedStripeEvents.AnyAsync(e => e.EventId == eventId, cancellationToken);
     }
 
-    public async Task MarkEventAsProcessedAsync(string eventId, CancellationToken ct = default)
+    public async Task MarkEventAsProcessedAsync(string eventId, CancellationToken cancellationToken = default)
     {
         await context.ProcessedStripeEvents.AddAsync(new ProcessedStripeEvent
         {
             EventId = eventId
-        }, ct);
+        }, cancellationToken);
 
-        await context.SaveChangesAsync(ct);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
