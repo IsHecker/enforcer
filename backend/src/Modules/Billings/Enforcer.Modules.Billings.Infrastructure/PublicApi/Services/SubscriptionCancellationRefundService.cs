@@ -29,13 +29,8 @@ internal sealed class SubscriptionCancellationRefundService(
         if (invoice.Status != InvoiceStatus.Paid)
             return Error.Validation("Invoice.NotPaid", "Can only refund paid invoices");
 
-        // 2. Check refund policy
-        var refundAmount = RefundPolicyEvaluator.EvaluateRefundEligibility(
-            subscription.SubscribedAt,
-            subscription.ExpiresAt,
-            invoice.Total);
+        var refundAmount = RefundPolicyEvaluator.EvaluateRefundEligibility(subscription, invoice.Total);
 
-        // 4. Create refund transaction
         var refund = RefundTransaction.Create(
             invoice.Id,
             invoice.ConsumerId,
@@ -45,7 +40,6 @@ internal sealed class SubscriptionCancellationRefundService(
         await refundRepository.AddAsync(refund, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 5. Process refund with Stripe
         var refundResult = await stripeGateway.RefundAsync(refund, cancellationToken);
 
         if (refundResult.IsFailure)
@@ -65,18 +59,19 @@ internal sealed class RefundPolicyEvaluator
     private const int GracePeriodDays = 7;
 
     public static long EvaluateRefundEligibility(
-        DateTime subscribedAt,
-        DateTime? expiresAt,
+        SubscriptionResponse subscription,
         long amountPaid)
     {
         var now = DateTime.UtcNow;
-        var daysSinceSubscribed = (now - subscribedAt).Days;
-        var remainingDays = (expiresAt!.Value - now).Days;
-        var totalDays = (expiresAt.Value - subscribedAt).Days;
+        var daysSinceSubscribed = (now - subscription.SubscribedAt).Days;
 
         if (daysSinceSubscribed <= GracePeriodDays)
             return amountPaid;
 
-        return ProrationCalculatorService.CalculateProrated(amountPaid, totalDays, remainingDays);
+        return ProrationCalculatorService.CalculateProrated(
+            amountPaid,
+            subscription.Plan.BillingPeriod!,
+            subscription.ExpiresAt!.Value,
+            now);
     }
 }

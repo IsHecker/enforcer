@@ -48,35 +48,31 @@ internal sealed class SubscriptionRenewalService(
 
     private async Task<Invoice> CreateInvoiceAsync(SubscriptionResponse subscription, CancellationToken cancellationToken)
     {
-        var lineItems = new List<InvoiceLineItem>();
+        var invoice = Invoice.Create(
+            subscription.ConsumerId,
+            "USD",
+            subscription.Id,
+            DateTime.UtcNow,
+            subscription.ExpiresAt);
 
         var subscriptionLineItem = InvoiceLineItem.Create(
             InvoiceItemType.Subscription,
-            $"{subscription.Plan!.Name} - Renewal",
-            subscription.Plan.PriceInCents
-        );
-        lineItems.Add(subscriptionLineItem);
+            $"{subscription.Plan.Name} - Renewal",
+            subscription.Plan.PriceInCents);
 
-        if (subscription.ApiUsage!.OverageUsed > 0 &&
+        invoice.AddLineItem(subscriptionLineItem);
+
+        if (subscription.ApiUsage.OverageUsed > 0 &&
             subscription.Plan.OveragePriceInCents.HasValue)
         {
             var overageLineItem = InvoiceLineItem.Create(
                 InvoiceItemType.Overage,
                 $"Overage: {subscription.ApiUsage.OverageUsed} additional API calls",
                 subscription.Plan.OveragePriceInCents.Value,
-                subscription.ApiUsage.OverageUsed
-            );
-            lineItems.Add(overageLineItem);
-        }
+                subscription.ApiUsage.OverageUsed);
 
-        var invoice = Invoice.Create(
-            subscription.ConsumerId,
-            "USD",
-            lineItems,
-            subscription.Id,
-            DateTime.UtcNow,
-            subscription.ExpiresAt
-        );
+            invoice.AddLineItem(overageLineItem);
+        }
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

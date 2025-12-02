@@ -55,10 +55,11 @@ internal sealed class BillingsApi(
         var invoice = Invoice.Create(
             consumerId,
             "USD",
-            [lineItem],
             subscription.Id,
             DateTime.UtcNow,
             subscription.ExpiresAt);
+
+        invoice.AddLineItem(lineItem);
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

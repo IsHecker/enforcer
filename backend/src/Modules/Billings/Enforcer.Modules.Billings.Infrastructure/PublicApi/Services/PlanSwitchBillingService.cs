@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.ApiServices.Contracts.ApiUsages;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
@@ -9,11 +10,6 @@ using Enforcer.Modules.Billings.Domain.Invoices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.Billings.Infrastructure.PublicApi.Services;
-
-internal readonly record struct PlanSwitchContext(
-    SubscriptionResponse Subscription,
-    PlanResponse TargetPlan
-);
 
 internal sealed class PlanSwitchBillingService(
     IInvoiceRepository invoiceRepository,
@@ -25,20 +21,15 @@ internal sealed class PlanSwitchBillingService(
         PlanResponse targetPlan,
         CancellationToken cancellationToken = default)
     {
-        var context = new PlanSwitchContext(subscription, targetPlan);
-
-        var invoice = PlanSwitchInvoiceFactory.CreatePlanSwitchInvoice(context);
+        var invoice = PlanSwitchInvoiceFactory.CreatePlanSwitchInvoice(
+            subscription,
+            targetPlan,
+            DateTime.UtcNow);
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Handle payment based on invoice total
-        var paymentResult = await ProcessPaymentAsync(invoice, cancellationToken);
-
-        if (paymentResult.IsFailure)
-            return paymentResult.Error;
-
-        return Result.Success;
+        return await ProcessPaymentAsync(invoice, cancellationToken);
     }
 
     private async Task<Result> ProcessPaymentAsync(
@@ -49,163 +40,159 @@ internal sealed class PlanSwitchBillingService(
         {
             invoice.MarkAsPaid();
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
             return Result.Success;
         }
 
-        var chargeResult = await stripeGateway.ChargeAsync(invoice, cancellationToken);
-
-        return chargeResult.IsSuccess ?
-            Result.Success : chargeResult.Error;
+        return await stripeGateway.ChargeAsync(invoice, cancellationToken);
     }
 }
 
 internal static class PlanSwitchInvoiceFactory
 {
-    public static Invoice CreatePlanSwitchInvoice(PlanSwitchContext context)
+    private readonly record struct InvoiceContext(
+        Invoice Invoice,
+        PlanResponse CurrentPlan,
+        PlanResponse TargetPlan,
+        DateTime Now,
+        DateTime ExpiresAt);
+
+    public static Invoice CreatePlanSwitchInvoice(
+        SubscriptionResponse subscription,
+        PlanResponse targetPlan,
+        DateTime now)
     {
-        var lineItems = new List<InvoiceLineItem>();
+        ValidateInputs(subscription, targetPlan, now);
 
-        var subscription = context.Subscription;
+        var currentPlan = subscription.Plan;
+        var expiresAt = subscription.ExpiresAt!.Value;
 
-        var now = DateTime.UtcNow;
-        var daysRemaining = CalculateDaysRemaining(subscription.ExpiresAt, now);
-
-        if (IsFreePlan(subscription.Plan!))
-        {
-            AddTrialUpgradeCharge(lineItems, context, daysRemaining, now);
-        }
-        else
-        {
-            AddOldPlanCredit(lineItems, context, daysRemaining, now);
-            AddNewPlanCharge(lineItems, context, daysRemaining, now);
-        }
-
-        AddOutstandingOverages(lineItems, context);
-
-        return Invoice.Create(
+        var invoice = Invoice.Create(
             subscription.ConsumerId,
             "USD",
-            lineItems,
             subscription.Id,
             now,
             subscription.ExpiresAt,
-            $"Plan switch: {subscription.Plan!.Name} → {context.TargetPlan.Name}"
-        );
-    }
+            $"Plan switch: {currentPlan.Name} → {targetPlan.Name}");
 
-    private static void AddTrialUpgradeCharge(
-        List<InvoiceLineItem> items,
-        PlanSwitchContext context,
-        int daysRemaining,
-        DateTime now)
-    {
-        var prorated = ProrationCalculatorService.CalculateProrated(
-            context.TargetPlan.PriceInCents,
-            GetBillingPeriodDays(context.TargetPlan.BillingPeriod),
-            daysRemaining
-        );
+        var context = new InvoiceContext(
+            invoice,
+            currentPlan,
+            targetPlan,
+            now,
+            expiresAt);
 
-        items.Add(InvoiceLineItem.Create(
-            InvoiceItemType.Subscription,
-            $"{context.TargetPlan.Name} ({daysRemaining} days prorated)",
-            prorated,
-            periodStart: now,
-            periodEnd: context.Subscription.ExpiresAt
-        ));
-    }
+        AddOutstandingOverages(context, subscription.ApiUsage);
 
-    private static void AddOldPlanCredit(
-        List<InvoiceLineItem> items,
-        PlanSwitchContext context,
-        int daysRemaining,
-        DateTime now)
-    {
-        var currentPlan = context.Subscription.Plan!;
-
-        var credit = ProrationCalculatorService.CalculateProrated(
-            currentPlan.PriceInCents,
-            GetBillingPeriodDays(currentPlan.BillingPeriod),
-            daysRemaining
-        );
-
-        items.Add(InvoiceLineItem.Create(
-            InvoiceItemType.Credit,
-            $"Credit: {currentPlan.Name} ({daysRemaining} days unused)",
-            -credit,
-            periodStart: now,
-            periodEnd: context.Subscription.ExpiresAt
-        ));
-    }
-
-    private static void AddNewPlanCharge(
-        List<InvoiceLineItem> items,
-        PlanSwitchContext context,
-        int daysRemaining,
-        DateTime now)
-    {
-        var targetPlan = context.TargetPlan;
-
-        if (!IsSameBillingPeriod(context.Subscription.Plan!, targetPlan))
+        if (IsFreePlan(currentPlan))
         {
-            items.Add(InvoiceLineItem.Create(
-                InvoiceItemType.Subscription,
-                $"{targetPlan.Name} (new {targetPlan.BillingPeriod} cycle)",
-                targetPlan.PriceInCents,
-                periodStart: now,
-                periodEnd: now.AddDays(GetBillingPeriodDays(targetPlan.BillingPeriod))
-            ));
-
-            return;
+            AddFullPriceNewPlanCharge(context);
+            return invoice;
         }
 
-        var charge = ProrationCalculatorService.CalculateProrated(
-            targetPlan.PriceInCents,
-            GetBillingPeriodDays(targetPlan.BillingPeriod),
-            daysRemaining
-        );
+        AddCreditForUnusedTime(context);
 
-        items.Add(InvoiceLineItem.Create(
+        if (IsFreePlan(targetPlan))
+            return invoice;
+
+        if (!IsSameBillingPeriod(context))
+            AddFullPriceNewPlanCharge(context);
+        else
+            AddProratedNewPlanCharge(context);
+
+        return invoice;
+    }
+
+    private static void AddProratedNewPlanCharge(InvoiceContext context)
+    {
+        var proratedAmount = ProrationCalculatorService.CalculateProrated(
+            context.TargetPlan.PriceInCents,
+            context.TargetPlan.BillingPeriod!,
+            context.ExpiresAt,
+            context.Now);
+
+        var daysRemaining = ProrationCalculatorService.CalculateDaysRemaining(context.ExpiresAt, context.Now);
+
+        context.Invoice.AddLineItem(InvoiceLineItem.Create(
             InvoiceItemType.Subscription,
-            $"{targetPlan.Name} ({daysRemaining} days prorated)",
-            charge,
-            periodStart: now,
-            periodEnd: context.Subscription.ExpiresAt
-        ));
+            $"{context.TargetPlan.Name} ({daysRemaining} days prorated)",
+            proratedAmount,
+            periodStart: context.Now,
+            periodEnd: context.ExpiresAt));
+    }
+
+    private static void AddCreditForUnusedTime(InvoiceContext context)
+    {
+        var currentPlan = context.CurrentPlan;
+
+        var creditAmount = ProrationCalculatorService.CalculateProrated(
+            currentPlan.PriceInCents,
+            currentPlan.BillingPeriod!,
+            context.ExpiresAt,
+            context.Now);
+
+        var daysRemaining = ProrationCalculatorService.CalculateDaysRemaining(context.ExpiresAt, context.Now);
+
+        context.Invoice.AddLineItem(InvoiceLineItem.Create(
+            InvoiceItemType.Credit,
+            $"Credit: {currentPlan.Name} ({daysRemaining} days unused)",
+            -creditAmount,
+            periodStart: context.Now,
+            periodEnd: context.ExpiresAt));
+    }
+
+    private static void AddFullPriceNewPlanCharge(InvoiceContext context)
+    {
+        var nextBillingDate = ProrationCalculatorService.GetNextBillingDate(context.TargetPlan.BillingPeriod!, context.Now);
+
+        context.Invoice.AddLineItem(InvoiceLineItem.Create(
+            InvoiceItemType.Subscription,
+            $"{context.TargetPlan.Name} (new {context.TargetPlan.BillingPeriod} cycle)",
+            context.TargetPlan.PriceInCents,
+            periodStart: context.Now,
+            periodEnd: nextBillingDate));
     }
 
     private static void AddOutstandingOverages(
-        List<InvoiceLineItem> items,
-        PlanSwitchContext context)
+        InvoiceContext context,
+        ApiUsageResponse apiUsage)
     {
-        var apiUsage = context.Subscription.ApiUsage;
+        var overagePriceInCents = context.CurrentPlan.OveragePriceInCents;
 
-        if (apiUsage is null ||
-            apiUsage.OverageUsed <= 0 ||
-            !context.Subscription.Plan!.OveragePriceInCents.HasValue)
-        {
+        if (apiUsage.OverageUsed <= 0 || !overagePriceInCents.HasValue)
             return;
-        }
 
-        items.Add(InvoiceLineItem.Create(
+        context.Invoice.AddLineItem(InvoiceLineItem.Create(
             InvoiceItemType.Overage,
             $"Outstanding overage: {apiUsage.OverageUsed:N0} calls",
             quantity: apiUsage.OverageUsed,
-            unitPrice: context.Subscription.Plan.OveragePriceInCents.Value
-        ));
+            unitPrice: overagePriceInCents.Value));
     }
 
-    private static bool IsFreePlan(PlanResponse plan) => plan.PriceInCents == 0;
-    private static bool IsSameBillingPeriod(PlanResponse currentPlan, PlanResponse targetPlan)
-        => currentPlan.BillingPeriod == targetPlan.BillingPeriod;
-
-    public static int CalculateDaysRemaining(DateTime? expiresAt, DateTime now) =>
-        Math.Max(0, (expiresAt.GetValueOrDefault() - now).Days);
-
-    private static int GetBillingPeriodDays(string? period) => period?.ToLower() switch
+    private static void ValidateInputs(
+        SubscriptionResponse subscription,
+        PlanResponse targetPlan,
+        DateTime now)
     {
-        "monthly" => 30,
-        "yearly" => 365,
-        _ => 30
-    };
+        ArgumentNullException.ThrowIfNull(subscription);
+
+        ArgumentNullException.ThrowIfNull(targetPlan);
+
+        if (subscription.Plan is null)
+            throw new InvalidOperationException("Subscription must have a plan");
+
+        if (!subscription.ExpiresAt.HasValue)
+            throw new InvalidOperationException("Subscription must have an expiration date");
+
+        if (subscription.ExpiresAt.Value <= now)
+            throw new InvalidOperationException("Cannot switch plans on an expired subscription");
+    }
+
+    private static bool IsUpgradeFromFreePlan(InvoiceContext context) =>
+        context.CurrentPlan.PriceInCents == 0;
+
+    private static bool IsFreePlan(PlanResponse plan) =>
+        plan.PriceInCents == 0;
+
+    private static bool IsSameBillingPeriod(InvoiceContext context) =>
+        context.CurrentPlan.BillingPeriod == context.TargetPlan.BillingPeriod;
 }

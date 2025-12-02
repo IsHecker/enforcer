@@ -35,15 +35,11 @@ public sealed class Invoice : Entity
     public static Invoice Create(
         Guid consumerId,
         string currency,
-        List<InvoiceLineItem> lineItems,
         Guid? subscriptionId = null,
         DateTime? billingPeriodStart = null,
         DateTime? billingPeriodEnd = null,
         string? notes = null)
     {
-        if (lineItems.Count == 0)
-            throw new ArgumentException("Invoice must have at least one line item");
-
         var invoice = new Invoice
         {
             ConsumerId = consumerId,
@@ -56,12 +52,19 @@ public sealed class Invoice : Entity
             IssuedAt = DateTime.UtcNow,
             DueAt = DateTime.UtcNow.AddDays(15),
             Notes = notes,
-            _lineItems = lineItems
+            _lineItems = []
         };
 
-        invoice.CalculateTotals();
-
         return invoice;
+    }
+
+    public void AddLineItem(InvoiceLineItem item)
+    {
+        if (Status != InvoiceStatus.Pending)
+            throw new InvalidOperationException("Cannot modify finalized invoice");
+
+        _lineItems.Add(item);
+        CalculateTotals();
     }
 
     public void MarkAsPaid()
@@ -93,20 +96,15 @@ public sealed class Invoice : Entity
 
     private void CalculateTotals()
     {
-        var subtotal = _lineItems
-            .Where(x => x.Type != InvoiceItemType.Discount
-                && x.Type != InvoiceItemType.Tax)
-            .Sum(x => x.TotalAmount);
+        Total = _lineItems.Sum(x => x.TotalAmount);
 
-        DiscountTotal = _lineItems
+        DiscountTotal = Math.Abs(_lineItems
             .Where(x => x.Type == InvoiceItemType.Discount)
-            .Sum(x => x.TotalAmount);
+            .Sum(x => x.TotalAmount));
 
         TaxTotal = _lineItems
             .Where(x => x.Type == InvoiceItemType.Tax)
             .Sum(x => x.TotalAmount);
-
-        Total = subtotal - DiscountTotal + TaxTotal;
     }
 
     private static string GenerateInvoiceNumber() =>

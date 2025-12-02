@@ -11,10 +11,8 @@ public sealed record SubscriptionResponse(
     string ApiKey,
     DateTime SubscribedAt,
     DateTime? ExpiresAt,
+    DateTime? RenewedAt,
     bool IsCanceled,
-    PlanResponse? Plan,
-    ApiUsageResponse? ApiUsage = null!
-)
-{
-    public bool IsExpired => ExpiresAt.HasValue && ExpiresAt < DateTime.UtcNow;
-}
+    PlanResponse Plan = null!,
+    ApiUsageResponse ApiUsage = null!
+);

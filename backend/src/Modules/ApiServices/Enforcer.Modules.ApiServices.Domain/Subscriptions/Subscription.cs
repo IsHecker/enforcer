@@ -18,6 +18,7 @@ public sealed class Subscription : Entity
 
     public DateTime SubscribedAt { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
+    public DateTime? RenewedAt { get; private set; }
 
     public bool IsCanceled { get; private set; }
     public bool IsActivated { get; private set; }
@@ -74,7 +75,10 @@ public sealed class Subscription : Entity
         if (IsFree)
             return SubscriptionErrors.NoExpirationToRenew;
 
-        ExpiresAt = CalculateExpiration(DateTime.UtcNow, Plan.BillingPeriod)!;
+        var now = DateTime.UtcNow;
+
+        ExpiresAt = CalculateExpiration(now, Plan.BillingPeriod)!;
+        RenewedAt = now;
 
         return Result.Success;
     }
@@ -177,7 +181,7 @@ public sealed class Subscription : Entity
         {
             BillingPeriod.Monthly => startDate.AddMonths(1),
             BillingPeriod.Yearly => startDate.AddYears(1),
-            _ => startDate.AddMonths(1)
+            _ => throw new ArgumentException($"Unknown billing period: {billingPeriod}")
         };
     }
 }

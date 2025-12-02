@@ -1,4 +1,5 @@
 using Enforcer.Common.Application.Caching;
+using Enforcer.Common.Application.Exceptions;
 using Enforcer.Common.Domain.Enums.ApiServices;
 using Enforcer.Common.Domain.Results;
 using Microsoft.Extensions.Logging;
@@ -86,7 +87,7 @@ public sealed class RateLimitService(ICacheService cacheService, ILogger<RateLim
             RateLimitWindow.Second => rateLimit,
             RateLimitWindow.Minute => rateLimit / 60f,
             RateLimitWindow.Hour => rateLimit / 3600f,
-            _ => throw new NotImplementedException(),
+            _ => throw new ArgumentException($"Unknown Rate limit window: {window}"),
         };
 
     private async Task<TokenBucket?> GetFromCacheAsync(Guid subscriptionId, Guid sourceId)

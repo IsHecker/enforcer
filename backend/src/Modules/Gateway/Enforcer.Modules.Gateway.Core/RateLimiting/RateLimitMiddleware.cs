@@ -18,7 +18,7 @@ public sealed class RateLimitMiddleware(
         var subscription = requestContext.Subscription!;
         var endpoint = requestContext.EndpointConfig!;
 
-        var rateLimitConfig = DetermineRateLimitConfig(subscription.Plan!, endpoint);
+        var rateLimitConfig = DetermineRateLimitConfig(subscription.Plan, endpoint);
 
         var rateLimitResult = await rateLimitService.ConsumeRateLimitTokenAsync(
             subscription.Id,
@@ -32,7 +32,7 @@ public sealed class RateLimitMiddleware(
 
         var quotaResult = await servicesApi.ConsumeQuotaAsync(
             subscription.Id,
-            subscription.Plan!);
+            subscription.Plan);
 
         if (quotaResult.IsFailure)
         {

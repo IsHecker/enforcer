@@ -28,7 +28,7 @@ public sealed class EndpointAuthorizationMiddleware(RequestDelegate next)
             return;
         }
 
-        var isSubscribed = await servicesApi.IsSubscribedToRequiredPlanAsync(subscription.Plan!, endpoint.PlanId);
+        var isSubscribed = await servicesApi.IsSubscribedToRequiredPlanAsync(subscription.Plan, endpoint.PlanId);
 
         if (!isSubscribed)
         {

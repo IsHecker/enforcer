@@ -33,7 +33,9 @@ public sealed class ApiKeyAuthenticationMiddleware(RequestDelegate next)
             return;
         }
 
-        if (subscription.IsExpired)
+        var isExpired = subscription.ExpiresAt.HasValue && subscription.ExpiresAt < DateTime.UtcNow;
+
+        if (isExpired)
         {
             await ErrorResponse(context, Error.Forbidden(description: "Subscription expired."));
             return;
