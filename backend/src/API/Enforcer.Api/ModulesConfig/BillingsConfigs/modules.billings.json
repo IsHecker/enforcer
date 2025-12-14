@@ -1,7 +1,7 @@
 {
   "Billings": {
     "SubscriptionRenewal": {
-      "Enabled": true,
+      "Enabled": false,
       "RunIntervalInMinutes": 5,
       "BatchSize": 1000,
       "MaxFailedPaymentRetries": 3,
@@ -10,13 +10,21 @@
       "ConcurrentRenewals": 10
     },
     "ExpiredSubscriptionCleanup": {
-      "Enabled": true,
+      "Enabled": false,
       "RunIntervalInMinutes": 15,
       "BatchSize": 1000,
       "ConcurrentCleanups": 5
     },
-    "Stripe": {
-      "SuccessUrl": "whsec_123"
+    "Payout": {
+      "PlatformFeePercentage": 30,
+      "MinimumWithdrawalAmountInCents": 100,
+      "PayoutCycle": {
+        "Enabled": false,
+        "CronSchedule": "0 0 0 L * ? *",
+        "RunIntervalInMinutes": 3,
+        "BatchSize": 5,
+        "RetryCount": 3
+      }
     }
   }
 }

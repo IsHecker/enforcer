@@ -7,13 +7,13 @@ using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.ListEndpointsForService;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
-using Enforcer.Modules.ApiServices.Application.Subscriptions.GetSubscriptionById;
 using Enforcer.Modules.ApiServices.Contracts.ApiKeyBlacklist;
 using Enforcer.Modules.ApiServices.Contracts.ApiServices;
 using Enforcer.Modules.ApiServices.Contracts.Endpoints;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.ApiServices.ValueObjects;
+using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiUsages;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
 using Enforcer.Modules.ApiServices.PublicApi;
@@ -27,6 +27,7 @@ internal sealed class ApiServicesApi(
     ApiServicesDbContext context,
     IApiServiceRepository serviceRepository,
     ISubscriptionRepository subscriptionRepository,
+    IPlanRepository planRepository,
     ApiUsageEnforcementService enforcementService,
     [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork,
     ISender sender) : IApiServicesApi
@@ -109,7 +110,7 @@ internal sealed class ApiServicesApi(
             .Include(sub => sub.Plan)
             .Include(sub => sub.ApiUsage)
             .Where(sub => sub.ExpiresAt.HasValue
-                && sub.ExpiresAt <= DateTime.UtcNow && sub.ConsumerId == Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"))
+                && sub.ExpiresAt <= DateTime.UtcNow)
             .Take(size)
             .Select(sub => sub.ToResponse())
             .ToListAsync(cancellationToken);
@@ -153,11 +154,15 @@ internal sealed class ApiServicesApi(
             .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task ActivateSubscription(Guid subscriptionId, CancellationToken cancellationToken = default)
+    public async Task<Guid> CreateSubscriptionAsync(Guid consumerId, Guid planId, CancellationToken cancellationToken = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken);
-        subscription!.Activate();
-        subscriptionRepository.Update(subscription);
+        var plan = await planRepository.GetByIdAsync(planId, cancellationToken);
+
+        var subscription = Subscription.Create(consumerId, plan!);
+
+        await subscriptionRepository.AddAsync(subscription.Value, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return subscription.Value.Id;
     }
 }

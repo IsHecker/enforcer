@@ -18,7 +18,6 @@ public sealed class Subscription : Entity
 
     public DateTime SubscribedAt { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
-    public DateTime? RenewedAt { get; private set; }
 
     public bool IsCanceled { get; private set; }
     public bool IsActivated { get; private set; }
@@ -78,7 +77,6 @@ public sealed class Subscription : Entity
         var now = DateTime.UtcNow;
 
         ExpiresAt = CalculateExpiration(now, Plan.BillingPeriod)!;
-        RenewedAt = now;
 
         return Result.Success;
     }

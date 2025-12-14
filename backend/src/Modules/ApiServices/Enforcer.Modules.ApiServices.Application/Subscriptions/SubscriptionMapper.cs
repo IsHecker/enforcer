@@ -17,8 +17,7 @@ public static class SubscriptionMapper
             s.ApiKey,
             s.SubscribedAt,
             s.ExpiresAt,
-            s.RenewedAt,
             s.IsCanceled,
-            s.Plan?.ToResponse(),
-            s.ApiUsage?.ToResponse());
+            s.Plan?.ToResponse()!,
+            s.ApiUsage?.ToResponse()!);
 }

@@ -38,8 +38,7 @@ internal sealed class SwitchSubscriptionPlanCommandHandler(
         var billingResult = await billingsApi.ProcessPlanSwitchBillingAsync(
             subscription.ToResponse(),
             targetPlan.ToResponse(),
-            cancellationToken
-        );
+            cancellationToken);
 
         if (billingResult.IsFailure)
             return billingResult.Error;

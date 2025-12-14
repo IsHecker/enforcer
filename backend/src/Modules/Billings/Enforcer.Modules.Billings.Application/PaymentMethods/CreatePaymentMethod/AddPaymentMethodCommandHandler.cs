@@ -1,4 +1,5 @@
 using Enforcer.Common.Application.Messaging;
+using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Contracts;
@@ -10,7 +11,7 @@ internal sealed class CreatePaymentMethodCommandHandler(IStripeGateway stripeSer
 {
     public async Task<Result<CheckoutSessionResponse>> Handle(CreatePaymentMethodCommand request, CancellationToken cancellationToken)
     {
-        var url = await stripeService.CreateSetupSessionAsync("cus_TQhMgiqIy35WS7", request.ReturnUrl, cancellationToken);
+        var url = await stripeService.CreateSetupSessionAsync(SharedData.CustomerId, request.ReturnUrl, cancellationToken);
 
         return new CheckoutSessionResponse(url);
     }

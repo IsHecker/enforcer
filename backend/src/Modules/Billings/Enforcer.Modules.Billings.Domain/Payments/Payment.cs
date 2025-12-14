@@ -9,9 +9,9 @@ public sealed class Payment : Entity
     public Guid InvoiceId { get; private set; }
     public Guid ConsumerId { get; private set; }
 
-    public decimal Amount { get; private set; }
+    public long Amount { get; private set; }
     public string Currency { get; private set; }
-    public decimal RefundedAmount { get; private set; }
+    public long? RefundedAmount { get; private set; }
 
     public Guid? PaymentMethodId { get; private set; }
     public string PaymentTransactionId { get; private set; } // Stripe PaymentIntent ID
@@ -23,12 +23,9 @@ public sealed class Payment : Entity
 
     public string? FailureCode { get; private set; }
     public string? FailureMessage { get; private set; }
+
     public DateTime? FailedAt { get; private set; }
-
-    public int RetryCount { get; private set; }
     public DateTime? LastRetryAt { get; private set; }
-
-    public DateTime? LastPaymentAttempt { get; private set; }
     public DateTime? NextPaymentRetry { get; private set; }
 
     private Payment() { }
@@ -38,7 +35,7 @@ public sealed class Payment : Entity
         Guid consumerId,
         Guid? paymentMethodId,
         string paymentTransactionId,
-        decimal amount,
+        long amount,
         string currency,
         PaymentStatus status,
         string? failureCode = null,
@@ -60,5 +57,15 @@ public sealed class Payment : Entity
             FailureCode = failureCode,
             FailureMessage = failureMessage
         };
+    }
+
+    public void MarkAsRefund(long refundedAmount)
+    {
+        if (refundedAmount < Amount)
+            Status = PaymentStatus.PartiallyRefunded;
+        else
+            Status = PaymentStatus.Refunded;
+
+        RefundedAmount = refundedAmount;
     }
 }

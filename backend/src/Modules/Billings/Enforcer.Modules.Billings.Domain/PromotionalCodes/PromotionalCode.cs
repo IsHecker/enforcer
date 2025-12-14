@@ -24,6 +24,31 @@ public sealed class PromotionalCode : Entity
 
     private PromotionalCode() { }
 
+    public static PromotionalCode Create(
+        string code,
+        PromotionalCodeDiscountType type,
+        int value,
+        int? maxUses,
+        int? maxUsesPerUser,
+        DateTime validFrom,
+        DateTime? validUntil,
+        Guid createdBy)
+    {
+        return new PromotionalCode
+        {
+            Code = code,
+            Type = type,
+            Value = value,
+            MaxUses = maxUses,
+            MaxUsesPerUser = maxUsesPerUser,
+            UsedCount = 0,
+            ValidFrom = validFrom,
+            ValidUntil = validUntil,
+            IsActive = true,
+            CreatedBy = createdBy
+        };
+    }
+
     public bool IsCurrentlyValid()
     {
         var now = DateTime.UtcNow;
@@ -39,8 +64,7 @@ public sealed class PromotionalCode : Entity
 
     public bool HasExceededPerUserLimit(int userUsageCount)
     {
-        return !MaxUsesPerUser.HasValue
-            || userUsageCount < MaxUsesPerUser.Value;
+        return userUsageCount >= MaxUsesPerUser!.Value;
     }
 
     public long CalculateDiscount(long totalAmount)

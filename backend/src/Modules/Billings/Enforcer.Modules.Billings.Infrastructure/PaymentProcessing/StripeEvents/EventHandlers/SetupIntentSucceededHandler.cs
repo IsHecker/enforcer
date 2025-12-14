@@ -1,4 +1,5 @@
 using Enforcer.Common.Application.Data;
+using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
@@ -14,7 +15,7 @@ internal sealed class SetupIntentSucceededHandler(
 {
     public override async Task<Result> HandleAsync(SetupIntent setupIntent)
     {
-        var consumerId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
+        var consumerId = SharedData.UserId;
 
         var stripePaymentMethod = await new PaymentMethodService().GetAsync(setupIntent.PaymentMethodId);
         var card = stripePaymentMethod.Card;

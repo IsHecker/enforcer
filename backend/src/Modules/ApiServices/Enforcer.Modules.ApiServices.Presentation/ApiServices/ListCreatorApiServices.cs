@@ -1,4 +1,5 @@
 ﻿using Enforcer.Common.Application.Data;
+using Enforcer.Common.Domain;
 using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
@@ -23,7 +24,7 @@ internal sealed class ListCreatorApiServices : IEndpoint
         {
             var result = await sender.Send(new ListCreatorApiServicesQuery(
                 userId,
-                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
+                SharedData.UserId,
                 pagination
             ));
 

@@ -1,4 +1,5 @@
 using Enforcer.Common.Application.Data;
+using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Domain.Payments;
 using Enforcer.Modules.Billings.Infrastructure.Invoices;
@@ -16,22 +17,22 @@ internal sealed class PaymentIntentPaymentFailedHandler(
 {
     public override async Task<Result> HandleAsync(PaymentIntent paymentIntent)
     {
-        var consumerId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6");
+        var consumerId = SharedData.UserId;
 
-        var invoiceId = paymentIntent.Metadata["InvoiceId"];
+        var invoiceId = paymentIntent.Get(MetadataKeys.InvoiceId);
 
-        if (paymentIntent.Metadata.TryGetValue("CheckoutMode", out var _))
+        if (paymentIntent.IsCheckoutMode())
         {
-            await invoiceRepository.DeleteAsync(Guid.Parse(invoiceId));
+            await invoiceRepository.DeleteAsync(invoiceId);
             return Result.Success;
         }
 
-        var paymentMethodId = paymentIntent.Metadata["PaymentMethodId"];
+        var paymentMethodId = paymentIntent.Get(MetadataKeys.PaymentMethodId);
 
         var payment = Payment.Create(
-            Guid.Parse(invoiceId),
+            invoiceId,
             consumerId,
-            Guid.Parse(paymentMethodId),
+            paymentMethodId,
             paymentIntent.Id,
             paymentIntent.Amount,
             paymentIntent.Currency,

@@ -4,6 +4,7 @@ using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.Billings.Contracts;
 using Enforcer.Modules.Billings.PublicApi;
 
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
@@ -11,9 +12,10 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscript
 internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository,
-    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, string>
+    IApiServiceRepository apiServiceRepository,
+    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, CheckoutSessionResponse>
 {
-    public async Task<Result<string>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CheckoutSessionResponse>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {
         var isExist = await subscriptionRepository.ExistsAsync(request.ConsumerId, request.ApiServiceId, cancellationToken);
         if (isExist)
@@ -26,22 +28,20 @@ internal sealed class CreateSubscriptionCommandHandler(
         if (plan.ApiServiceId != request.ApiServiceId)
             return SubscriptionErrors.PlanDoesNotBelongToService;
 
+        var apiService = await apiServiceRepository.GetByIdAsync(plan.ApiServiceId, cancellationToken);
+
         var subscriptionResult = Subscription.Create(request.ConsumerId, plan);
 
         if (subscriptionResult.IsFailure)
             return subscriptionResult.Error;
 
-        var subscription = subscriptionResult.Value;
-
-        await subscriptionRepository.AddAsync(subscription, cancellationToken);
-
-        var checkoutUrl = await billingsApi.CreateSubscriptionCheckoutSessionAsync(
+        return await billingsApi.CreateSubscriptionCheckoutSessionAsync(
             request.ConsumerId,
-            subscription.ToResponse(),
+            apiService!.CreatorId,
+            subscriptionResult.Value.ToResponse(),
             plan.ToResponse(),
+            request.Code,
             request.ReturnUrl,
             cancellationToken);
-
-        return checkoutUrl;
     }
 }

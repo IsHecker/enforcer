@@ -94,6 +94,8 @@ public sealed class Invoice : Entity
         Status = InvoiceStatus.PartiallyRefunded;
     }
 
+    public void SetSubscriptionId(Guid subscriptionId) => SubscriptionId = subscriptionId;
+
     private void CalculateTotals()
     {
         Total = _lineItems.Sum(x => x.TotalAmount);

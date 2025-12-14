@@ -30,7 +30,7 @@ internal sealed class ListApiServices : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.ApiServices)
-        .Produces<IEnumerable<ApiServiceResponse>>(StatusCodes.Status200OK)
+        .Produces<PagedResponse<ApiServiceResponse>>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(ListApiServices))
         .RequireCors("AllowAll");
     }

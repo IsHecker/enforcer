@@ -1,3 +1,4 @@
+using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
@@ -5,7 +6,6 @@ using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.RefundTransactions;
-using Enforcer.Modules.Billings.Infrastructure.PaymentMethods;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Stripe.Checkout;
 
@@ -15,7 +15,10 @@ internal sealed class StripeGateway(
     IPaymentMethodRepository paymentMethodRepository,
     PaymentRepository paymentRepository) : IStripeGateway
 {
-    public async Task<string> CreateSetupSessionAsync(string stripeCustomerId, string returnUrl, CancellationToken cancellationToken)
+    public async Task<string> CreateSetupSessionAsync(
+        string stripeCustomerId,
+        string returnUrl,
+        CancellationToken cancellationToken = default)
     {
         var options = new SessionCreateOptions
         {
@@ -26,7 +29,7 @@ internal sealed class StripeGateway(
             CancelUrl = returnUrl
         };
 
-        Session session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken);
+        Session session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken = default);
 
         return session.Url;
     }
@@ -34,8 +37,11 @@ internal sealed class StripeGateway(
     public async Task<string> CreateCheckoutSessionAsync(
         string stripeCustomerId,
         Invoice invoice,
+        Guid creatorId,
+        Guid consumerId,
+        Guid planId,
         string returnUrl,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         var options = new SessionCreateOptions
         {
@@ -49,14 +55,12 @@ internal sealed class StripeGateway(
             LineItems = BuildLineItems(invoice),
             SuccessUrl = returnUrl,
             CancelUrl = returnUrl,
-            PaymentIntentData = new SessionPaymentIntentDataOptions
-            {
-                Metadata = new Dictionary<string, string>
-                {
-                    ["InvoiceId"] = invoice.Id.ToString(),
-                    ["CheckoutMode"] = "true"
-                }
-            }
+            PaymentIntentData = new SessionPaymentIntentDataOptions()
+            .WithKey(MetadataKeys.InvoiceId, invoice.Id)
+            .WithKey(MetadataKeys.CreatorId, creatorId)
+            .WithKey(MetadataKeys.ConsumerId, consumerId)
+            .WithKey(MetadataKeys.PlanId, planId)
+            .WithKey(MetadataKeys.CheckoutMode, "true")
         };
 
         var session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken);
@@ -66,39 +70,32 @@ internal sealed class StripeGateway(
     private static List<SessionLineItemOptions> BuildLineItems(Invoice invoice)
     {
         return invoice.LineItems
-            .Where(item => item.Type != InvoiceItemType.Tax)
+            .Where(item => item.Type is InvoiceItemType.Subscription)
             .Select(item => new SessionLineItemOptions
             {
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     Currency = invoice.Currency.ToLower(),
-                    UnitAmount = item.UnitPrice,
+                    UnitAmount = invoice.Total,
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Name = GetDisplayName(item),
-                        Description = item.Description
+                        Name = item.Description,
+                        Description = "Total after credits and charges applied"
                     }
                 },
                 Quantity = item.Quantity
             })
             .ToList();
     }
-    private static string GetDisplayName(InvoiceLineItem item) => item.Type switch
-    {
-        InvoiceItemType.Subscription => item.Description,
-        InvoiceItemType.Overage => $"Overage: {item.Description}",
-        InvoiceItemType.Fee => "Fee",
-        InvoiceItemType.Discount => $"Discount: {item.Description}",
-        _ => item.Description
-    };
 
     public async Task<Result> ChargeAsync(
         Invoice invoice,
-        CancellationToken cancellationToken)
+        Dictionary<string, string> metadata = null!,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var paymentMethod = await paymentMethodRepository.GetDefaultAsync(invoice.ConsumerId, cancellationToken);
+            var paymentMethod = await paymentMethodRepository.GetDefaultAsync(invoice.ConsumerId, cancellationToken = default);
 
             if (paymentMethod is null)
                 return PaymentMethodErrors.NoDefaultPaymentMethod;
@@ -112,13 +109,13 @@ internal sealed class StripeGateway(
                 Description = BuildDescription(invoice),
                 OffSession = true,
                 Confirm = true,
-                Metadata = new Dictionary<string, string>
-                {
-                    ["InvoiceId"] = invoice.Id.ToString()
-                }
-            };
+                Metadata = metadata
+            }
+            .WithKey(MetadataKeys.InvoiceId, invoice.Id)
+            .WithKey(MetadataKeys.PaymentMethodId, paymentMethod.Id);
 
-            var paymentIntent = await new Stripe.PaymentIntentService().CreateAsync(options, cancellationToken: cancellationToken);
+            var paymentIntent = await new Stripe.PaymentIntentService()
+                .CreateAsync(options, cancellationToken: cancellationToken = default);
 
             return paymentIntent.Status == "succeeded"
                 ? Result.Success
@@ -137,16 +134,16 @@ internal sealed class StripeGateway(
         return mainItem?.Description ?? "Subscription Renewal";
     }
 
-    public async Task RemovePaymentMethodAsync(string stripePaymentMethodId, CancellationToken cancellationToken)
+    public async Task RemovePaymentMethodAsync(string stripePaymentMethodId, CancellationToken cancellationToken = default)
     {
-        await new Stripe.PaymentMethodService().DetachAsync(stripePaymentMethodId, cancellationToken: cancellationToken);
+        await new Stripe.PaymentMethodService().DetachAsync(stripePaymentMethodId, cancellationToken: cancellationToken = default);
     }
 
-    public async Task<Result> RefundAsync(RefundTransaction refund, CancellationToken cancellationToken)
+    public async Task<Result> RefundAsync(RefundTransaction refund, CancellationToken cancellationToken = default)
     {
         try
         {
-            var payment = await paymentRepository.GetLastBySucceededInvoiceId(refund.InvoiceId, cancellationToken);
+            var payment = await paymentRepository.GetLastBySucceededInvoiceId(refund.InvoiceId, cancellationToken = default);
             if (payment is null)
                 return Error.NotFound(
                     "Refund.NoPaymentsFound",
@@ -156,14 +153,11 @@ internal sealed class StripeGateway(
             {
                 PaymentIntent = payment.PaymentTransactionId,
                 Amount = refund.Amount,
-                Reason = "requested_by_customer",
-                Metadata = new Dictionary<string, string>
-                {
-                    ["RefundId"] = refund.Id.ToString()
-                }
-            };
+                Reason = "requested_by_customer"
+            }
+            .WithKey(MetadataKeys.RefundId, refund.Id);
 
-            await new Stripe.RefundService().CreateAsync(refundOptions, cancellationToken: cancellationToken);
+            await new Stripe.RefundService().CreateAsync(refundOptions, cancellationToken: cancellationToken = default);
 
             return Result.Success;
         }
@@ -180,6 +174,77 @@ internal sealed class StripeGateway(
                 "Refund.UnexpectedError",
                 $"Unexpected error processing refund: {ex.Message}"
             );
+        }
+    }
+
+    public async Task<string> CreateAccountLinkAsync(
+        Guid userId,
+        string returnUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var options = new Stripe.AccountCreateOptions
+        {
+            Type = "express",
+            Country = "US",
+            Email = SharedData.UserEmail,
+            Capabilities = new Stripe.AccountCapabilitiesOptions
+            {
+                Transfers = new Stripe.AccountCapabilitiesTransfersOptions
+                {
+                    Requested = true
+                }
+            },
+            Metadata = new Dictionary<string, string>
+            {
+                [MetadataKeys.UserId.Key] = userId.ToString()
+            }
+        };
+
+        var account = await new Stripe.AccountService().CreateAsync(options, cancellationToken: cancellationToken);
+
+        return account.Id;
+    }
+
+    public async Task<string> CreateOnboardingLinkAsync(string accountId)
+    {
+        var options = new Stripe.AccountLinkCreateOptions
+        {
+            Account = accountId,
+            RefreshUrl = "https://yourapp.com/onboarding/refresh",
+            ReturnUrl = "https://yourapp.com/onboarding/complete",
+            Type = "account_onboarding"
+        };
+
+        var link = await new Stripe.AccountLinkService().CreateAsync(options);
+
+        return link.Url;
+    }
+
+    public async Task<Result<string>> SendPayoutAsync(
+        string connectedAccountId,
+        long amount,
+        Dictionary<string, string> metadata = null!,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var options = new Stripe.TransferCreateOptions
+            {
+                Amount = amount,
+                Currency = "usd",
+                Destination = connectedAccountId,
+                Metadata = metadata
+            };
+
+            var transfer = await new Stripe.TransferService().CreateAsync(options, cancellationToken: cancellationToken);
+
+            return transfer.Id;
+        }
+        catch (Stripe.StripeException ex)
+        {
+            return Error.Failure(
+                $"Stripe.Transfer.{ex.StripeError.Code}",
+                ex.StripeError.Message);
         }
     }
 }

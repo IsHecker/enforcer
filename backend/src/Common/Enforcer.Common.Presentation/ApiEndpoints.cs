@@ -14,6 +14,9 @@ public static class ApiEndpoints
 
     private const string PaymentsBase = $"{ApiBase}/payments";
     private const string PaymentMethodsBase = $"{ApiBase}/payment-methods";
+    private const string WalletsBase = $"{ApiBase}/wallets";
+
+    private const string PromotionalCodesBase = $"{ApiBase}/promo-codes";
 
     public static class ApiServices
     {
@@ -109,5 +112,21 @@ public static class ApiEndpoints
         public const string Delete = GetById;
 
         public const string SetDefault = $"{GetById}/default";
+    }
+
+    public static class Wallets
+    {
+        public const string GetById = $"{WalletsBase}/{{walletId}}";
+        public const string Withdrawl = $"{WalletsBase}/withdraw";
+    }
+
+    public static class WalletEntries
+    {
+        public const string GetByWallet = $"{Wallets.GetById}/entries";
+    }
+
+    public static class PromotionalCodes
+    {
+        public const string Create = PromotionalCodesBase;
     }
 }

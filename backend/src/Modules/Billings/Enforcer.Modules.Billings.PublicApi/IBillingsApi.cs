@@ -1,6 +1,7 @@
 ﻿using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Contracts.Plans;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
+using Enforcer.Modules.Billings.Contracts;
 
 namespace Enforcer.Modules.Billings.PublicApi;
 
@@ -15,10 +16,12 @@ public interface IBillingsApi
         SubscriptionResponse subscription,
         CancellationToken cancellationToken = default);
 
-    Task<string> CreateSubscriptionCheckoutSessionAsync(
+    Task<Result<CheckoutSessionResponse>> CreateSubscriptionCheckoutSessionAsync(
         Guid consumerId,
+        Guid creatorId,
         SubscriptionResponse subscription,
         PlanResponse plan,
+        string promoCode,
         string returnUrl,
         CancellationToken cancellationToken = default);
 }

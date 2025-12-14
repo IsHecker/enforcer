@@ -1,19 +1,23 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
-using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.RefundTransactions;
+using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Enforcer.Modules.Billings.Infrastructure.RefundTransactions;
+using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
+using Enforcer.Modules.Billings.Infrastructure.Wallets;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Enforcer.Modules.Billings.Infrastructure.PublicApi.Services;
+namespace Enforcer.Modules.Billings.Infrastructure.Services;
 
 internal sealed class SubscriptionCancellationRefundService(
-    RefundTransactionRepository refundRepository,
     IInvoiceRepository invoiceRepository,
-    IStripeGateway stripeGateway,
+    RefundTransactionRepository refundRepository,
+    PaymentRepository paymentRepository,
+    WalletRepository walletRepository,
+    WalletEntryRepository walletEntryRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork)
 {
     public async Task<Result> ProcessCancellationRefundAsync(
@@ -37,20 +41,24 @@ internal sealed class SubscriptionCancellationRefundService(
             refundAmount,
             "USD");
 
+        await RefundToCreditsAsync(refund);
+
         await refundRepository.AddAsync(refund, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var refundResult = await stripeGateway.RefundAsync(refund, cancellationToken);
-
-        if (refundResult.IsFailure)
-        {
-            refund.MarkAsFailed(refundResult.Error.Description);
-            refundRepository.Update(refund);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            return refundResult.Error;
-        }
-
         return Result.Success;
+    }
+
+    private async Task RefundToCreditsAsync(RefundTransaction refund)
+    {
+        var wallet = await walletRepository.GetByUserIdAsync(refund.ConsumerId);
+        var payment = await paymentRepository.GetByIdAsync(refund.PaymentId);
+
+        wallet!.AddCredit(refund.Amount, refund.InvoiceId);
+        payment!.MarkAsRefund(refund.Amount);
+
+        await walletEntryRepository.AddRangeAsync(wallet.Entries);
+        paymentRepository.Update(payment);
     }
 }
 
@@ -72,6 +80,6 @@ internal sealed class RefundPolicyEvaluator
             amountPaid,
             subscription.Plan.BillingPeriod!,
             subscription.ExpiresAt!.Value,
-            now);
+            now).Amount;
     }
 }

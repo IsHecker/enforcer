@@ -13,4 +13,7 @@ public static class Tags
 
     public const string PaymentProcessing = "PaymentProcessing";
     public const string PaymentMethods = "PaymentMethods";
+    public const string PromotionalCodes = "PromotionalCodes";
+    public const string Wallets = "Wallets";
+    public const string WalletEntries = "WalletEntries";
 }

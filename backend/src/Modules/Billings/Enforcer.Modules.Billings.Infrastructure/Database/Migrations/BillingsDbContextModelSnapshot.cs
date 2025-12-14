@@ -229,9 +229,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<long>("Amount")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
@@ -262,9 +262,6 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<Guid>("InvoiceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("LastPaymentAttempt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("LastRetryAt")
                         .HasColumnType("datetime2");
 
@@ -282,12 +279,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("RefundedAmount")
+                    b.Property<long?>("RefundedAmount")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RetryCount")
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -311,6 +305,62 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.ToTable("Payments", "Billings");
                 });
 
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Payouts.Payout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PayoutNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PeriodEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PeriodStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StripeTransferId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TotalAmount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Payouts", "Billings");
+                });
+
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.PromotionalCodeUsages.PromotionalCodeUsage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -329,9 +379,6 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<long>("DiscountAmount")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("InvoiceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("PromoCodeId")
                         .HasColumnType("uniqueidentifier");
 
@@ -340,8 +387,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PromoCodeId")
-                        .IsUnique();
+                    b.HasIndex("PromoCodeId");
 
                     b.ToTable("PromotionalCodeUsages", "Billings");
                 });
@@ -454,6 +500,84 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.ToTable("RefundTransactions", "Billings");
                 });
 
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.WalletEntries.WalletEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ReferenceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("WalletId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WalletId");
+
+                    b.ToTable("WalletEntries", "Billings");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Wallets.Wallet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long>("Balance")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Credits")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastPayoutAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("LifetimeEarnings")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StripeConnectAccountId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Wallets", "Billings");
+                });
+
             modelBuilder.Entity("Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripeEvents.ProcessedStripeEvent", b =>
                 {
                     b.Property<string>("EventId")
@@ -493,12 +617,6 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
 
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.PromotionalCodeUsages.PromotionalCodeUsage", b =>
                 {
-                    b.HasOne("Enforcer.Modules.Billings.Domain.Invoices.Invoice", null)
-                        .WithOne()
-                        .HasForeignKey("Enforcer.Modules.Billings.Domain.PromotionalCodeUsages.PromotionalCodeUsage", "PromoCodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Enforcer.Modules.Billings.Domain.PromotionalCodes.PromotionalCode", null)
                         .WithMany()
                         .HasForeignKey("PromoCodeId")
@@ -506,9 +624,23 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.WalletEntries.WalletEntry", b =>
+                {
+                    b.HasOne("Enforcer.Modules.Billings.Domain.Wallets.Wallet", null)
+                        .WithMany("Entries")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Invoices.Invoice", b =>
                 {
                     b.Navigation("LineItems");
+                });
+
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Wallets.Wallet", b =>
+                {
+                    b.Navigation("Entries");
                 });
 #pragma warning restore 612, 618
         }

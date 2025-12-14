@@ -34,6 +34,6 @@ public interface IApiServicesApi
     Task<List<SubscriptionResponse>> GetExpiredSubscriptions(int size, CancellationToken cancellationToken = default);
 
     Task RenewSubscription(Guid subscriptionId, CancellationToken cancellationToken = default);
-    Task ActivateSubscription(Guid subscriptionId, CancellationToken cancellationToken = default);
+    Task<Guid> CreateSubscriptionAsync(Guid consumerId, Guid planId, CancellationToken cancellationToken = default);
     Task<int> DeleteExpiredSubscriptions(int size, CancellationToken cancellationToken = default);
 }

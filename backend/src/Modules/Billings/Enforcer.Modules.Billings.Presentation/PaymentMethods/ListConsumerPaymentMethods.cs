@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation;
+﻿using Enforcer.Common.Domain;
+using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
@@ -18,7 +19,7 @@ internal sealed class ListConsumerPaymentMethods : IEndpoint
         app.MapGet(ApiEndpoints.PaymentMethods.ListByConsumer, async (ISender sender) =>
         {
             var result = await sender.Send(new ListConsumerPaymentMethodsQuery(
-                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6")
+                SharedData.UserId
             ));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);

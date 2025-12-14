@@ -9,6 +9,10 @@ public static class PromotionalCodeErrors
             "PromotionalCode.NotFound",
             $"Promotional code '{promoCode}' was not found.");
 
+    public static readonly Error AlreadyExists =
+        Error.Validation("PromotionalCode.AlreadyExists",
+            "A promotional code with this value already exists.");
+
     public static readonly Error Expired =
         Error.Validation("PromotionalCode.Expired", "This promotional code is expired.");
 

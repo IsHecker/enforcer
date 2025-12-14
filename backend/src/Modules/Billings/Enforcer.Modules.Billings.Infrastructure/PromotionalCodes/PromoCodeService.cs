@@ -1,4 +1,5 @@
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.PromotionalCodes;
 using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
@@ -6,7 +7,7 @@ using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
 namespace Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 
 internal sealed class PromoCodeService(
-    PromotionalCodeRepository codeRepository,
+    IPromotionalCodeRepository codeRepository,
     PromotionalCodeUsageRepository codeUsageRepository)
 {
     public async Task<Result<InvoiceLineItem>> ApplyPromoCodeAsync(
@@ -19,17 +20,14 @@ internal sealed class PromoCodeService(
         if (promoCode is null)
             return PromotionalCodeErrors.NotFound(code);
 
-        // Validate code
         var validationResult = await ValidatePromoCodeAsync(promoCode, consumerId, cancellationToken);
         if (validationResult.IsFailure)
             return validationResult.Error;
 
-        // Calculate discount on subtotal
         var discountAmount = promoCode.CalculateDiscount(totalAmount);
 
         await RecordUsageAsync(promoCode, consumerId, discountAmount, cancellationToken);
 
-        // Add discount as negative line item
         return InvoiceLineItem.Create(
             InvoiceItemType.Discount,
             $"Discount applied '{code}' - ({FormatDiscount(promoCode)})",
@@ -41,22 +39,22 @@ internal sealed class PromoCodeService(
         Guid consumerId,
         CancellationToken cancellationToken = default)
     {
-        //Current date is between ValidFrom/ValidUntil
         if (!promotionalCode.IsCurrentlyValid())
             return PromotionalCodeErrors.Expired;
 
-        // MaxTotalUses not exceeded
         if (promotionalCode.HasReachedMaxUses())
             return PromotionalCodeErrors.MaxUsesReached;
 
-        var userUsageCount = await codeUsageRepository.GetUserUsageCountAsync(
-            promotionalCode.Id,
-            consumerId,
-            cancellationToken);
+        if (promotionalCode.MaxUsesPerUser.HasValue)
+        {
+            var userUsageCount = await codeUsageRepository.GetUserUsageCountAsync(
+                promotionalCode.Id,
+                consumerId,
+                cancellationToken);
 
-        // User hasn't exceeded MaxUsesPerUser
-        if (promotionalCode.HasExceededPerUserLimit(userUsageCount))
-            return PromotionalCodeErrors.MaxUsesPerCustomerReached;
+            if (promotionalCode.HasExceededPerUserLimit(userUsageCount))
+                return PromotionalCodeErrors.MaxUsesPerCustomerReached;
+        }
 
         return Result.Success;
     }

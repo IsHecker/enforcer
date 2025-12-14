@@ -15,7 +15,5 @@ public class RevenueShareAgreement : Entity
     public DateTime? EffectiveTo { get; private set; }
     public bool IsActive { get; private set; }
 
-    public string? TermsDocument { get; private set; }
-
     private RevenueShareAgreement() { }
 }

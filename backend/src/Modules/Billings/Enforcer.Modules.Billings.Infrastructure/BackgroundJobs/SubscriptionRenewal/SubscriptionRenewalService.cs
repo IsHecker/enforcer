@@ -26,7 +26,7 @@ internal sealed class SubscriptionRenewalService(
 
         var chargeResult = await stripeGateway.ChargeAsync(
             invoice,
-            cancellationToken);
+            cancellationToken: cancellationToken);
 
         if (!chargeResult.IsSuccess)
         {

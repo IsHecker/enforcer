@@ -4,7 +4,7 @@ internal sealed class SubscriptionRenewalOptions
 {
     public const string SectionName = "Billings:SubscriptionRenewal";
 
-    public bool Enabled { get; init; } = true;
+    public bool Enabled { get; init; }
     public float RunIntervalInMinutes { get; init; }
     public int BatchSize { get; init; }
     public int MaxFailedPaymentRetries { get; init; }

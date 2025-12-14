@@ -1,4 +1,3 @@
-using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PromotionalCodes;
 using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +12,5 @@ public class PromotionalCodeUsageConfiguration : IEntityTypeConfiguration<Promot
         builder.HasOne<PromotionalCode>()
             .WithMany()
             .HasForeignKey(pc => pc.PromoCodeId);
-
-
-        builder.HasOne<Invoice>()
-            .WithOne()
-            .HasForeignKey<PromotionalCodeUsage>(pc => pc.PromoCodeId);
     }
 }

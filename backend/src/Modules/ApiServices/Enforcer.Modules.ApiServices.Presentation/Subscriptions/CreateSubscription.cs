@@ -1,8 +1,10 @@
-﻿using Enforcer.Common.Presentation;
+﻿using Enforcer.Common.Domain;
+using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
 using Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscription;
+using Enforcer.Modules.Billings.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,22 +19,24 @@ internal sealed class CreateSubscription : IEndpoint
         app.MapPost(ApiEndpoints.Subscriptions.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreateSubscriptionCommand(
-                Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
+                SharedData.UserId,
                 request.PlanId,
                 request.ApiServiceId,
+                request.Code,
                 request.ReturnUrl
             ));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Subscriptions)
-        .Produces<Guid>(StatusCodes.Status200OK)
+        .Produces<CheckoutSessionResponse>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(CreateSubscription));
     }
 
     internal readonly record struct Request(
         Guid ApiServiceId,
         Guid PlanId,
+        string Code,
         string ReturnUrl
     );
 }

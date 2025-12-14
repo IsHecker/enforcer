@@ -355,9 +355,6 @@ namespace Enforcer.Modules.ApiServices.Infrastructure.Database.Migrations
                     b.Property<Guid>("PlanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("RenewedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("SubscribedAt")
                         .HasColumnType("datetime2");
 

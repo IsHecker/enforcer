@@ -17,7 +17,8 @@ internal sealed class RefundUpdatedHandler(
         if (stripeRefund.Status != "succeeded")
             return Result.Success;
 
-        var refundId = Guid.Parse(stripeRefund.Metadata["RefundId"]);
+        var refundId = stripeRefund.Get(MetadataKeys.RefundId);
+
         var refund = await refundRepository.GetByIdAsync(refundId);
         if (refund is null)
             return Error.Failure();
