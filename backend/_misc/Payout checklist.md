@@ -6,18 +6,41 @@
 - [x] Payout entity
 - [x] RevenueShareAgreement entity
 
-### Wallet Operations
+### Wallet Operations ✅
 - [x] Wallet repository (CRUD)
 - [x] WalletEntry repository
-- [ ] Create wallet on user registration
 - [x] Get wallet by userId
 - [x] Get wallet transaction history
 
-### Revenue Tracking (Optional)
-- [ ] Create RevenueShareAgreement for providers
-- [ ] Hook into `payment_intent.succeeded` webhook → Add earnings to wallet
-- [ ] Calculate platform fee vs provider share correctly
-- [ ] Record WalletEntry for each earning
+### Withdrawal (On-Demand) ✅
+- [x] Withdraw endpoint: `POST /api/wallet/withdraw`
+- [x] Validate minimum amount
+- [x] Validate payout method configured
+- [x] Create Payout record
+- [x] Process Stripe transfer
+- [x] Update wallet balance
+
+### Provider Dashboard/API ✅
+- [x] Get wallet balance: `GET /api/wallet`
+- [x] Get transaction history: `GET /api/wallet/transactions`
+- [x] Get payout history: `GET /api/wallet/payouts`
+- [x] Withdraw money: `POST /api/wallet/withdraw`
+- [x] Create onboarding session: `POST /api/wallet/onboarding-session`
+
+### Configuration ✅
+- [x] `PayoutOptions` (minimum withdrawal, platform fee %)
+- [x] Quartz job schedule configuration
+- [x] Stripe Connect configuration
+
+### Webhooks ✅
+- [x] `transfer.created` - Mark payout as completed when money arrives
+- [x] `transfer.reversed` - Mark payout as failed, restore balance
+- [x] `account.updated` - Detect when provider completes onboarding
+- [x] `payment_intent.succeeded` → Add earnings to wallet
+
+### Revenue Tracking ✅
+- [x] Calculate platform fee vs provider share correctly
+- [x] Record WalletEntry for each earning
 
 ### Payout Processing
 - [x] Payout repository (CRUD)
@@ -27,44 +50,34 @@
   - [x] Process Stripe transfers
   - [x] Handle failures
 - [x] Stripe Connect integration
-  - [ ] Provider onboarding (connect Stripe account)
   - [x] Create transfers API
-  - [ ] Store `StripeConnectAccountId` in wallet
 
-### Withdrawal (On-Demand)
-- [x] Withdraw endpoint: `POST /api/wallet/withdraw`
-- [x] Validate minimum amount
-- [x] Validate payout method configured
-- [x] Create Payout record
-- [x] Process Stripe transfer
-- [x] Update wallet balance
+  - [x] Provider onboarding (connect Stripe account)
+    - [ ] **Frontend Flow:**
+    ```
+    1. User clicks "Connect Payout Method"
+    2. Call POST /wallet/connect-payout-method
+    3. Backend returns onboardingUrl
+    4. Redirect user to Stripe onboarding
+    5. User completes Stripe forms
+    6. Stripe redirects back to your app
+    7. Store StripeConnectAccountId in wallet
+    ```
 
-### Provider Dashboard/API
-- [ ] Get wallet balance: `GET /api/wallet`
-- [ ] Get transaction history: `GET /api/wallet/transactions`
-- [ ] Get payout history: `GET /api/wallet/payouts`
-- [ ] Withdraw money: `POST /api/wallet/withdraw`
-- [ ] Connect Stripe account: `POST /api/wallet/connect-payout-method`
-
-### Admin Features
+### Admin Features (Optional)
 - [ ] View all provider balances
 - [ ] View pending payouts
 - [ ] Manual payout trigger
 - [ ] Hold/freeze provider payouts
 - [ ] Payout reports (total paid, pending, failed)
 
-### Configuration
-- [x] `PayoutOptions` (minimum withdrawal, platform fee %)
-- [x] Quartz job schedule configuration
-- [x] Stripe Connect configuration
-
 ### Edge Cases (Optional)
 - [ ] Handle provider with negative balance (owes platform)
   **What to handle:**
-  > - [ ] Don't allow withdrawal when balance is negative
-  > - [ ] Deduct from future earnings until debt is paid
-  > - [ ] Show "You owe platform $80" in dashboard
-  > - [ ] Maybe suspend provider until debt cleared
+  - [ ] Don't allow withdrawal when balance is negative
+  - [ ] Deduct from future earnings until debt is paid
+  - [ ] Show "You owe platform $80" in dashboard
+  - [ ] Maybe suspend provider until debt cleared
 
 - [ ] Handle disputed payments (hold payout)
   What happens:
@@ -88,5 +101,3 @@
   > - [ ] Investigation complete
   > - [ ] Provider appeals successfully
   > - [ ] Account reinstated
-
-- [ ] Handle multiple revenue share agreements (different rates per API)

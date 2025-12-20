@@ -7,12 +7,12 @@ using Enforcer.Modules.Billings.Contracts;
 namespace Enforcer.Modules.Billings.Application.PaymentMethods.CreatePaymentMethod;
 
 internal sealed class CreatePaymentMethodCommandHandler(IStripeGateway stripeService)
-    : ICommandHandler<CreatePaymentMethodCommand, CheckoutSessionResponse>
+    : ICommandHandler<CreatePaymentMethodCommand, SessionResponse>
 {
-    public async Task<Result<CheckoutSessionResponse>> Handle(CreatePaymentMethodCommand request, CancellationToken cancellationToken)
+    public async Task<Result<SessionResponse>> Handle(CreatePaymentMethodCommand request, CancellationToken cancellationToken)
     {
         var url = await stripeService.CreateSetupSessionAsync(SharedData.CustomerId, request.ReturnUrl, cancellationToken);
 
-        return new CheckoutSessionResponse(url);
+        return new SessionResponse(url);
     }
 }

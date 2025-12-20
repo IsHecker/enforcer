@@ -11,7 +11,6 @@ public sealed class Payment : Entity
 
     public long Amount { get; private set; }
     public string Currency { get; private set; }
-    public long? RefundedAmount { get; private set; }
 
     public Guid? PaymentMethodId { get; private set; }
     public string PaymentTransactionId { get; private set; } // Stripe PaymentIntent ID
@@ -57,15 +56,5 @@ public sealed class Payment : Entity
             FailureCode = failureCode,
             FailureMessage = failureMessage
         };
-    }
-
-    public void MarkAsRefund(long refundedAmount)
-    {
-        if (refundedAmount < Amount)
-            Status = PaymentStatus.PartiallyRefunded;
-        else
-            Status = PaymentStatus.Refunded;
-
-        RefundedAmount = refundedAmount;
     }
 }

@@ -12,7 +12,7 @@ public static class ApiEndpoints
 
     private const string AnalyticsBase = $"{ApiBase}/analytics";
 
-    private const string PaymentsBase = $"{ApiBase}/payments";
+    private const string PaymentProcessingBase = $"{ApiBase}/payments";
     private const string PaymentMethodsBase = $"{ApiBase}/payment-methods";
     private const string WalletsBase = $"{ApiBase}/wallets";
 
@@ -96,11 +96,12 @@ public static class ApiEndpoints
         public const string ListEndpointStats = $"{AnalyticsBase}/endpoint-stats";
     }
 
-    public static class Payments
+    public static class PaymentProcessing
     {
-        public const string CreateCheckoutSession = $"{PaymentsBase}/create-checkout-session";
+        public const string CreateCheckoutSession = $"{PaymentProcessingBase}/create-checkout-session";
 
-        public const string StripeWebhook = $"{PaymentsBase}/stripe/webhook";
+        public const string StripeWebhook = $"{PaymentProcessingBase}/stripe/webhook";
+        public const string StripeConnectWebhook = $"{PaymentProcessingBase}/stripe/connect-webhook";
     }
 
     public static class PaymentMethods
@@ -116,17 +117,26 @@ public static class ApiEndpoints
 
     public static class Wallets
     {
-        public const string GetById = $"{WalletsBase}/{{walletId}}";
+        public const string GetByUser = WalletsBase;
+        public const string GetById = $"{WalletsBase}/{{walletId:guid}}";
         public const string Withdrawl = $"{WalletsBase}/withdraw";
+        public const string CreateOnboardingSession = $"{WalletsBase}/onboarding-session";
     }
 
     public static class WalletEntries
     {
-        public const string GetByWallet = $"{Wallets.GetById}/entries";
+        public const string ListByWallet = $"{WalletsBase}/entries";
+    }
+
+    public static class Payouts
+    {
+        public const string ListByCreator = $"{WalletsBase}/payouts";
     }
 
     public static class PromotionalCodes
     {
+        public const string ListByPlan = $"{PromotionalCodesBase}/{{planId:guid}}";
+
         public const string Create = PromotionalCodesBase;
     }
 }

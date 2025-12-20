@@ -55,6 +55,8 @@ internal sealed class PlanSwitchBillingService(
 
     private async Task RefundToCreditsAsync(Invoice invoice)
     {
+        // TODO: refactor to refund service
+
         var wallet = await walletRepository.GetByUserIdAsync(invoice.ConsumerId);
         wallet!.AddCredit(Math.Abs(invoice.Total), invoice.Id);
         await walletEntryRepository.AddRangeAsync(wallet.Entries);

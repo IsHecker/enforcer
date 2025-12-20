@@ -279,10 +279,6 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<long?>("RefundedAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -405,7 +401,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid>("CreatorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
@@ -416,6 +412,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
 
                     b.Property<int?>("MaxUsesPerUser")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -444,7 +443,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.ToTable("PromotionalCodes", "Billings");
                 });
 
-            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.RefundTransactions.RefundTransaction", b =>
+            modelBuilder.Entity("Enforcer.Modules.Billings.Domain.Refunds.Refund", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -492,12 +491,16 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<string>("StripeRefundId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("RefundTransactions", "Billings");
+                    b.ToTable("Refunds", "Billings");
                 });
 
             modelBuilder.Entity("Enforcer.Modules.Billings.Domain.WalletEntries.WalletEntry", b =>
@@ -557,6 +560,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                     b.Property<string>("Currency")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsOnboardingComplete")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastPayoutAt")
                         .HasColumnType("datetime2");

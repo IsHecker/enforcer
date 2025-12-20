@@ -15,23 +15,30 @@ public sealed class Wallet : Entity
 
     public DateTime? LastPayoutAt { get; private set; }
 
-    public string? StripeConnectAccountId { get; private set; }
+    public string StripeConnectAccountId { get; private set; }
+    public bool IsOnboardingComplete { get; private set; }
 
-    public bool IsPayoutMethodConfigured => StripeConnectAccountId is not null;
+    public bool IsPayoutMethodConfigured =>
+        StripeConnectAccountId is not null && IsOnboardingComplete;
 
     private readonly List<WalletEntry> _entries = [];
     public IReadOnlyList<WalletEntry> Entries => _entries;
 
     private Wallet() { }
 
-    public static Wallet Create(Guid userId, string currency = "USD")
+    public static Wallet Create(
+        Guid userId,
+        string stripeConnectAccountId,
+        string currency = "USD")
     {
         return new Wallet
         {
             UserId = userId,
             Balance = 0,
             LifetimeEarnings = 0,
-            Currency = currency
+            Currency = currency,
+            StripeConnectAccountId = stripeConnectAccountId,
+            IsOnboardingComplete = false
         };
     }
 
@@ -144,7 +151,7 @@ public sealed class Wallet : Entity
         return Result.Success;
     }
 
-    public void SetPayoutMethod(string stripeConnectAccountId) => StripeConnectAccountId = stripeConnectAccountId;
+    public void CompleteOnboarding() => IsOnboardingComplete = true;
 
     private static long CalculateProviderShare(long totalAmount, int platformFeePercentage)
     {

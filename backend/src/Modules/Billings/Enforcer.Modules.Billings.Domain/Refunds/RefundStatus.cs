@@ -1,4 +1,4 @@
-namespace Enforcer.Modules.Billings.Domain.RefundTransactions;
+namespace Enforcer.Modules.Billings.Domain.Refunds;
 
 public enum RefundStatus
 {

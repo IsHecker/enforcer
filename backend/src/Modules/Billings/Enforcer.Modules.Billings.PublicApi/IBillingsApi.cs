@@ -16,7 +16,7 @@ public interface IBillingsApi
         SubscriptionResponse subscription,
         CancellationToken cancellationToken = default);
 
-    Task<Result<CheckoutSessionResponse>> CreateSubscriptionCheckoutSessionAsync(
+    Task<Result<SessionResponse>> CreateSubscriptionCheckoutSessionAsync(
         Guid consumerId,
         Guid creatorId,
         SubscriptionResponse subscription,

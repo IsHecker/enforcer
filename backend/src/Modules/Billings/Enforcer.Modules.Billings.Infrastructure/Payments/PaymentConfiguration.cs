@@ -16,9 +16,6 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.Currency)
             .HasMaxLength(3);
 
-        builder.Property(x => x.RefundedAmount)
-            .HasPrecision(18, 2);
-
         builder.HasOne<Invoice>()
             .WithMany()
             .HasForeignKey(p => p.InvoiceId);

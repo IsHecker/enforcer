@@ -8,4 +8,4 @@ public readonly record struct CreateSubscriptionCommand(
     Guid PlanId,
     Guid ApiServiceId,
     string Code,
-    string ReturnUrl) : ICommand<CheckoutSessionResponse>;
+    string ReturnUrl) : ICommand<SessionResponse>;

@@ -21,7 +21,9 @@ internal sealed class CancelSubscriptionCommandHandler(
 
         if (request.IsImmediate)
         {
-            var refundResult = await billingsApi.ProcessCancellationRefundAsync(subscription.ToResponse(), cancellationToken);
+            var refundResult = await billingsApi.ProcessCancellationRefundAsync(
+                subscription.ToResponse(),
+                cancellationToken);
 
             if (refundResult.IsFailure)
                 return refundResult.Error;

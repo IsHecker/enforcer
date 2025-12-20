@@ -16,6 +16,7 @@ internal sealed class CreatePromotionalCodeCommandHandler(IPromotionalCodeReposi
             return PromotionalCodeErrors.AlreadyExists;
 
         var promoCode = PromotionalCode.Create(
+            request.PlanId,
             request.Code,
             request.Type.ToEnum<PromotionalCodeDiscountType>(),
             request.Value,

@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using System.Reflection;
-using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripeEvents;
@@ -32,7 +31,10 @@ internal sealed class StripeEventDispatcher
         _eventRepository = eventRepository;
     }
 
-    public async Task<Result> DispatchAsync(string eventJson, string stripeSignature)
+    public async Task<Result> DispatchAsync(
+        string eventJson,
+        string stripeSignature,
+        bool isConnectWebhook = false)
     {
         Event stripeEvent;
 
@@ -41,7 +43,8 @@ internal sealed class StripeEventDispatcher
             stripeEvent = EventUtility.ConstructEvent(
                 eventJson,
                 stripeSignature,
-                _stripeOptions.WebhookSecret
+                isConnectWebhook ? _stripeOptions.ConnectWebhookSecret
+                    : _stripeOptions.WebhookSecret
             );
         }
         catch (StripeException)

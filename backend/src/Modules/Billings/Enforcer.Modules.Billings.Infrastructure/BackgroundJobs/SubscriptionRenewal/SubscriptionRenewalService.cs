@@ -16,7 +16,6 @@ internal sealed class SubscriptionRenewalService(
     IStripeGateway stripeGateway,
     IInvoiceRepository invoiceRepository,
     IApiServicesApi servicesApi,
-    IPaymentMethodRepository paymentMethodRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork,
     ILogger<SubscriptionRenewalService> logger)
 {

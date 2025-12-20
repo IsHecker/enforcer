@@ -23,7 +23,7 @@ internal sealed class BillingsApi(
     PromoCodeService promoCodeService,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IBillingsApi
 {
-    public async Task<Result<CheckoutSessionResponse>> CreateSubscriptionCheckoutSessionAsync(
+    public async Task<Result<SessionResponse>> CreateSubscriptionCheckoutSessionAsync(
         Guid consumerId,
         Guid creatorId,
         SubscriptionResponse subscription,
@@ -51,7 +51,7 @@ internal sealed class BillingsApi(
             returnUrl,
             cancellationToken);
 
-        return new CheckoutSessionResponse(checkoutUrl);
+        return new SessionResponse(checkoutUrl);
     }
 
     private async Task<Result<Invoice>> CreateInvoiceAsync(

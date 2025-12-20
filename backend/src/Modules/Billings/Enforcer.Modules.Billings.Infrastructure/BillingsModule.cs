@@ -19,7 +19,7 @@ using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Enforcer.Modules.Billings.Infrastructure.Payouts;
 using Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 using Enforcer.Modules.Billings.Infrastructure.PublicApi;
-using Enforcer.Modules.Billings.Infrastructure.RefundTransactions;
+using Enforcer.Modules.Billings.Infrastructure.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.Services;
 using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
 using Enforcer.Modules.Billings.Infrastructure.Wallets;
@@ -113,7 +113,7 @@ public static class BillingsModule
         services.AddScoped<IWalletRepository, WalletRepository>();
         services.AddScoped<PromotionalCodeUsageRepository>();
         services.AddScoped<PaymentRepository>();
-        services.AddScoped<RefundTransactionRepository>();
+        services.AddScoped<RefundRepository>();
         services.AddScoped<WalletRepository>();
         services.AddScoped<WalletEntryRepository>();
         services.AddScoped<PayoutRepository>();

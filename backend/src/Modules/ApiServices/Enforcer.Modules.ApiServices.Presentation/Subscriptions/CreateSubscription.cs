@@ -29,7 +29,7 @@ internal sealed class CreateSubscription : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Subscriptions)
-        .Produces<CheckoutSessionResponse>(StatusCodes.Status200OK)
+        .Produces<SessionResponse>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(CreateSubscription));
     }
 

@@ -25,7 +25,7 @@ internal sealed class AddPaymentMethod : IEndpoint
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.PaymentMethods)
-        .Produces<CheckoutSessionResponse>(StatusCodes.Status200OK)
+        .Produces<SessionResponse>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(AddPaymentMethod));
     }
 

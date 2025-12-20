@@ -16,4 +16,5 @@ public static class Tags
     public const string PromotionalCodes = "PromotionalCodes";
     public const string Wallets = "Wallets";
     public const string WalletEntries = "WalletEntries";
+    public const string Payouts = "Payouts";
 }

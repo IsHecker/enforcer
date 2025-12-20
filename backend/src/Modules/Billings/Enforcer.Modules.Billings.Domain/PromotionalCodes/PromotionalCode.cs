@@ -4,13 +4,12 @@ namespace Enforcer.Modules.Billings.Domain.PromotionalCodes;
 
 public sealed class PromotionalCode : Entity
 {
+    public Guid PlanId { get; private set; }
+
     public string Code { get; private set; }
 
     public PromotionalCodeDiscountType Type { get; private set; }
     public int Value { get; private set; }
-
-    // public Guid[] ApplicableToPlans { get; private set; }
-    // public Guid[] ApplicableToProducts { get; private set; }
 
     public int? MaxUses { get; private set; }
     public int? MaxUsesPerUser { get; private set; }
@@ -20,11 +19,12 @@ public sealed class PromotionalCode : Entity
     public DateTime? ValidUntil { get; private set; }
     public bool IsActive { get; private set; }
 
-    public Guid CreatedBy { get; private set; }
+    public Guid CreatorId { get; private set; }
 
     private PromotionalCode() { }
 
     public static PromotionalCode Create(
+        Guid planId,
         string code,
         PromotionalCodeDiscountType type,
         int value,
@@ -32,10 +32,11 @@ public sealed class PromotionalCode : Entity
         int? maxUsesPerUser,
         DateTime validFrom,
         DateTime? validUntil,
-        Guid createdBy)
+        Guid creatorId)
     {
         return new PromotionalCode
         {
+            PlanId = planId,
             Code = code,
             Type = type,
             Value = value,
@@ -45,7 +46,7 @@ public sealed class PromotionalCode : Entity
             ValidFrom = validFrom,
             ValidUntil = validUntil,
             IsActive = true,
-            CreatedBy = createdBy
+            CreatorId = creatorId
         };
     }
 

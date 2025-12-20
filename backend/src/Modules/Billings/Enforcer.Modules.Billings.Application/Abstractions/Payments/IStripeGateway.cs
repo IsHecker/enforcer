@@ -1,6 +1,6 @@
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Domain.Invoices;
-using Enforcer.Modules.Billings.Domain.RefundTransactions;
+using Enforcer.Modules.Billings.Domain.Refunds;
 
 namespace Enforcer.Modules.Billings.Application.Abstractions.Payments;
 
@@ -27,11 +27,23 @@ public interface IStripeGateway
         Dictionary<string, string> metadata = null!,
         CancellationToken cancellationToken = default);
 
-    Task<Result> RefundAsync(RefundTransaction refund, CancellationToken cancellationToken = default);
+    Task<Result> RefundAsync(Refund refund, CancellationToken cancellationToken = default);
+
+    Task<string> CreateConnectAccountAsync(
+        Guid userId,
+        string country,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<string>> CreateOnboardingSessionAsync(
+        string stripeConnectAccountId,
+        string returnUrl,
+        CancellationToken cancellationToken = default);
 
     Task<Result<string>> SendPayoutAsync(
         string connectedAccountId,
         long amount,
         Dictionary<string, string> metadata = null!,
         CancellationToken cancellationToken = default);
+
+    Task DeleteAccount(string accountId);
 }

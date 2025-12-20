@@ -1,14 +1,14 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
-using Enforcer.Modules.Billings.Infrastructure.RefundTransactions;
+using Enforcer.Modules.Billings.Infrastructure.Refunds;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvents.EventHandlers;
 
 [StripeEvent(Stripe.EventTypes.RefundUpdated)]
 internal sealed class RefundUpdatedHandler(
-    RefundTransactionRepository refundRepository,
+    RefundRepository refundRepository,
     IInvoiceRepository invoiceRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<Stripe.Refund>
 {

@@ -5,7 +5,7 @@ using Enforcer.Modules.Billings.Domain.Payments;
 using Enforcer.Modules.Billings.Domain.Payouts;
 using Enforcer.Modules.Billings.Domain.PromotionalCodes;
 using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
-using Enforcer.Modules.Billings.Domain.RefundTransactions;
+using Enforcer.Modules.Billings.Domain.Refunds;
 using Enforcer.Modules.Billings.Domain.WalletEntries;
 using Enforcer.Modules.Billings.Domain.Wallets;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ public interface IBillingsDbContext
     DbSet<Invoice> Invoices { get; }
 
     DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
-    DbSet<RefundTransaction> RefundTransactions { get; init; }
+    DbSet<Refund> Refunds { get; init; }
     DbSet<PromotionalCode> PromotionalCodes { get; init; }
     DbSet<PromotionalCodeUsage> PromotionalCodeUsages { get; init; }
 

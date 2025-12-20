@@ -1,11 +1,11 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
+using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.Invoices;
-using Enforcer.Modules.Billings.Domain.RefundTransactions;
-using Enforcer.Modules.Billings.Infrastructure.Payments;
-using Enforcer.Modules.Billings.Infrastructure.RefundTransactions;
+using Enforcer.Modules.Billings.Domain.Refunds;
+using Enforcer.Modules.Billings.Infrastructure.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
 using Enforcer.Modules.Billings.Infrastructure.Wallets;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,8 +14,8 @@ namespace Enforcer.Modules.Billings.Infrastructure.Services;
 
 internal sealed class SubscriptionCancellationRefundService(
     IInvoiceRepository invoiceRepository,
-    RefundTransactionRepository refundRepository,
-    PaymentRepository paymentRepository,
+    IStripeGateway stripeGateway,
+    RefundRepository refundRepository,
     WalletRepository walletRepository,
     WalletEntryRepository walletEntryRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork)
@@ -33,15 +33,23 @@ internal sealed class SubscriptionCancellationRefundService(
         if (invoice.Status != InvoiceStatus.Paid)
             return Error.Validation("Invoice.NotPaid", "Can only refund paid invoices");
 
-        var refundAmount = RefundPolicyEvaluator.EvaluateRefundEligibility(subscription, invoice.Total);
+        var refundDecision = RefundPolicyEvaluator.EvaluateRefundEligibility(subscription, invoice.Total);
 
-        var refund = RefundTransaction.Create(
+        var refund = Refund.Create(
             invoice.Id,
             invoice.ConsumerId,
-            refundAmount,
-            "USD");
+            refundDecision.Amount,
+            "USD",
+            refundDecision.Type);
 
-        await RefundToCreditsAsync(refund);
+        if (refundDecision.Type == RefundType.FullRefund)
+        {
+            await stripeGateway.RefundAsync(refund, cancellationToken);
+        }
+        else
+        {
+            await RefundToCreditsAsync(refund);
+        }
 
         await refundRepository.AddAsync(refund, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -49,16 +57,15 @@ internal sealed class SubscriptionCancellationRefundService(
         return Result.Success;
     }
 
-    private async Task RefundToCreditsAsync(RefundTransaction refund)
+    private async Task RefundToCreditsAsync(Refund refund)
     {
+        // TODO: refactor to refund service
+
         var wallet = await walletRepository.GetByUserIdAsync(refund.ConsumerId);
-        var payment = await paymentRepository.GetByIdAsync(refund.PaymentId);
 
         wallet!.AddCredit(refund.Amount, refund.InvoiceId);
-        payment!.MarkAsRefund(refund.Amount);
 
         await walletEntryRepository.AddRangeAsync(wallet.Entries);
-        paymentRepository.Update(payment);
     }
 }
 
@@ -66,7 +73,7 @@ internal sealed class RefundPolicyEvaluator
 {
     private const int GracePeriodDays = 7;
 
-    public static long EvaluateRefundEligibility(
+    public static RefundDecision EvaluateRefundEligibility(
         SubscriptionResponse subscription,
         long amountPaid)
     {
@@ -74,12 +81,16 @@ internal sealed class RefundPolicyEvaluator
         var daysSinceSubscribed = (now - subscription.SubscribedAt).Days;
 
         if (daysSinceSubscribed <= GracePeriodDays)
-            return amountPaid;
+            return new(RefundType.FullRefund, amountPaid);
 
-        return ProrationCalculatorService.CalculateProrated(
+        var creditAmount = ProrationCalculatorService.CalculateProrated(
             amountPaid,
             subscription.Plan.BillingPeriod!,
             subscription.ExpiresAt!.Value,
             now).Amount;
+
+        return new(RefundType.Credit, creditAmount);
     }
+
+    public readonly record struct RefundDecision(RefundType Type, long Amount);
 }

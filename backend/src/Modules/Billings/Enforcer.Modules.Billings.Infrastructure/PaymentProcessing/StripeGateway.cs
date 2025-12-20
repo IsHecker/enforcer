@@ -1,3 +1,4 @@
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
@@ -5,8 +6,9 @@ using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
-using Enforcer.Modules.Billings.Domain.RefundTransactions;
+using Enforcer.Modules.Billings.Domain.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
+using Microsoft.Extensions.DependencyInjection;
 using Stripe.Checkout;
 
 namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing;
@@ -128,6 +130,7 @@ internal sealed class StripeGateway(
             return Error.Failure(ex.StripeError.Code, ex.StripeError.Message);
         }
     }
+
     private static string BuildDescription(Invoice invoice)
     {
         var mainItem = invoice.LineItems.FirstOrDefault(x => x.Type == InvoiceItemType.Subscription);
@@ -139,7 +142,7 @@ internal sealed class StripeGateway(
         await new Stripe.PaymentMethodService().DetachAsync(stripePaymentMethodId, cancellationToken: cancellationToken = default);
     }
 
-    public async Task<Result> RefundAsync(RefundTransaction refund, CancellationToken cancellationToken = default)
+    public async Task<Result> RefundAsync(Refund refund, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -177,22 +180,23 @@ internal sealed class StripeGateway(
         }
     }
 
-    public async Task<string> CreateAccountLinkAsync(
+    public async Task<string> CreateConnectAccountAsync(
         Guid userId,
-        string returnUrl,
+        string country,
         CancellationToken cancellationToken = default)
     {
-        var options = new Stripe.AccountCreateOptions
+        var accountOptions = new Stripe.AccountCreateOptions
         {
             Type = "express",
-            Country = "US",
+            Country = country,
             Email = SharedData.UserEmail,
             Capabilities = new Stripe.AccountCapabilitiesOptions
             {
-                Transfers = new Stripe.AccountCapabilitiesTransfersOptions
-                {
-                    Requested = true
-                }
+                Transfers = new Stripe.AccountCapabilitiesTransfersOptions { Requested = true }
+            },
+            TosAcceptance = new Stripe.AccountTosAcceptanceOptions
+            {
+                ServiceAgreement = country == "US" ? "full" : "recipient"
             },
             Metadata = new Dictionary<string, string>
             {
@@ -200,24 +204,36 @@ internal sealed class StripeGateway(
             }
         };
 
-        var account = await new Stripe.AccountService().CreateAsync(options, cancellationToken: cancellationToken);
+        var account = await new Stripe.AccountService()
+            .CreateAsync(accountOptions, cancellationToken: cancellationToken);
 
         return account.Id;
     }
 
-    public async Task<string> CreateOnboardingLinkAsync(string accountId)
+    public async Task<Result<string>> CreateOnboardingSessionAsync(
+        string stripeConnectAccountId,
+        string returnUrl,
+        CancellationToken cancellationToken = default)
     {
-        var options = new Stripe.AccountLinkCreateOptions
+        try
         {
-            Account = accountId,
-            RefreshUrl = "https://yourapp.com/onboarding/refresh",
-            ReturnUrl = "https://yourapp.com/onboarding/complete",
-            Type = "account_onboarding"
-        };
+            var accountLinkOptions = new Stripe.AccountLinkCreateOptions
+            {
+                Account = stripeConnectAccountId,
+                RefreshUrl = $"{returnUrl}?refresh=true",
+                ReturnUrl = $"{returnUrl}?success=true",
+                Type = "account_onboarding"
+            };
 
-        var link = await new Stripe.AccountLinkService().CreateAsync(options);
+            var accountLink = await new Stripe.AccountLinkService()
+                .CreateAsync(accountLinkOptions, cancellationToken: cancellationToken);
 
-        return link.Url;
+            return accountLink.Url;
+        }
+        catch (Stripe.StripeException ex)
+        {
+            return Error.Failure("Stripe.ConnectFailed", ex.Message);
+        }
     }
 
     public async Task<Result<string>> SendPayoutAsync(
@@ -246,5 +262,11 @@ internal sealed class StripeGateway(
                 $"Stripe.Transfer.{ex.StripeError.Code}",
                 ex.StripeError.Message);
         }
+    }
+
+    public async Task DeleteAccount(string accountId)
+    {
+        var service = new Stripe.AccountService();
+        var deleted = await service.DeleteAsync(accountId);
     }
 }

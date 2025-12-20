@@ -47,10 +47,11 @@ internal sealed class ProcessPayoutCycleJob(
         CancellationToken cancellationToken)
     {
         return await dbContext.Wallets
-            .Where(w =>
-                w.StripeConnectAccountId != null &&
-                w.Balance >= minimumWithdrawalAmount &&
-                (!w.LastPayoutAt.HasValue || w.LastPayoutAt.Value.Month < DateTime.UtcNow.Month))
+            .Where(wallet =>
+                wallet.StripeConnectAccountId != null &&
+                wallet.Balance >= minimumWithdrawalAmount &&
+                (!wallet.LastPayoutAt.HasValue || wallet.LastPayoutAt.Value.Month < DateTime.UtcNow.Month)
+            )
             .Take(batchSize)
             .ToListAsync(cancellationToken);
     }

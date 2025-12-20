@@ -8,6 +8,12 @@ namespace Enforcer.Modules.Billings.Infrastructure.Wallets;
 
 internal class WalletRepository(BillingsDbContext context) : Repository<Wallet>(context), IWalletRepository
 {
+    public Task<Wallet?> GetByStripeAccountIdAsync(string accountId, CancellationToken cancellationToken = default)
+    {
+        return context.Wallets
+            .FirstOrDefaultAsync(w => w.StripeConnectAccountId == accountId, cancellationToken);
+    }
+
     public Task<Wallet?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return context.Wallets

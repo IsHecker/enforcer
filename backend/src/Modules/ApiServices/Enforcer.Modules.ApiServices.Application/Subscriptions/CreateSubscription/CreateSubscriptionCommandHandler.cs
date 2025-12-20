@@ -13,9 +13,9 @@ internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
     IPlanRepository planRepository,
     IApiServiceRepository apiServiceRepository,
-    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, CheckoutSessionResponse>
+    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, SessionResponse>
 {
-    public async Task<Result<CheckoutSessionResponse>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result<SessionResponse>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {
         var isExist = await subscriptionRepository.ExistsAsync(request.ConsumerId, request.ApiServiceId, cancellationToken);
         if (isExist)

@@ -7,6 +7,9 @@ public static class WalletErrors
     public static Error NotFound(Guid id) =>
         Error.NotFound("Wallet.NotFound", $"Wallet with ID '{id}' was not found.");
 
+    public static Error NotFoundByUser(Guid id) =>
+        Error.NotFound("Wallet.NotFound", $"User does not own a wallet with ID '{id}' was not found.");
+
     public static readonly Error InvalidEarningAmount =
         Error.Validation(
             "Wallet.InvalidEarningAmount",

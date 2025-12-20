@@ -5,4 +5,4 @@ namespace Enforcer.Modules.Billings.Application.PaymentMethods.CreatePaymentMeth
 
 public readonly record struct CreatePaymentMethodCommand(
     Guid ConsumerId,
-    string ReturnUrl) : ICommand<CheckoutSessionResponse>;
+    string ReturnUrl) : ICommand<SessionResponse>;

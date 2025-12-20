@@ -9,7 +9,7 @@ using Enforcer.Modules.Billings.Domain.Payments;
 using Enforcer.Modules.Billings.Domain.Payouts;
 using Enforcer.Modules.Billings.Domain.PromotionalCodes;
 using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
-using Enforcer.Modules.Billings.Domain.RefundTransactions;
+using Enforcer.Modules.Billings.Domain.Refunds;
 using Enforcer.Modules.Billings.Domain.WalletEntries;
 using Enforcer.Modules.Billings.Domain.Wallets;
 using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.ProcessedStripeEvents;
@@ -27,7 +27,7 @@ public sealed class BillingsDbContext : DbContext, IUnitOfWork, IBillingsDbConte
    public DbSet<Payment> Payments { get; init; }
    public DbSet<Invoice> Invoices { get; init; }
    public DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
-   public DbSet<RefundTransaction> RefundTransactions { get; init; }
+   public DbSet<Refund> Refunds { get; init; }
    public DbSet<PromotionalCode> PromotionalCodes { get; init; }
    public DbSet<PromotionalCodeUsage> PromotionalCodeUsages { get; init; }
 
