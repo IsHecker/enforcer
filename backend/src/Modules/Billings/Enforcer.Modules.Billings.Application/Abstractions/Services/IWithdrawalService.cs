@@ -7,7 +7,9 @@ public interface IWithdrawalService
 {
     Task<Result> ProcessPayoutAsync(
         Wallet wallet,
+        long amount,
         DateTime periodStart,
         DateTime periodEnd,
+        bool isManual = false,
         CancellationToken cancellationToken = default);
 }

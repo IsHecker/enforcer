@@ -4,7 +4,7 @@ using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
-using Enforcer.Modules.Billings.Application.PromotionalCodes.ListPromotionalCodesForPlan;
+using Enforcer.Modules.Billings.Application.PromotionalCodes.ListPromotionalCodesByPlan;
 using Enforcer.Modules.Billings.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Enforcer.Modules.Billings.Presentation.PromotionalCodes;
 
-internal sealed class ListPromotionalCodesForPlan : IEndpoint
+internal sealed class ListPromotionalCodesByPlan : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -22,7 +22,7 @@ internal sealed class ListPromotionalCodesForPlan : IEndpoint
             [AsParameters] Pagination pagination,
             ISender sender) =>
         {
-            var result = await sender.Send(new ListPromotionalCodesForPlanQuery(
+            var result = await sender.Send(new ListPromotionalCodesByPlanQuery(
                 planId,
                 SharedData.UserId,
                 pagination));
@@ -31,6 +31,6 @@ internal sealed class ListPromotionalCodesForPlan : IEndpoint
         })
         .WithTags(Tags.PromotionalCodes)
         .Produces<PagedResponse<PromotionalCodeResponse>>(StatusCodes.Status200OK)
-        .WithOpenApiName(nameof(ListPromotionalCodesForPlan));
+        .WithOpenApiName(nameof(ListPromotionalCodesByPlan));
     }
 }

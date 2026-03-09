@@ -6,19 +6,19 @@ using Enforcer.Modules.Billings.Application.Abstractions.Data;
 using Enforcer.Modules.Billings.Contracts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Enforcer.Modules.Billings.Application.PromotionalCodes.ListPromotionalCodesForPlan;
+namespace Enforcer.Modules.Billings.Application.PromotionalCodes.ListPromotionalCodesByApiService;
 
-internal sealed class ListPromotionalCodesForPlanQueryHandler(IBillingsDbContext context)
-    : IQueryHandler<ListPromotionalCodesForPlanQuery, PagedResponse<PromotionalCodeResponse>>
+internal sealed class ListPromotionalCodesByApiServiceQueryHandler(IBillingsDbContext context)
+    : IQueryHandler<ListPromotionalCodesByApiServiceQuery, PagedResponse<PromotionalCodeResponse>>
 {
     public async Task<Result<PagedResponse<PromotionalCodeResponse>>> Handle(
-        ListPromotionalCodesForPlanQuery request,
+        ListPromotionalCodesByApiServiceQuery request,
         CancellationToken cancellationToken)
     {
         var query = context.PromotionalCodes
             .AsNoTracking()
             .Where(promoCode =>
-                promoCode.PlanId == request.PlanId
+                promoCode.ApiServiceId == request.ApiServiceId
                 && promoCode.CreatorId == request.CreatorId);
 
         var totalCount = await query.CountAsync(cancellationToken);

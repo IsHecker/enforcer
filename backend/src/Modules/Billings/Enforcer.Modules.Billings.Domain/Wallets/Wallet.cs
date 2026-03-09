@@ -86,25 +86,24 @@ public sealed class Wallet : Entity
         if (amount <= 0)
             return WalletErrors.InvalidChargeAmount;
 
-        // TODO: charge from credits or transfer credits to balance and charge balance.
+        if (Credits <= 0)
+            return WalletErrors.InsufficientCredits(Credits, amount);
 
-        if (Balance < amount)
-            return WalletErrors.InsufficientBalance(Balance, amount);
-
-        Balance -= amount;
+        var chargeAmount = Math.Min(amount, Credits);
+        Credits -= chargeAmount;
 
         _entries.Add(WalletEntry.Create(
-            Id,
-            WalletEntryType.Charge,
-            -amount,
-            Currency,
-            invoiceId,
-            "In-App charge"));
+        Id,
+        WalletEntryType.Charge,
+        -chargeAmount,
+        Currency,
+        invoiceId,
+        "In-App charge"));
 
         return Result.Success;
     }
 
-    public Result Withdraw(long amount, int minimumWithdrawalAmount, Guid payoutId)
+    public Result Withdraw(long amount, int minimumWithdrawalAmount)
     {
         if (amount <= 0)
             return WalletErrors.InvalidWithdrawAmount;
@@ -119,14 +118,6 @@ public sealed class Wallet : Entity
             return WalletErrors.InsufficientBalance(Balance, amount);
 
         Balance -= amount;
-
-        _entries.Add(WalletEntry.Create(
-            Id,
-            WalletEntryType.Payout,
-            -amount,
-            Currency,
-            payoutId,
-            "Withdrawal / Payout"));
 
         LastPayoutAt = DateTime.Now;
 

@@ -20,7 +20,7 @@ internal sealed class GetWalletByUser : IEndpoint
         {
             var result = await sender.Send(new GetWalletByUserQuery(SharedData.UserId));
 
-            return result.MatchResponse(Results.NoContent, ApiResults.Problem);
+            return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Wallets)
         .Produces<WalletResponse>(StatusCodes.Status200OK)

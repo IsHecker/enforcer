@@ -14,7 +14,7 @@ public readonly record struct CreatePlanCommand(
     int RateLimit,
     string RateLimitWindow,
     IEnumerable<string> Features,
-    int? OveragePrice,
+    long? OveragePrice,
     int? MaxOverage,
     int TierLevel
 ) : ICommand<Guid>;

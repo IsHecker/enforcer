@@ -1,4 +1,4 @@
-using Enforcer.Common.Infrastructure;
+using Enforcer.Common.Infrastructure.Extensions;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

@@ -27,7 +27,7 @@ internal sealed class SubscriptionRenewalService(
             invoice,
             cancellationToken: cancellationToken);
 
-        if (!chargeResult.IsSuccess)
+        if (chargeResult.IsFailure)
         {
             var error = chargeResult.Error;
 

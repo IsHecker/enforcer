@@ -3,6 +3,7 @@ using Enforcer.Common.Application.Messaging;
 namespace Enforcer.Modules.Billings.Application.PromotionalCodes.CreatePromotionalCode;
 
 public readonly record struct CreatePromotionalCodeCommand(
+    Guid ApiServiceId,
     Guid PlanId,
     string Code,
     string Type,

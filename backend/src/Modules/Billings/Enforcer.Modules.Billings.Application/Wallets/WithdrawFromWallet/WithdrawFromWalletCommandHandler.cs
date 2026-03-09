@@ -20,6 +20,12 @@ internal sealed class WithdrawFromWalletCommandHandler(
 
         var now = DateTime.UtcNow;
 
-        return await withdrawalService.ProcessPayoutAsync(wallet, now, now, cancellationToken);
+        return await withdrawalService.ProcessPayoutAsync(
+            wallet,
+            request.Amount,
+            now,
+            now,
+            isManual: true,
+            cancellationToken);
     }
 }

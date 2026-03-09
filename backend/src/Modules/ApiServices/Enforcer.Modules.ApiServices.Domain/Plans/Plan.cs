@@ -81,35 +81,6 @@ public sealed class Plan : Entity
         return plan;
     }
 
-    public static Plan CreateDefaultFreePlan(
-        Guid apiServiceId,
-        Guid creatorId)
-    {
-        const PlanType defaultType = PlanType.Free;
-        const string defaultName = "Free Tier";
-
-        const int defaultPrice = 0;
-
-        const int defaultQuotaLimit = 10000;
-        const QuotaResetPeriod defaultQuotaResetPeriod = QuotaResetPeriod.Monthly;
-
-        const int defaultRateLimit = 100;
-        const RateLimitWindow defaultRateLimitWindow = RateLimitWindow.Second;
-
-        return Create(
-            apiServiceId,
-            creatorId,
-            defaultType,
-            defaultName,
-            defaultPrice,
-            defaultQuotaLimit,
-            defaultQuotaResetPeriod,
-            defaultRateLimit,
-            defaultRateLimitWindow,
-            baseTierLevel
-        ).Value;
-    }
-
     public void Activate()
     {
         if (IsActive)

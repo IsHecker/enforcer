@@ -36,7 +36,14 @@ internal sealed class ProcessPayoutCycleJob(
 
         foreach (var wallet in wallets)
         {
-            await withdrawalService.ProcessPayoutAsync(wallet, periodStart, now, cancellationToken);
+            await withdrawalService.ProcessPayoutAsync(
+                wallet,
+                wallet.Balance,
+                periodStart,
+                now,
+                isManual: false,
+                cancellationToken);
+
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }

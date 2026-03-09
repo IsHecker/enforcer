@@ -31,8 +31,7 @@ internal sealed class ListApiServices : IEndpoint
         })
         .WithTags(Tags.ApiServices)
         .Produces<PagedResponse<ApiServiceResponse>>(StatusCodes.Status200OK)
-        .WithOpenApiName(nameof(ListApiServices))
-        .RequireCors("AllowAll");
+        .WithOpenApiName(nameof(ListApiServices));
     }
 
     internal readonly record struct QueryParameters(

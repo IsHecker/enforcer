@@ -1,6 +1,6 @@
 using Enforcer.Common.Application.Data;
-using Enforcer.Common.Infrastructure;
 using Enforcer.Common.Infrastructure.Data;
+using Enforcer.Common.Infrastructure.Extensions;
 using Enforcer.Modules.Billings.Application.Abstractions.Data;
 using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;

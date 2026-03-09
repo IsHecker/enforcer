@@ -18,6 +18,7 @@ internal sealed class CreatePromotionalCode : IEndpoint
         app.MapPost(ApiEndpoints.PromotionalCodes.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreatePromotionalCodeCommand(
+                request.ApiServiceId,
                 request.PlanId,
                 request.Code,
                 request.Type,
@@ -37,6 +38,7 @@ internal sealed class CreatePromotionalCode : IEndpoint
     }
 
     internal readonly record struct Request(
+        Guid ApiServiceId,
         Guid PlanId,
         string Code,
         string Type,

@@ -17,9 +17,9 @@
     },
     "Payout": {
       "PlatformFeePercentage": 30,
-      "MinimumWithdrawalAmountInCents": 100,
+      "MinimumWithdrawalAmountInCents": 3000,
       "PayoutCycle": {
-        "Enabled": true,
+        "Enabled": false,
         "CronSchedule": "0 0 0 L * ? *",
         "RunIntervalInMinutes": 0.2,
         "BatchSize": 5,

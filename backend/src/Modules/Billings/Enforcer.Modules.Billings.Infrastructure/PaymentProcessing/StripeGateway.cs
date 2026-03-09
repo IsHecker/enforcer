@@ -1,4 +1,3 @@
-using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
@@ -8,7 +7,6 @@ using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
-using Microsoft.Extensions.DependencyInjection;
 using Stripe.Checkout;
 
 namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing;
@@ -36,7 +34,7 @@ internal sealed class StripeGateway(
         return session.Url;
     }
 
-    public async Task<string> CreateCheckoutSessionAsync(
+    public async Task<string?> CreateCheckoutSessionAsync(
         string stripeCustomerId,
         Invoice invoice,
         Guid creatorId,
@@ -45,6 +43,9 @@ internal sealed class StripeGateway(
         string returnUrl,
         CancellationToken cancellationToken = default)
     {
+        if (invoice.Total <= 0)
+            return null;
+
         var options = new SessionCreateOptions
         {
             Mode = "payment",

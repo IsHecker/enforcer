@@ -4,6 +4,11 @@ namespace Enforcer.Modules.Billings.Domain.PromotionalCodes;
 
 public static class PromotionalCodeErrors
 {
+    public static Error NotFound(Guid id) =>
+        Error.NotFound(
+            "PromotionalCode.NotFound",
+            $"Promotional code with ID '{id}' was not found.");
+
     public static Error NotFound(string promoCode) =>
         Error.NotFound(
             "PromotionalCode.NotFound",
@@ -25,4 +30,9 @@ public static class PromotionalCodeErrors
         Error.Validation(
             "PromotionalCode.MaxUsesPerCustomerReached",
             "You have exceeded the maximum uses allowed for this promotional code.");
+
+    public static readonly Error NotApplicableToThisPlan =
+        Error.Validation(
+            "PromotionalCode.NotApplicableToThisPlan",
+            "This Promotional code isn't applicable to this plan.");
 }

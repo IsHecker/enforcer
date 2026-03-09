@@ -4,6 +4,7 @@ namespace Enforcer.Modules.Billings.Domain.PromotionalCodes;
 
 public sealed class PromotionalCode : Entity
 {
+    public Guid ApiServiceId { get; private set; }
     public Guid PlanId { get; private set; }
 
     public string Code { get; private set; }
@@ -24,6 +25,7 @@ public sealed class PromotionalCode : Entity
     private PromotionalCode() { }
 
     public static PromotionalCode Create(
+        Guid apiServiceId,
         Guid planId,
         string code,
         PromotionalCodeDiscountType type,
@@ -36,6 +38,7 @@ public sealed class PromotionalCode : Entity
     {
         return new PromotionalCode
         {
+            ApiServiceId = apiServiceId,
             PlanId = planId,
             Code = code,
             Type = type,

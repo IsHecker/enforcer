@@ -8,7 +8,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 
 internal sealed class PromoCodeService(
     IPromotionalCodeRepository codeRepository,
-    PromotionalCodeUsageRepository codeUsageRepository)
+    IPromotionalCodeUsageRepository codeUsageRepository)
 {
     public async Task<Result<InvoiceLineItem>> ApplyPromoCodeAsync(
        string code,

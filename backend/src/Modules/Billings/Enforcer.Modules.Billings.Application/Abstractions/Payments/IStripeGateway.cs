@@ -11,7 +11,7 @@ public interface IStripeGateway
         string returnUrl,
         CancellationToken cancellationToken = default);
 
-    Task<string> CreateCheckoutSessionAsync(
+    Task<string?> CreateCheckoutSessionAsync(
         string stripeCustomerId,
         Invoice invoice,
         Guid creatorId,

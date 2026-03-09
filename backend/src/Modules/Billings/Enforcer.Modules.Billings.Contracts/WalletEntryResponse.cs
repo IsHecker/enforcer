@@ -7,4 +7,5 @@ public sealed record WalletEntryResponse(
     long Amount,
     string Currency,
     Guid? ReferenceId,
-    string? Description);
+    string? Description,
+    DateTime CreatedAt);

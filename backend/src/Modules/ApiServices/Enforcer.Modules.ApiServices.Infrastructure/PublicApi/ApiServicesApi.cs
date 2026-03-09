@@ -1,6 +1,7 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Services;
 using Enforcer.Modules.ApiServices.Application.ApiKeyBans;
 using Enforcer.Modules.ApiServices.Application.ApiServices.GetApiServiceById;
 using Enforcer.Modules.ApiServices.Application.Endpoints.GetEndpointById;
@@ -16,6 +17,7 @@ using Enforcer.Modules.ApiServices.Domain.ApiServices.ValueObjects;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiUsages;
 using Enforcer.Modules.ApiServices.Infrastructure.Database;
+using Enforcer.Modules.ApiServices.Infrastructure.Subscriptions;
 using Enforcer.Modules.ApiServices.PublicApi;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,7 @@ internal sealed class ApiServicesApi(
     ApiServicesDbContext context,
     IApiServiceRepository serviceRepository,
     ISubscriptionRepository subscriptionRepository,
-    IPlanRepository planRepository,
+    ISubscriptionService subscriptionService,
     ApiUsageEnforcementService enforcementService,
     [FromKeyedServices(nameof(ApiServices))] IUnitOfWork unitOfWork,
     ISender sender) : IApiServicesApi
@@ -156,13 +158,6 @@ internal sealed class ApiServicesApi(
 
     public async Task<Guid> CreateSubscriptionAsync(Guid consumerId, Guid planId, CancellationToken cancellationToken = default)
     {
-        var plan = await planRepository.GetByIdAsync(planId, cancellationToken);
-
-        var subscription = Subscription.Create(consumerId, plan!);
-
-        await subscriptionRepository.AddAsync(subscription.Value, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return subscription.Value.Id;
+        return await subscriptionService.CreateSubscriptionAsync(consumerId, planId, cancellationToken);
     }
 }

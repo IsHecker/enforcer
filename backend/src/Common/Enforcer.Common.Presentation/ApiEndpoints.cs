@@ -81,6 +81,8 @@ public static class ApiEndpoints
     public static class Users
     {
         public const string GetById = $"{UsersBase}/{{userId:guid}}";
+        public const string Profile = $"{UsersBase}/profile";
+        public const string Register = $"{UsersBase}/register";
     }
 
     public static class ApiKeys
@@ -135,8 +137,14 @@ public static class ApiEndpoints
 
     public static class PromotionalCodes
     {
+        public const string GetById = $"{PromotionalCodesBase}/{{promoCodeId:guid}}";
+
+        public const string GetByCode = $"{PromotionalCodesBase}/{{promoCode}}";
+
         public const string ListByPlan = $"{PromotionalCodesBase}/{{planId:guid}}";
+        public const string ListByApiSerice = $"{ApiServices.GetById}/promo-codes";
 
         public const string Create = PromotionalCodesBase;
+        public const string Delete = GetById;
     }
 }

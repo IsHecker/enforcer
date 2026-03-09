@@ -4,6 +4,7 @@ using Enforcer.Common.Infrastructure.Interceptors;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Data;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Services;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiKeyBans;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiServices;
 using Enforcer.Modules.ApiServices.Infrastructure.ApiUsages;
@@ -59,6 +60,7 @@ public static class ApiServicesModule
         services.AddScoped<IApiKeyBanRepositoy, ApiKeyBanRepositoy>();
 
         services.AddScoped<ApiUsageEnforcementService>();
+        services.AddScoped<ISubscriptionService, SubscriptionService>();
 
         services.AddScoped<IApiServicesApi, ApiServicesApi>();
     }

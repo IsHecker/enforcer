@@ -13,5 +13,6 @@ public static class WalletEntryMapper
             walletEntry.Amount,
             walletEntry.Currency,
             walletEntry.ReferenceId,
-            walletEntry.Description);
+            walletEntry.Description,
+            walletEntry.CreatedAt);
 }

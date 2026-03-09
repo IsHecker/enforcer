@@ -7,5 +7,5 @@ public readonly record struct CreateSubscriptionCommand(
     Guid ConsumerId,
     Guid PlanId,
     Guid ApiServiceId,
-    string Code,
+    string PromoCode,
     string ReturnUrl) : ICommand<SessionResponse>;

@@ -22,7 +22,7 @@ internal sealed class CreateSubscription : IEndpoint
                 SharedData.UserId,
                 request.PlanId,
                 request.ApiServiceId,
-                request.Code,
+                request.PromoCode,
                 request.ReturnUrl
             ));
 
@@ -36,7 +36,7 @@ internal sealed class CreateSubscription : IEndpoint
     internal readonly record struct Request(
         Guid ApiServiceId,
         Guid PlanId,
-        string Code,
+        string PromoCode,
         string ReturnUrl
     );
 }

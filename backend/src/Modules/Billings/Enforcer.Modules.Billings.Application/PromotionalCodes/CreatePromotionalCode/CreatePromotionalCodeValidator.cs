@@ -22,8 +22,8 @@ public sealed class CreatePromotionalCodeValidator
             .GreaterThan(0).WithMessage("MaxUsesPerUser must be greater than zero.")
             .When(x => x.MaxUsesPerUser is not null);
 
-        RuleFor(x => x.ValidFrom)
-        .GreaterThanOrEqualTo(DateTime.UtcNow)
+        RuleFor(x => x.ValidFrom.Day)
+        .GreaterThanOrEqualTo(DateTime.UtcNow.Day)
         .WithMessage("ValidFrom must not be in the past.");
 
         RuleFor(x => x.ValidUntil)

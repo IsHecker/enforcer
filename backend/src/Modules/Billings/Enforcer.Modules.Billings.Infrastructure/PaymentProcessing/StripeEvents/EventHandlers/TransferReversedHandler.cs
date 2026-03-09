@@ -28,7 +28,13 @@ internal sealed class TransferReversedHandler(
     private async Task MarkPayoutAsFailedAsync(Transfer transfer, Guid payoutId)
     {
         var payout = await payoutRepository.GetByIdAsync(payoutId);
-        payout!.MarkAsSent(transfer.Id);
+
+        var reversal = transfer.Reversals?.Data?.FirstOrDefault();
+        var errorMessage = reversal?.SourceRefund != null
+            ? "Payment method failed or was disputed"
+            : "Transfer was reversed by Stripe";
+
+        payout!.MarkAsFailed(errorMessage);
     }
 
     private async Task RestoreBalanceAsync(Transfer transfer, Guid payoutId)

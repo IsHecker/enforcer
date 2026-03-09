@@ -1,6 +1,7 @@
 using Enforcer.Common.Application.Messaging;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.ApiServices.Application.Abstractions.Repositories;
+using Enforcer.Modules.ApiServices.Application.Abstractions.Services;
 using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
@@ -11,6 +12,7 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.CreateSubscript
 
 internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionRepository subscriptionRepository,
+    ISubscriptionService subscriptionService,
     IPlanRepository planRepository,
     IApiServiceRepository apiServiceRepository,
     IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, SessionResponse>
@@ -35,13 +37,21 @@ internal sealed class CreateSubscriptionCommandHandler(
         if (subscriptionResult.IsFailure)
             return subscriptionResult.Error;
 
-        return await billingsApi.CreateSubscriptionCheckoutSessionAsync(
+        var createSessionResult = await billingsApi.CreateSubscriptionCheckoutSessionAsync(
             request.ConsumerId,
             apiService!.CreatorId,
-            subscriptionResult.Value.ToResponse(),
+            subscriptionResult.Value.ExpiresAt,
             plan.ToResponse(),
-            request.Code,
+            request.PromoCode,
             request.ReturnUrl,
             cancellationToken);
+
+        if (createSessionResult.IsFailure)
+            return createSessionResult.Error;
+
+        if (createSessionResult.Value.Url is null)
+            await subscriptionService.CreateSubscriptionAsync(request.ConsumerId, request.PlanId, cancellationToken);
+
+        return createSessionResult;
     }
 }

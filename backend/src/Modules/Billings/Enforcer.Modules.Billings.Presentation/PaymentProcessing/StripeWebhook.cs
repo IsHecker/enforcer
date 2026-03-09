@@ -15,9 +15,9 @@ internal sealed class StripeWebhook : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost(ApiEndpoints.PaymentProcessing.StripeWebhook, async (
-            [FromQuery] bool isConnect,
             HttpContext context,
-            IStripeEventDispatcher dispatcher) =>
+            IStripeEventDispatcher dispatcher,
+            [FromQuery] bool isConnect = false) =>
         {
             var json = await new StreamReader(context.Request.Body).ReadToEndAsync();
             var stripeSignature = context.Request.Headers["Stripe-Signature"];

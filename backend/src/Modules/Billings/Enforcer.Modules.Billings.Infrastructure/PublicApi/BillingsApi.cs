@@ -10,6 +10,7 @@ using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 using Enforcer.Modules.Billings.Infrastructure.Services;
+using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
 using Enforcer.Modules.Billings.PublicApi;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,8 @@ namespace Enforcer.Modules.Billings.Infrastructure.PublicApi;
 internal sealed class BillingsApi(
     IStripeGateway stripeGateway,
     IInvoiceRepository invoiceRepository,
+    IWalletRepository walletRepository,
+    WalletEntryRepository entryRepository,
     PlanSwitchBillingService planSwitchBillingService,
     SubscriptionCancellationRefundService subscriptionCancellationRefundService,
     PromoCodeService promoCodeService,
@@ -26,7 +29,7 @@ internal sealed class BillingsApi(
     public async Task<Result<SessionResponse>> CreateSubscriptionCheckoutSessionAsync(
         Guid consumerId,
         Guid creatorId,
-        SubscriptionResponse subscription,
+        DateTime? subscriptionExpiresAt,
         PlanResponse plan,
         string promoCode,
         string returnUrl,
@@ -34,7 +37,7 @@ internal sealed class BillingsApi(
     {
         var invoiceResult = await CreateInvoiceAsync(
             consumerId,
-            subscription,
+            subscriptionExpiresAt,
             plan,
             promoCode,
             cancellationToken);
@@ -56,7 +59,7 @@ internal sealed class BillingsApi(
 
     private async Task<Result<Invoice>> CreateInvoiceAsync(
         Guid consumerId,
-        SubscriptionResponse subscription,
+        DateTime? subscriptionExpiresAt,
         PlanResponse plan,
         string code,
         CancellationToken cancellationToken)
@@ -65,7 +68,7 @@ internal sealed class BillingsApi(
             consumerId,
             "USD",
             billingPeriodStart: DateTime.UtcNow,
-            billingPeriodEnd: subscription.ExpiresAt);
+            billingPeriodEnd: subscriptionExpiresAt);
 
         var subscriptionLineItem = InvoiceLineItem.Create(
             InvoiceItemType.Subscription,
@@ -74,16 +77,33 @@ internal sealed class BillingsApi(
 
         invoice.AddLineItem(subscriptionLineItem);
 
-        var discountResult = await promoCodeService.ApplyPromoCodeAsync(
-            code,
-            consumerId,
-            invoice.Total,
-            cancellationToken);
+        if (code is not null)
+        {
+            var discountResult = await promoCodeService.ApplyPromoCodeAsync(
+                code,
+                consumerId,
+                invoice.Total,
+                cancellationToken);
 
-        if (discountResult.IsFailure)
-            return discountResult.Error;
+            if (discountResult.IsFailure)
+                return discountResult.Error;
 
-        invoice.AddLineItem(discountResult.Value);
+            invoice.AddLineItem(discountResult.Value);
+        }
+
+        var wallet = await walletRepository.GetByUserIdAsync(consumerId, cancellationToken);
+        var oldCredits = wallet!.Credits;
+
+        var chargeResult = wallet.Charge(invoice.Total, invoice.Id);
+        var chargeAmount = oldCredits - wallet.Credits;
+
+        if (chargeResult.IsSuccess)
+            invoice.AddLineItem(InvoiceLineItem.Create(
+                InvoiceItemType.Credit,
+                $"Wallet Credits Used: {chargeAmount}",
+                -chargeAmount));
+
+        await entryRepository.AddRangeAsync(wallet.Entries, cancellationToken);
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

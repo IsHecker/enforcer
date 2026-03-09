@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Enforcer.Common.Infrastructure;
+namespace Enforcer.Common.Infrastructure.Extensions;
 
 public static class FluentApiExtensions
 {

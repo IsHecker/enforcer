@@ -19,7 +19,7 @@ public interface IBillingsApi
     Task<Result<SessionResponse>> CreateSubscriptionCheckoutSessionAsync(
         Guid consumerId,
         Guid creatorId,
-        SubscriptionResponse subscription,
+        DateTime? subscriptionExpiresAt,
         PlanResponse plan,
         string promoCode,
         string returnUrl,

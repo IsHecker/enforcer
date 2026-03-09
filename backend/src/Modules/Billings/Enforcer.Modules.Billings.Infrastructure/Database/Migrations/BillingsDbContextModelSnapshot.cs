@@ -394,6 +394,9 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ApiServiceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -571,6 +574,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("StripeConnectAccountId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")

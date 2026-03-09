@@ -15,13 +15,15 @@ internal sealed class WithdrawFromWallet : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost(ApiEndpoints.Wallets.Withdrawl, async (ISender sender) =>
+        app.MapPost(ApiEndpoints.Wallets.Withdrawl, async (Request request, ISender sender) =>
         {
-            var result = await sender.Send(new WithdrawFromWalletCommand(SharedData.WalletId));
+            var result = await sender.Send(new WithdrawFromWalletCommand(SharedData.WalletId, request.Amount));
 
             return result.MatchResponse(Results.NoContent, ApiResults.Problem);
         })
         .WithTags(Tags.Wallets)
         .WithOpenApiName(nameof(WithdrawFromWallet));
     }
+
+    internal readonly record struct Request(long Amount);
 }

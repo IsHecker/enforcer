@@ -22,13 +22,13 @@ internal sealed class CreatePlan : IEndpoint
                 SharedData.UserId,
                 request.PlanType,
                 request.Name,
-                request.Price, request.BillingPeriod,
+                request.PriceInCents, request.BillingPeriod,
                 request.QuotaLimit,
                 request.QuotaResetPeriod,
                 request.RateLimit,
                 request.RateLimitWindow,
                 request.Features,
-                request.OveragePrice,
+                request.OveragePriceInCents,
                 request.MaxOverage,
                 request.TierLevel
             ));
@@ -43,14 +43,14 @@ internal sealed class CreatePlan : IEndpoint
     internal readonly record struct Request(
         string PlanType,
         string Name,
-        long Price,
+        long PriceInCents,
         string? BillingPeriod,
         int QuotaLimit,
         string QuotaResetPeriod,
         int RateLimit,
         string RateLimitWindow,
         IEnumerable<string> Features,
-        int? OveragePrice,
+        long? OveragePriceInCents,
         int? MaxOverage,
         int TierLevel
     );

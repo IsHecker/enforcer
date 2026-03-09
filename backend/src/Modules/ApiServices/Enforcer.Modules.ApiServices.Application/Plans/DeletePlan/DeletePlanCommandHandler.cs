@@ -17,6 +17,8 @@ internal sealed class DeletePlanCommandHandler(IPlanRepository planRepository) :
         if (deleteResult.IsFailure)
             return deleteResult.Error;
 
+        planRepository.Update(plan);
+
         return Result.Success;
     }
 }

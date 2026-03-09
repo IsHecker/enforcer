@@ -18,6 +18,7 @@ using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvents;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Enforcer.Modules.Billings.Infrastructure.Payouts;
 using Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
+using Enforcer.Modules.Billings.Infrastructure.PromotionalCodeUsages;
 using Enforcer.Modules.Billings.Infrastructure.PublicApi;
 using Enforcer.Modules.Billings.Infrastructure.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.Services;
@@ -111,7 +112,7 @@ public static class BillingsModule
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IPromotionalCodeRepository, PromotionalCodeRepository>();
         services.AddScoped<IWalletRepository, WalletRepository>();
-        services.AddScoped<PromotionalCodeUsageRepository>();
+        services.AddScoped<IPromotionalCodeUsageRepository, PromotionalCodeUsageRepository>();
         services.AddScoped<PaymentRepository>();
         services.AddScoped<RefundRepository>();
         services.AddScoped<WalletRepository>();
