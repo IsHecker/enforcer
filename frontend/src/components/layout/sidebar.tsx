@@ -6,68 +6,19 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth-context';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   Package,
-  CreditCard,
-  FileText,
   Settings,
-  Users,
-  BarChart3,
-  Key,
   Zap,
   Menu,
   X,
-  Shield,
-  Wallet,
   Globe,
-  Activity,
+  ChevronRight,
+  Sparkles,
 } from 'lucide-react';
-
-const creatorNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'My API Products',
-    href: '/products',
-    icon: Package,
-  },
-  {
-    title: 'Plans & Pricing',
-    href: '/plans',
-    icon: CreditCard,
-  },
-  {
-    title: 'Revenue Dashboard',
-    href: '/revenue',
-    icon: BarChart3,
-  },
-  {
-    title: 'Consumer Management',
-    href: '/consumers',
-    icon: Users,
-  },
-  {
-    title: 'Documentation',
-    href: '/docs',
-    icon: FileText,
-  },
-  {
-    title: 'Billing',
-    href: '/billing',
-    icon: Wallet,
-  },
-  {
-    title: 'Profile & Settings',
-    href: '/profile',
-    icon: Settings,
-  },
-];
 
 const consumerNavItems = [
   {
@@ -86,56 +37,8 @@ const consumerNavItems = [
     icon: Package,
   },
   {
-    title: 'Usage & Analytics',
-    href: '/usage',
-    icon: BarChart3,
-  },
-  {
-    title: 'Request Logs',
-    href: '/request-logs',
-    icon: Activity,
-  },
-  {
-    title: 'API Keys',
-    href: '/keys',
-    icon: Key,
-  },
-  {
-    title: 'Documentation',
-    href: '/docs',
-    icon: FileText,
-  },
-  {
-    title: 'Billing',
-    href: '/billing',
-    icon: Wallet,
-  },
-];
-
-const adminNavItems = [
-  {
-    title: 'Admin Dashboard',
-    href: '/admin',
-    icon: Shield,
-  },
-  {
-    title: 'User Management',
-    href: '/admin/users',
-    icon: Users,
-  },
-  {
-    title: 'Platform Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3,
-  },
-  {
-    title: 'Content Management',
-    href: '/admin/content',
-    icon: Settings,
-  },
-  {
-    title: 'Platform Settings',
-    href: '/admin/settings',
+    title: 'Profile & Settings',
+    href: '/profile',
     icon: Settings,
   },
 ];
@@ -149,105 +52,96 @@ export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const getNavItems = () => {
-    if (!user) return [];
-
-    switch (user.role) {
-      case 'creator':
-        return creatorNavItems;
-      case 'consumer':
-        return consumerNavItems;
-      case 'admin':
-        return adminNavItems;
-      default:
-        return consumerNavItems;
-    }
-  };
-
-  const navItems = getNavItems();
+  if (!user) return null;
 
   return (
-    <div className={cn(
-      'flex flex-col h-full bg-sidebar-background border-r border-sidebar-border',
-      isCollapsed ? 'w-16' : 'w-64',
-      className
-    )}>
-      <div className="flex items-center justify-between p-4">
-        <div className={cn(
-          'flex items-center space-x-2',
-          isCollapsed && 'justify-center'
-        )}>
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Zap className="h-5 w-5 text-primary-foreground" />
-          </div>
-          {!isCollapsed && (
-            <span className="text-lg font-bold text-sidebar-foreground">
-              ProxyAPI
-            </span>
-          )}
-        </div>
+    <motion.div
+      initial={false}
+      animate={{ width: isCollapsed ? 64 : 240 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className={cn(
+        'relative flex flex-col h-full bg-[#080808] border-r border-white/5 z-40',
+        className
+      )}
+    >
+      <div className={cn("flex items-center p-3", isCollapsed ? "justify-center" : "justify-end")}>
+        {!isCollapsed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(true)}
+            className="text-slate-400 hover:text-white hover:bg-white/5 p-1 h-auto"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
+
+      {isCollapsed && (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-8 w-8 p-0"
+          onClick={() => setIsCollapsed(false)}
+          className="mx-auto mb-4 text-slate-400 hover:text-white hover:bg-white/5 p-2 h-auto"
         >
-          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+          <Menu className="h-6 w-6" />
         </Button>
-      </div>
+      )}
 
-      <Separator />
-
-      <ScrollArea className="flex-1 px-2 py-2">
-        <nav className="space-y-1">
-          {navItems.map((item) => {
+      <ScrollArea className={cn("flex-1 mt-2", isCollapsed ? "px-2" : "px-3")}>
+        <nav className="space-y-1 pt-2">
+          {consumerNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
 
             return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={isActive ? 'secondary' : 'ghost'}
+              <Link key={item.href} href={item.href} className="block group">
+                <div
                   className={cn(
-                    'w-full justify-start h-10',
-                    isCollapsed ? 'px-2' : 'px-3',
-                    isActive && 'bg-sidebar-accent text-sidebar-accent-foreground'
+                    'relative flex items-center h-11 rounded-xl transition-all duration-200 px-3',
+                    isActive
+                      ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.02)]'
+                      : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
                   )}
                 >
-                  <Icon className={cn('h-4 w-4', !isCollapsed && 'mr-3')} />
-                  {!isCollapsed && (
-                    <span className="truncate">{item.title}</span>
+                  {/* Active Indicator Bar */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav"
+                      className="absolute left-0 w-1 h-6 bg-white rounded-r-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                    />
                   )}
-                </Button>
+
+                  <Icon className={cn(
+                    'h-[18px] w-[18px] transition-transform duration-200',
+                    !isCollapsed && 'mr-3.5',
+                    isCollapsed && 'mx-auto',
+                    isActive && 'scale-110'
+                  )} />
+
+                  {!isCollapsed && (
+                    <>
+                      <span className="text-[14px] font-medium tracking-tight flex-1">
+                        {item.title}
+                      </span>
+                      {isActive && (
+                        <ChevronRight className="h-3.5 w-3.5 opacity-50" />
+                      )}
+                    </>
+                  )}
+
+                  {/* Tooltip for collapsed state */}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-4 px-3 py-1.5 bg-white text-black text-[12px] font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0 shadow-2xl whitespace-nowrap z-50">
+                      {item.title}
+                    </div>
+                  )}
+                </div>
               </Link>
             );
           })}
         </nav>
       </ScrollArea>
-
-      {!isCollapsed && (
-        <>
-          <Separator />
-          <div className="p-4">
-            <div className="bg-sidebar-accent/20 rounded-lg p-3 text-center">
-              <h3 className="text-sm font-medium text-sidebar-foreground mb-1">
-                {user?.plan === 'pro' ? 'Pro Plan' : 'Free Plan'}
-              </h3>
-              <p className="text-xs text-sidebar-foreground/60 mb-2">
-                {user?.plan === 'pro'
-                  ? 'Unlimited API calls'
-                  : '1,000 API calls/month'
-                }
-              </p>
-              {user?.plan !== 'pro' && (
-                <Button size="sm" className="w-full">
-                  Upgrade
-                </Button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    </motion.div>
   );
 }

@@ -23,8 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Search,
+import { 
+  Search, 
   Filter,
   MoreHorizontal,
   UserCheck,
@@ -141,7 +141,7 @@ export function UserManagementTable() {
 
   const filteredUsers = mockUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     const matchesPlan = planFilter === 'all' || user.plan === planFilter;
     return matchesSearch && matchesRole && matchesPlan;
@@ -180,7 +180,7 @@ export function UserManagementTable() {
             {filteredUsers.length} users
           </Badge>
         </div>
-
+        
         <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -290,7 +290,7 @@ export function UserManagementTable() {
                             <UserCheck className="mr-2 h-4 w-4" />
                             Activate User
                           </DropdownMenuItem>
-                          <DropdownMenuItem
+                          <DropdownMenuItem 
                             onClick={() => handleUserAction(user.id, 'deactivate')}
                             className="text-destructive"
                           >

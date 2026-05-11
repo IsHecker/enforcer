@@ -153,49 +153,67 @@ export function AnalyticsChart({ role }: AnalyticsChartProps) {
       </CardHeader>
 
       <CardContent>
-        <div className="w-full h-[300px]">
-          {timeRange === 'daily' ? (
-            <LineChart width={700} height={300} data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={config.format} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))',
-                }}
-                formatter={(value: number) => [config.format(value), config.title]}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
-              <Line
-                type="monotone"
-                dataKey={config.dataKey}
-                stroke={config.color}
-                strokeWidth={2}
-                dot={{ fill: config.color, strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: config.color, strokeWidth: 2 }}
-              />
-            </LineChart>
-          ) : (
-            <BarChart width={700} height={300} data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={config.format} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--foreground))',
-                }}
-                formatter={(value: number) => [config.format(value), config.title]}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
-              <Bar dataKey={config.dataKey} fill={config.color} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          )}
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            {timeRange === 'daily' ? (
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="name"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickFormatter={config.format}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    color: 'hsl(var(--foreground))',
+                  }}
+                  formatter={(value: number) => [config.format(value), config.title]}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey={config.dataKey}
+                  stroke={config.color}
+                  strokeWidth={2}
+                  dot={{ fill: config.color, strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: config.color, strokeWidth: 2 }}
+                />
+              </LineChart>
+            ) : (
+              <BarChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="name"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickFormatter={config.format}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    color: 'hsl(var(--foreground))',
+                  }}
+                  formatter={(value: number) => [config.format(value), config.title]}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                />
+                <Bar dataKey={config.dataKey} fill={config.color} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            )}
+          </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>

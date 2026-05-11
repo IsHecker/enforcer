@@ -9,6 +9,7 @@ export interface User {
   plan?: string;
   createdAt: string;
   lastLogin?: string;
+  isPublisher?: boolean;
 }
 
 export interface AuthState {
@@ -37,3 +38,6 @@ export interface ApiKey {
   key: string;
   isActive: boolean;
   expiresAt?: string;
+  lastUsed?: string;
+  createdAt: string;
+}

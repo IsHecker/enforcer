@@ -4,13 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Activity, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  DollarSign, 
-  Key, 
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Key,
   Users,
   Zap,
 } from 'lucide-react';
@@ -140,7 +140,7 @@ export function RecentActivity({ role }: RecentActivityProps) {
     }
   };
 
-  const getFilteredActivities = () => {
+  const getFilteredActivities = (): ActivityItem[] => {
     // Filter activities based on user role
     switch (role) {
       case 'creator':
@@ -191,7 +191,7 @@ export function RecentActivity({ role }: RecentActivityProps) {
             },
           },
         ];
-      
+
       case 'consumer':
         return [
           {
@@ -240,10 +240,10 @@ export function RecentActivity({ role }: RecentActivityProps) {
             timestamp: '25 minutes ago',
           },
         ];
-      
+
       case 'admin':
         return mockActivities;
-      
+
       default:
         return [];
     }
@@ -289,7 +289,7 @@ export function RecentActivity({ role }: RecentActivityProps) {
                       <span>{activity.timestamp}</span>
                     </div>
                   </div>
-                  
+
                   <p className="text-sm text-muted-foreground">
                     {activity.description}
                   </p>
@@ -316,10 +316,10 @@ export function RecentActivity({ role }: RecentActivityProps) {
                           variant="outline"
                           className="text-xs bg-background/50"
                         >
-                          {key === 'revenue' || key === 'amount' ? `$${value}` : 
-                           key === 'count' ? `${value} calls` :
-                           key === 'status' ? `Status: ${value}` :
-                           `${key}: ${value}`}
+                          {key === 'revenue' || key === 'amount' ? `$${value}` :
+                            key === 'count' ? `${value} calls` :
+                              key === 'status' ? `Status: ${value}` :
+                                `${key}: ${value}`}
                         </Badge>
                       ))}
                     </div>

@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
-import {
-  Key,
+import { 
+  Key, 
   Plus,
   Copy,
   Eye,
@@ -142,9 +142,9 @@ export function ApiKeyManager() {
       keys.map(key =>
         key.id === keyId
           ? {
-            ...key,
-            key: `pk_${key.environment === 'production' ? 'live' : 'test'}_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
-          }
+              ...key,
+              key: `pk_${key.environment === 'production' ? 'live' : 'test'}_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+            }
           : key
       )
     );
@@ -201,7 +201,7 @@ export function ApiKeyManager() {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
+    
     if (diffInHours < 24) {
       return `${Math.floor(diffInHours)} hours ago`;
     } else {
@@ -239,7 +239,7 @@ export function ApiKeyManager() {
                 Generate a new API key for accessing your subscribed APIs
               </DialogDescription>
             </DialogHeader>
-
+            
             <div className="space-y-4 py-4">
               <div>
                 <Label htmlFor="key-name" className="text-sm font-medium text-foreground">
@@ -323,7 +323,7 @@ export function ApiKeyManager() {
           apiKeys.map((apiKey) => {
             const isExpired = isKeyExpired(apiKey.expiresAt);
             const isVisible = visibleKeys.has(apiKey.id);
-
+            
             return (
               <Card key={apiKey.id} className="bg-card/50 backdrop-blur-sm border-border/20">
                 <CardHeader>
@@ -347,10 +347,10 @@ export function ApiKeyManager() {
                         </CardDescription>
                       </div>
                     </div>
-
+                    
                     <div className="flex items-center space-x-2">
-                      <Badge
-                        variant="outline"
+                      <Badge 
+                        variant="outline" 
                         className={getStatusColor(isExpired ? 'expired' : apiKey.status)}
                       >
                         {isExpired ? (
@@ -373,7 +373,7 @@ export function ApiKeyManager() {
                     </div>
                   </div>
                 </CardHeader>
-
+                
                 <CardContent className="space-y-4">
                   {/* API Key Display */}
                   <div>
@@ -409,18 +409,18 @@ export function ApiKeyManager() {
                       </div>
                       <div className="text-sm text-muted-foreground">Total Uses</div>
                     </div>
-
+                    
                     <div className="text-center p-3 rounded-lg bg-muted/20">
                       <div className="text-lg font-semibold text-foreground">
                         {apiKey.associatedApis.length}
                       </div>
                       <div className="text-sm text-muted-foreground">Associated APIs</div>
                     </div>
-
+                    
                     <div className="text-center p-3 rounded-lg bg-muted/20">
                       <div className="text-lg font-semibold text-foreground">
-                        {apiKey.expiresAt ?
-                          Math.max(0, Math.ceil((new Date(apiKey.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) :
+                        {apiKey.expiresAt ? 
+                          Math.max(0, Math.ceil((new Date(apiKey.expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 
                           '∞'
                         }
                       </div>
@@ -491,7 +491,7 @@ export function ApiKeyManager() {
                         Usage Analytics
                       </Button>
                     </div>
-
+                    
                     <div className="flex items-center space-x-2">
                       {apiKey.status === 'active' && (
                         <>
@@ -503,7 +503,7 @@ export function ApiKeyManager() {
                             <RotateCcw className="h-4 w-4 mr-2" />
                             Rotate
                           </Button>
-
+                          
                           <Button
                             variant="outline"
                             size="sm"
@@ -515,7 +515,7 @@ export function ApiKeyManager() {
                           </Button>
                         </>
                       )}
-
+                      
                       <Button
                         variant="outline"
                         size="sm"

@@ -12,11 +12,11 @@ interface RoleGuardProps {
   fallback?: React.ReactNode;
 }
 
-export function RoleGuard({
-  children,
-  allowedRoles,
+export function RoleGuard({ 
+  children, 
+  allowedRoles, 
   redirectTo,
-  fallback
+  fallback 
 }: RoleGuardProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();

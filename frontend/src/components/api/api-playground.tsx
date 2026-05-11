@@ -10,12 +10,13 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import {
-  Play,
-  Copy,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
+import { RouteDisplay } from '@/components/ui/route-display';
+import { 
+  Play, 
+  Copy, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle, 
   Code,
   Eye,
   EyeOff,
@@ -131,7 +132,7 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
     }
 
     // Check if endpoint requires upgrade
-    const requiresUpgrade = selectedEndpoint.planRestrictions.length > 0 &&
+    const requiresUpgrade = selectedEndpoint.planRestrictions.length > 0 && 
       !selectedEndpoint.planRestrictions.includes(currentPlan?.type || 'free');
 
     if (mode === 'personal' && requiresUpgrade) {
@@ -174,10 +175,10 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
       .filter(([_, value]) => value.trim())
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join('&');
-
+    
     const url = queryParams ? `${baseUrl}?${queryParams}` : baseUrl;
     const curlCommand = `curl -X ${selectedEndpoint.method} "${url}" \\\n  -H "Authorization: Bearer ${selectedKey?.key || 'your_api_key'}" \\\n  -H "Content-Type: application/json"`;
-
+    
     navigator.clipboard.writeText(curlCommand);
     toast.success('cURL command copied to clipboard!');
   };
@@ -212,11 +213,12 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <Card
-              className={`cursor-pointer transition-colors ${mode === 'demo'
-                  ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/20'
+            <Card 
+              className={`cursor-pointer transition-colors ${
+                mode === 'demo' 
+                  ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/20' 
                   : 'bg-muted/20 hover:bg-muted/30'
-                }`}
+              }`}
               onClick={() => setMode('demo')}
             >
               <CardContent className="p-4">
@@ -234,11 +236,12 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
               </CardContent>
             </Card>
 
-            <Card
-              className={`cursor-pointer transition-colors ${mode === 'personal'
-                  ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/20'
+            <Card 
+              className={`cursor-pointer transition-colors ${
+                mode === 'personal' 
+                  ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/20' 
                   : 'bg-muted/20 hover:bg-muted/30'
-                }`}
+              }`}
               onClick={() => setMode('personal')}
             >
               <CardContent className="p-4">
@@ -293,7 +296,7 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
                         <Badge variant="outline" className={getMethodColor(endpoint.method)}>
                           {endpoint.method}
                         </Badge>
-                        <span>{endpoint.path}</span>
+                        <RouteDisplay route={endpoint.path} />
                       </div>
                     </SelectItem>
                   ))}
@@ -324,12 +327,12 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
                       ))}
                     </SelectContent>
                   </Select>
-
+                  
                   {selectedApiKey && (
                     <div className="flex items-center space-x-2 p-2 bg-muted/20 rounded">
                       <code className="text-sm flex-1">
-                        {showApiKey
-                          ? mockApiKeys.find(k => k.id === selectedApiKey)?.key
+                        {showApiKey 
+                          ? mockApiKeys.find(k => k.id === selectedApiKey)?.key 
                           : '••••••••••••••••••••••••••••••••'}
                       </code>
                       <Button
@@ -375,20 +378,20 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
             )}
 
             {/* Endpoint Restrictions Warning */}
-            {selectedEndpoint.planRestrictions.length > 0 &&
-              !selectedEndpoint.planRestrictions.includes(currentPlan?.type || 'free') && (
-                <div className="flex items-center space-x-2 text-sm text-yellow-400 bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
-                  <AlertTriangle className="h-4 w-4" />
-                  <div>
-                    <span className="font-medium">Plan upgrade required.</span>
-                    <span className="ml-1">This endpoint requires a {selectedEndpoint.planRestrictions.join(' or ')} plan.</span>
-                  </div>
+            {selectedEndpoint.planRestrictions.length > 0 && 
+             !selectedEndpoint.planRestrictions.includes(currentPlan?.type || 'free') && (
+              <div className="flex items-center space-x-2 text-sm text-yellow-400 bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
+                <AlertTriangle className="h-4 w-4" />
+                <div>
+                  <span className="font-medium">Plan upgrade required.</span>
+                  <span className="ml-1">This endpoint requires a {selectedEndpoint.planRestrictions.join(' or ')} plan.</span>
                 </div>
-              )}
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex space-x-3 pt-2">
-              <Button
+              <Button 
                 onClick={handleMakeRequest}
                 disabled={isLoading || (mode === 'demo' && demoRequestCount >= maxDemoRequests)}
                 className="flex-1"
@@ -441,12 +444,12 @@ export function ApiPlayground({ apiDetails, currentPlan }: ApiPlaygroundProps) {
                     <span>This is sample demo data. Switch to Personal mode for live responses.</span>
                   </div>
                 )}
-
+                
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <Label className="text-sm font-medium">Response Body</Label>
-                    <Button
-                      variant="ghost"
+                    <Button 
+                      variant="ghost" 
                       size="sm"
                       onClick={() => {
                         navigator.clipboard.writeText(JSON.stringify(response, null, 2));

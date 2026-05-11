@@ -1,0 +1,21 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "AuthProxy Suite",
+    "iconUrl": "https://usdozf7pplhxfvrl.public.blob.vercel-storage.com/thumbnail_c1c99d0e-4957-48ab-a3e5-7d66f73b4208-X5tVbGEfKCZmAPfnRcEQjUyVPEuwoX",
+    "homeUrl": "https://successful-cold-255.preview.series.engineering",
+    "imageUrl": "https://usdozf7pplhxfvrl.public.blob.vercel-storage.com/thumbnail_c1c99d0e-4957-48ab-a3e5-7d66f73b4208-X5tVbGEfKCZmAPfnRcEQjUyVPEuwoX",
+    "buttonTitle": "Open with Ohara",
+    "splashImageUrl": "https://usdozf7pplhxfvrl.public.blob.vercel-storage.com/farcaster/splash_images/splash_image1.svg",
+    "splashBackgroundColor": "#ffffff",
+    "tags": [
+      "ohara",
+      "mini-app",
+      "base",
+      "farcaster"
+    ],
+    "primaryCategory": "entertainment",
+    "ogTitle": "AuthProxy Suite",
+    "ogImageUrl": "https://usdozf7pplhxfvrl.public.blob.vercel-storage.com/thumbnail_c1c99d0e-4957-48ab-a3e5-7d66f73b4208-X5tVbGEfKCZmAPfnRcEQjUyVPEuwoX"
+  }
+}

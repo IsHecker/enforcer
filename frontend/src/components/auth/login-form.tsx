@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 
@@ -45,113 +44,103 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData): Promise<void> => {
     try {
+      // Accept any credentials for single-user mode
       await login(data);
       toast.success('Welcome back! You have been signed in successfully.');
-
+      
       // Redirect to dashboard after successful login
       router.push('/dashboard');
     } catch (error) {
-      toast.error('Invalid email or password. Please try again.');
+      toast.error('Unable to sign in. Please try again.');
     }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-card/50 backdrop-blur-sm border-border/20">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-foreground">
-          Sign In
-        </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Enter your credentials to access the platform
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-foreground">
-              Email Address
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                className="pl-10 bg-background/50 border-border/50 focus:border-primary/50"
-                {...register('email')}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-foreground">
+            Email Address
+          </Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              className="pl-10 bg-background/50 border-border/50 focus:border-primary/50"
+              {...register('email')}
+            />
           </div>
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                className="pl-10 pr-10 bg-background/50 border-border/50 focus:border-primary/50"
-                {...register('password')}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1 h-8 w-8 px-0"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="rememberMe"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setValue('rememberMe', !!checked)}
-              />
-              <Label
-                htmlFor="rememberMe"
-                className="text-sm text-muted-foreground cursor-pointer"
-              >
-                Remember me
-              </Label>
-            </div>
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-primary hover:text-primary/80 transition-colors"
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            Password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              className="pl-10 pr-10 bg-background/50 border-border/50 focus:border-primary/50"
+              {...register('password')}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1 h-8 w-8 px-0"
+              onClick={() => setShowPassword(!showPassword)}
             >
-              Forgot password?
-            </Link>
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
+          {errors.password && (
+            <p className="text-sm text-destructive">{errors.password.message}</p>
+          )}
+        </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-            disabled={isLoading}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="rememberMe"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setValue('rememberMe', !!checked)}
+            />
+            <Label
+              htmlFor="rememberMe"
+              className="text-sm text-muted-foreground cursor-pointer"
+            >
+              Remember me
+            </Label>
+          </div>
+          <Link
+            href="/auth/forgot-password"
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
-          </Button>
-        </form>
-      </CardContent>
+            Forgot password?
+          </Link>
+        </div>
 
-      <CardFooter className="text-center">
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing in...' : 'Sign In'}
+        </Button>
+      </form>
+
+      <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Don't have an account?{' '}
           <Link
@@ -161,7 +150,7 @@ export function LoginForm() {
             Sign up
           </Link>
         </p>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

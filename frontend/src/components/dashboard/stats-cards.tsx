@@ -38,12 +38,13 @@ function StatsCard({ title, value, description, icon, trend }: StatsCardProps) {
         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
           <span>{description}</span>
           {trend && (
-            <Badge
-              variant="outline"
-              className={`flex items-center space-x-1 ${trend.isPositive
-                  ? 'text-green-400 border-green-500/30 bg-green-500/10'
+            <Badge 
+              variant="outline" 
+              className={`flex items-center space-x-1 ${
+                trend.isPositive 
+                  ? 'text-green-400 border-green-500/30 bg-green-500/10' 
                   : 'text-red-400 border-red-500/30 bg-red-500/10'
-                }`}
+              }`}
             >
               {trend.isPositive ? (
                 <TrendingUp className="h-3 w-3" />
@@ -97,7 +98,7 @@ export function StatsCards({ role }: StatsCardsProps) {
             trend: { value: 25.0, isPositive: true },
           },
         ];
-
+      
       case 'consumer':
         return [
           {
@@ -129,7 +130,7 @@ export function StatsCards({ role }: StatsCardsProps) {
             trend: { value: 0.3, isPositive: true },
           },
         ];
-
+      
       case 'admin':
         return [
           {
@@ -161,7 +162,7 @@ export function StatsCards({ role }: StatsCardsProps) {
             trend: { value: 45.3, isPositive: true },
           },
         ];
-
+      
       default:
         return [];
     }

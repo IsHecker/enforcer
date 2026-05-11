@@ -7,8 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import {
-  Activity,
+import { 
+  Activity, 
   TrendingUp,
   AlertTriangle,
   CheckCircle,
@@ -61,10 +61,10 @@ export default function UsagePage() {
               Monitor your API usage, quotas, and spending across all subscriptions
             </p>
           </div>
-
-          <Badge
-            variant="outline"
-            className={isNearLimit
+          
+          <Badge 
+            variant="outline" 
+            className={isNearLimit 
               ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
               : 'bg-green-500/10 text-green-400 border-green-500/30'
             }
@@ -174,8 +174,8 @@ export default function UsagePage() {
                 {(usageData.currentPeriod.quota - usageData.currentPeriod.apiCalls).toLocaleString()} remaining
               </span>
             </div>
-            <Progress
-              value={usagePercentage}
+            <Progress 
+              value={usagePercentage} 
               className={`h-3 ${isNearLimit ? '[&>div]:bg-yellow-500' : '[&>div]:bg-green-500'}`}
             />
             <div className="flex items-center justify-between">
@@ -186,7 +186,7 @@ export default function UsagePage() {
                 {user.plan} Plan
               </Badge>
             </div>
-
+            
             {isNearLimit && (
               <div className="flex items-center space-x-2 text-sm text-yellow-400 bg-yellow-500/10 p-3 rounded border border-yellow-500/20">
                 <AlertTriangle className="h-4 w-4" />

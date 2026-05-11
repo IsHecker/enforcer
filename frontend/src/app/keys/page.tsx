@@ -5,8 +5,8 @@ import { ApiKeyManager } from '@/components/keys/api-key-manager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/auth-context';
-import {
-  Key,
+import { 
+  Key, 
   Shield,
   AlertTriangle,
   Info,
@@ -26,13 +26,13 @@ export default function ApiKeysPage() {
               API Keys Management
             </h1>
             <p className="text-muted-foreground mt-1">
-              {user.role === 'creator'
+              {user.role === 'creator' 
                 ? 'Create and manage API keys for your products and integrations'
                 : 'Create and manage API keys to access subscribed services'
               }
             </p>
           </div>
-
+          
           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
             <Shield className="h-3 w-3 mr-1" />
             Secure Access
@@ -63,7 +63,7 @@ export default function ApiKeysPage() {
                   </p>
                 </div>
               </div>
-
+              
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-blue-400 rounded-full" />
@@ -75,7 +75,7 @@ export default function ApiKeysPage() {
                   </p>
                 </div>
               </div>
-
+              
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-purple-400 rounded-full" />
@@ -87,7 +87,7 @@ export default function ApiKeysPage() {
                   </p>
                 </div>
               </div>
-
+              
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-orange-500/20 rounded-full flex items-center justify-center mt-0.5">
                   <div className="w-2 h-2 bg-orange-400 rounded-full" />

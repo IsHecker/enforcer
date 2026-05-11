@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { RoleGuard } from '@/components/auth/role-guard';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
-import {
+import { 
   Building2,
   Mail,
   Phone,
@@ -124,8 +124,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <RoleGuard allowedRoles={['creator', 'admin']}>
-      <DashboardLayout>
+    <DashboardLayout>
         <div className="flex-1 space-y-6 p-4 md:p-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
@@ -185,7 +184,7 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
                     <Input
@@ -194,7 +193,7 @@ export default function ProfilePage() {
                       placeholder="Enter your full name"
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
                     <Input
@@ -204,7 +203,7 @@ export default function ProfilePage() {
                       placeholder="Enter your email"
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
@@ -212,7 +211,7 @@ export default function ProfilePage() {
                       placeholder="Enter your phone number"
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
@@ -296,7 +295,7 @@ export default function ProfilePage() {
                       <Upload className="h-8 w-8 text-muted-foreground" />
                     </div>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
                     <Input
@@ -305,7 +304,7 @@ export default function ProfilePage() {
                       defaultValue="My API Company"
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="companyDescription">Description</Label>
                     <Textarea
@@ -315,7 +314,7 @@ export default function ProfilePage() {
                       defaultValue="We build amazing APIs for developers worldwide."
                     />
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="website">Website</Label>
                     <div className="flex">
@@ -379,21 +378,17 @@ export default function ProfilePage() {
                         Use your own domain for API endpoints
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-yellow-400 border-yellow-500/30">
-                      Pro Feature
-                    </Badge>
+                    <Switch disabled />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>White-label Documentation</Label>
                       <p className="text-sm text-muted-foreground">
-                        Remove ProxyAPI branding from docs
+                        Remove Enforcer branding from docs
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-yellow-400 border-yellow-500/30">
-                      Enterprise
-                    </Badge>
+                    <Switch disabled />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -490,7 +485,7 @@ export default function ProfilePage() {
                       Invite
                     </Button>
                   </div>
-
+                  
                   <div className="mt-4 text-xs text-muted-foreground space-y-1">
                     <p><strong>Admin:</strong> Full access except billing and team management</p>
                     <p><strong>Editor:</strong> Can create and edit API products and documentation</p>
@@ -503,16 +498,15 @@ export default function ProfilePage() {
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline">Cancel</Button>
-            <Button
-              onClick={activeTab === 'profile' ? handleSaveProfile :
-                activeTab === 'organization' ? handleSaveOrganization :
-                  () => toast.success('Team settings updated')}
+            <Button 
+              onClick={activeTab === 'profile' ? handleSaveProfile : 
+                       activeTab === 'organization' ? handleSaveOrganization : 
+                       () => toast.success('Team settings updated')}
             >
               Save Changes
             </Button>
           </div>
         </div>
-      </DashboardLayout>
-    </RoleGuard>
+    </DashboardLayout>
   );
 }

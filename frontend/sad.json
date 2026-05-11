@@ -1,0 +1,1335 @@
+{
+  "@appkit/connection_status": "disconnected",
+  "persisted-queue:v1:v8XTTmh0rIEjLC4m71wtJfYeVfdmfYW7:dest-Segment.io:seen": {
+    "db4e443c-14cc-4b28-93f1-e0b80afafb6d": 11,
+    "443c14cc-0b28-43f1-a0b8-0afafb6db80b": 11,
+    "14cc0b28-53f1-40b8-8afa-fb6db80b0d76": 11,
+    "0b2853f1-e0b8-4afa-bb6d-b80b0d761962": 10,
+    "53f1e0b8-0afa-4b6d-b80b-0d761962e12a": 10,
+    "e0b80afa-fb6d-480b-8d76-1962e12afbec": 10
+  },
+  "fileMetadata_fc1df25e-9903-4878-a609-6ed4890b3363": {
+    "name": "UI problems.txt",
+    "type": "text/plain",
+    "size": 23112,
+    "lastModified": 1768841392445,
+    "url": "https://usdozf7pplhxfvrl.public.blob.vercel-storage.com/fc1df25e-9903-4878-a609-6ed4890b3363-lUZnL9vZY5rdBk0jmaWx78DY5H5H9v"
+  },
+  "privy:caid": "db187961-11ed-477b-8387-cc349eaf01f6",
+  "privy:token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImpyUFNibEIwYTBjcmlobXBqT3hBdTVuSlg1RjFpT01Qd3FVNGZrVDFXbUUifQ.eyJzaWQiOiJjbWttejJuZHQwMDZ0aTkwYjM3MjlmZzFpIiwiaXNzIjoicHJpdnkuaW8iLCJpYXQiOjE3Njg5NDA4NjksImF1ZCI6ImNtN3Aya28yeTAycHZzZ3k4eGozeThncDUiLCJzdWIiOiJkaWQ6cHJpdnk6Y21mNXJ5NXJ5MDAwZ2xlMGNhN3R3ZWs3bCIsImV4cCI6MTc2ODk0NDQ2OX0.GZA8cSZzrzDe87LOEf9BCZRN2-f5zjX2fDFH_T-IG0SwunqRD5OIFvbEaO1dcBRjB9vcemu9-6szqkrdU79sNQ",
+  "@appkit/active_caip_network_id": "eip155:1",
+  "privy:refresh_token": "iBPaHVEMf9MwcGikarRCYk68IelIPkt03jUQXs-7HQsGf5GKAPJFjJh93zYlbok8KKodHg0PLmN675fe8E2qpg",
+  "persisted-queue:v1:v8XTTmh0rIEjLC4m71wtJfYeVfdmfYW7:dest-Segment.io:items": [
+    {
+      "id": "e0b80afa-fb6d-480b-8d76-1962e12afbec",
+      "event": {
+        "timestamp": "2026-01-20T21:28:43.621Z",
+        "integrations": {},
+        "event": "create Viewed",
+        "type": "track",
+        "properties": {
+          "userId": "cmf5ry5e008mrmylkfsolh3uw",
+          "email": "bekima6942@futurejs.com"
+        },
+        "context": {
+          "page": {
+            "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+            "referrer": "",
+            "search": "",
+            "title": "Ohara",
+            "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+          },
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+          "userAgentData": {
+            "brands": [
+              {
+                "brand": "Not(A:Brand",
+                "version": "8"
+              },
+              {
+                "brand": "Chromium",
+                "version": "144"
+              },
+              {
+                "brand": "Brave",
+                "version": "144"
+              }
+            ],
+            "mobile": false,
+            "platform": "Windows"
+          },
+          "locale": "en-US",
+          "library": {
+            "name": "analytics.js",
+            "version": "npm:next-1.80.0"
+          },
+          "timezone": "Africa/Cairo"
+        },
+        "messageId": "ajs-next-1768944523621-f1e0b80a-fafb-4db8-8b0d-761962e12afb",
+        "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+      },
+      "logs": [
+        {
+          "level": "debug",
+          "message": "Dispatching",
+          "time": "2026-01-20T21:28:43.622Z"
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:52.496Z",
+          "extras": {
+            "plugin": "Page Enrichment"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:52.612Z",
+          "extras": {
+            "plugin": "Schema Filter"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:53.379Z",
+          "extras": {
+            "plugin": "Google AdWords New"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:53.379Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:53.749Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "Delivered",
+          "time": "2026-01-20T21:28:53.749Z",
+          "extras": {
+            "timestamp": "2026-01-20T21:28:43.621Z",
+            "integrations": {},
+            "event": "create Viewed",
+            "type": "track",
+            "properties": {
+              "userId": "cmf5ry5e008mrmylkfsolh3uw",
+              "email": "bekima6942@futurejs.com"
+            },
+            "context": {
+              "page": {
+                "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+                "referrer": "",
+                "search": "",
+                "title": "Ohara",
+                "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+              },
+              "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+              "userAgentData": {
+                "brands": [
+                  {
+                    "brand": "Not(A:Brand",
+                    "version": "8"
+                  },
+                  {
+                    "brand": "Chromium",
+                    "version": "144"
+                  },
+                  {
+                    "brand": "Brave",
+                    "version": "144"
+                  }
+                ],
+                "mobile": false,
+                "platform": "Windows"
+              },
+              "locale": "en-US",
+              "library": {
+                "name": "analytics.js",
+                "version": "npm:next-1.80.0"
+              },
+              "timezone": "Africa/Cairo"
+            },
+            "messageId": "ajs-next-1768944523621-f1e0b80a-fafb-4db8-8b0d-761962e12afb",
+            "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:54.081Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:54.466Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:05.896Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:07.410Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:10.940Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:11.166Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:17.776Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:17.822Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:27.726Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:27.772Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:51.363Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:51.410Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:30:41.031Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:30:41.700Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:32:03.197Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:32:03.200Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:34:29.989Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:34:29.994Z",
+          "extras": {}
+        }
+      ],
+      "metrics": [
+        {
+          "metric": "analytics_js.invoke",
+          "value": 1,
+          "tags": [
+            "track"
+          ],
+          "type": "counter",
+          "timestamp": 1768944523622
+        },
+        {
+          "metric": "message_dispatched",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944523622
+        },
+        {
+          "metric": "plugin_time",
+          "value": 107,
+          "tags": [
+            "plugin:Page Enrichment"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944532603
+        },
+        {
+          "metric": "plugin_time",
+          "value": 2,
+          "tags": [
+            "plugin:Schema Filter"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944532614
+        },
+        {
+          "metric": "analytics_js.integration.invoke",
+          "value": 1,
+          "tags": [
+            "method:track",
+            "integration_name:Google AdWords New",
+            "type:classic"
+          ],
+          "type": "counter",
+          "timestamp": 1768944533381
+        },
+        {
+          "metric": "plugin_time",
+          "value": 2,
+          "tags": [
+            "plugin:Google AdWords New"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944533381
+        },
+        {
+          "metric": "plugin_time",
+          "value": 370,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944533749
+        },
+        {
+          "metric": "message_delivered",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944533749
+        },
+        {
+          "metric": "delivered",
+          "value": 1253,
+          "tags": [],
+          "type": "gauge",
+          "timestamp": 1768944533749
+        },
+        {
+          "metric": "plugin_time",
+          "value": 385,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944534466
+        },
+        {
+          "metric": "plugin_time",
+          "value": 1514,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944547410
+        },
+        {
+          "metric": "plugin_time",
+          "value": 226,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944551166
+        },
+        {
+          "metric": "plugin_time",
+          "value": 46,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944557822
+        },
+        {
+          "metric": "plugin_time",
+          "value": 46,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944567772
+        },
+        {
+          "metric": "plugin_time",
+          "value": 47,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944591410
+        },
+        {
+          "metric": "plugin_time",
+          "value": 670,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944641701
+        },
+        {
+          "metric": "plugin_time",
+          "value": 3,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944723200
+        },
+        {
+          "metric": "plugin_time",
+          "value": 6,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944869995
+        }
+      ]
+    },
+    {
+      "id": "0b2853f1-e0b8-4afa-bb6d-b80b0d761962",
+      "event": {
+        "timestamp": "2026-01-20T21:28:38.156Z",
+        "integrations": {},
+        "event": "configure Viewed",
+        "type": "track",
+        "properties": {
+          "userId": "cmf5ry5e008mrmylkfsolh3uw",
+          "email": "bekima6942@futurejs.com"
+        },
+        "context": {
+          "page": {
+            "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+            "referrer": "",
+            "search": "",
+            "title": "Ohara",
+            "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+          },
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+          "userAgentData": {
+            "brands": [
+              {
+                "brand": "Not(A:Brand",
+                "version": "8"
+              },
+              {
+                "brand": "Chromium",
+                "version": "144"
+              },
+              {
+                "brand": "Brave",
+                "version": "144"
+              }
+            ],
+            "mobile": false,
+            "platform": "Windows"
+          },
+          "locale": "en-US",
+          "library": {
+            "name": "analytics.js",
+            "version": "npm:next-1.80.0"
+          },
+          "timezone": "Africa/Cairo"
+        },
+        "messageId": "ajs-next-1768944518156-cc0b2853-f1e0-480a-bafb-6db80b0d7619",
+        "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+      },
+      "logs": [
+        {
+          "level": "debug",
+          "message": "Dispatching",
+          "time": "2026-01-20T21:28:38.166Z"
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:38.484Z",
+          "extras": {
+            "plugin": "Page Enrichment"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:38.496Z",
+          "extras": {
+            "plugin": "Schema Filter"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:38.502Z",
+          "extras": {
+            "plugin": "Google AdWords New"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:38.503Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:38.513Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "Delivered",
+          "time": "2026-01-20T21:28:38.513Z",
+          "extras": {
+            "timestamp": "2026-01-20T21:28:38.156Z",
+            "integrations": {},
+            "event": "configure Viewed",
+            "type": "track",
+            "properties": {
+              "userId": "cmf5ry5e008mrmylkfsolh3uw",
+              "email": "bekima6942@futurejs.com"
+            },
+            "context": {
+              "page": {
+                "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+                "referrer": "",
+                "search": "",
+                "title": "Ohara",
+                "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+              },
+              "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+              "userAgentData": {
+                "brands": [
+                  {
+                    "brand": "Not(A:Brand",
+                    "version": "8"
+                  },
+                  {
+                    "brand": "Chromium",
+                    "version": "144"
+                  },
+                  {
+                    "brand": "Brave",
+                    "version": "144"
+                  }
+                ],
+                "mobile": false,
+                "platform": "Windows"
+              },
+              "locale": "en-US",
+              "library": {
+                "name": "analytics.js",
+                "version": "npm:next-1.80.0"
+              },
+              "timezone": "Africa/Cairo"
+            },
+            "messageId": "ajs-next-1768944518156-cc0b2853-f1e0-480a-bafb-6db80b0d7619",
+            "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:41.842Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:41.845Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:53.431Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:54.081Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:05.902Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:07.656Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:14.304Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:14.360Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:28.923Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:28.975Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:53.332Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:53.384Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:30:41.122Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:30:41.767Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:32:13.913Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:32:13.917Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:34:37.438Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:34:37.442Z",
+          "extras": {}
+        }
+      ],
+      "metrics": [
+        {
+          "metric": "analytics_js.invoke",
+          "value": 1,
+          "tags": [
+            "track"
+          ],
+          "type": "counter",
+          "timestamp": 1768944518166
+        },
+        {
+          "metric": "message_dispatched",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944518166
+        },
+        {
+          "metric": "plugin_time",
+          "value": 11,
+          "tags": [
+            "plugin:Page Enrichment"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944518495
+        },
+        {
+          "metric": "plugin_time",
+          "value": 0,
+          "tags": [
+            "plugin:Schema Filter"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944518496
+        },
+        {
+          "metric": "analytics_js.integration.invoke",
+          "value": 1,
+          "tags": [
+            "method:track",
+            "integration_name:Google AdWords New",
+            "type:classic"
+          ],
+          "type": "counter",
+          "timestamp": 1768944518505
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Google AdWords New"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944518506
+        },
+        {
+          "metric": "plugin_time",
+          "value": 10,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944518513
+        },
+        {
+          "metric": "message_delivered",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944518513
+        },
+        {
+          "metric": "delivered",
+          "value": 30,
+          "tags": [],
+          "type": "gauge",
+          "timestamp": 1768944518513
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944521846
+        },
+        {
+          "metric": "plugin_time",
+          "value": 650,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944534081
+        },
+        {
+          "metric": "plugin_time",
+          "value": 1754,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944547656
+        },
+        {
+          "metric": "plugin_time",
+          "value": 56,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944554360
+        },
+        {
+          "metric": "plugin_time",
+          "value": 52,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944568975
+        },
+        {
+          "metric": "plugin_time",
+          "value": 53,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944593385
+        },
+        {
+          "metric": "plugin_time",
+          "value": 645,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944641767
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944733917
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944877442
+        }
+      ]
+    },
+    {
+      "id": "53f1e0b8-0afa-4b6d-b80b-0d761962e12a",
+      "event": {
+        "timestamp": "2026-01-20T21:28:40.461Z",
+        "integrations": {},
+        "event": "Versions Viewed",
+        "type": "track",
+        "properties": {
+          "userId": "cmf5ry5e008mrmylkfsolh3uw",
+          "email": "bekima6942@futurejs.com"
+        },
+        "context": {
+          "page": {
+            "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+            "referrer": "",
+            "search": "",
+            "title": "Ohara",
+            "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+          },
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+          "userAgentData": {
+            "brands": [
+              {
+                "brand": "Not(A:Brand",
+                "version": "8"
+              },
+              {
+                "brand": "Chromium",
+                "version": "144"
+              },
+              {
+                "brand": "Brave",
+                "version": "144"
+              }
+            ],
+            "mobile": false,
+            "platform": "Windows"
+          },
+          "locale": "en-US",
+          "library": {
+            "name": "analytics.js",
+            "version": "npm:next-1.80.0"
+          },
+          "timezone": "Africa/Cairo"
+        },
+        "messageId": "ajs-next-1768944520461-2853f1e0-b80a-4afb-adb8-0b0d761962e1",
+        "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+      },
+      "logs": [
+        {
+          "level": "debug",
+          "message": "Dispatching",
+          "time": "2026-01-20T21:28:40.462Z"
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:40.463Z",
+          "extras": {
+            "plugin": "Page Enrichment"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:40.464Z",
+          "extras": {
+            "plugin": "Schema Filter"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:40.476Z",
+          "extras": {
+            "plugin": "Google AdWords New"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:40.477Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:40.484Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "Delivered",
+          "time": "2026-01-20T21:28:40.484Z",
+          "extras": {
+            "timestamp": "2026-01-20T21:28:40.461Z",
+            "integrations": {},
+            "event": "Versions Viewed",
+            "type": "track",
+            "properties": {
+              "userId": "cmf5ry5e008mrmylkfsolh3uw",
+              "email": "bekima6942@futurejs.com"
+            },
+            "context": {
+              "page": {
+                "path": "/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build",
+                "referrer": "",
+                "search": "",
+                "title": "Ohara",
+                "url": "https://ohara.ai/mini-apps/miniapp_cmkmz2ry90mn90apa6bbn96kg/build"
+              },
+              "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+              "userAgentData": {
+                "brands": [
+                  {
+                    "brand": "Not(A:Brand",
+                    "version": "8"
+                  },
+                  {
+                    "brand": "Chromium",
+                    "version": "144"
+                  },
+                  {
+                    "brand": "Brave",
+                    "version": "144"
+                  }
+                ],
+                "mobile": false,
+                "platform": "Windows"
+              },
+              "locale": "en-US",
+              "library": {
+                "name": "analytics.js",
+                "version": "npm:next-1.80.0"
+              },
+              "timezone": "Africa/Cairo"
+            },
+            "messageId": "ajs-next-1768944520461-2853f1e0-b80a-4afb-adb8-0b0d761962e1",
+            "anonymousId": "17d842e1-f7d4-4409-bf99-a697c4ce210a"
+          }
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:41.846Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:41.849Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:43.440Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:43.444Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:28:53.441Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:28:54.083Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:07.410Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:07.674Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:23.036Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:23.082Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:29:43.965Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:29:44.011Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:30:41.701Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:30:41.789Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:32:24.495Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:32:24.499Z",
+          "extras": {}
+        },
+        {
+          "level": "debug",
+          "message": "plugin",
+          "time": "2026-01-20T21:35:22.603Z",
+          "extras": {
+            "plugin": "Segment.io"
+          }
+        },
+        {
+          "level": "error",
+          "message": "Error sending event",
+          "time": "2026-01-20T21:35:22.606Z",
+          "extras": {}
+        }
+      ],
+      "metrics": [
+        {
+          "metric": "analytics_js.invoke",
+          "value": 1,
+          "tags": [
+            "track"
+          ],
+          "type": "counter",
+          "timestamp": 1768944520462
+        },
+        {
+          "metric": "message_dispatched",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944520462
+        },
+        {
+          "metric": "plugin_time",
+          "value": 1,
+          "tags": [
+            "plugin:Page Enrichment"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944520464
+        },
+        {
+          "metric": "plugin_time",
+          "value": 0,
+          "tags": [
+            "plugin:Schema Filter"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944520464
+        },
+        {
+          "metric": "analytics_js.integration.invoke",
+          "value": 1,
+          "tags": [
+            "method:track",
+            "integration_name:Google AdWords New",
+            "type:classic"
+          ],
+          "type": "counter",
+          "timestamp": 1768944520478
+        },
+        {
+          "metric": "plugin_time",
+          "value": 2,
+          "tags": [
+            "plugin:Google AdWords New"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944520478
+        },
+        {
+          "metric": "plugin_time",
+          "value": 7,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944520484
+        },
+        {
+          "metric": "message_delivered",
+          "value": 1,
+          "tags": [],
+          "type": "counter",
+          "timestamp": 1768944520484
+        },
+        {
+          "metric": "delivered",
+          "value": 21,
+          "tags": [],
+          "type": "gauge",
+          "timestamp": 1768944520484
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944521850
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944523444
+        },
+        {
+          "metric": "plugin_time",
+          "value": 642,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944534083
+        },
+        {
+          "metric": "plugin_time",
+          "value": 264,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944547674
+        },
+        {
+          "metric": "plugin_time",
+          "value": 47,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944563083
+        },
+        {
+          "metric": "plugin_time",
+          "value": 46,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944584011
+        },
+        {
+          "metric": "plugin_time",
+          "value": 88,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944641789
+        },
+        {
+          "metric": "plugin_time",
+          "value": 4,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944744499
+        },
+        {
+          "metric": "plugin_time",
+          "value": 3,
+          "tags": [
+            "plugin:Segment.io"
+          ],
+          "type": "gauge",
+          "timestamp": 1768944922606
+        }
+      ]
+    }
+  ],
+  "privy:connections": [
+    {
+      "address": "0x645BaB9235BbC08e122f879821F38Df9FE40BcB9",
+      "connectorType": "embedded",
+      "walletClientType": "privy",
+      "connectedAt": 1768938586381,
+      "id": "io.privy.wallet"
+    }
+  ],
+  "@appkit/active_namespace": "eip155",
+  "mobile_app_download_visits": "6",
+  "privy:sent:cm7p2ko2y02pvsgy8xj3y8gp5:2451394742092842": "t",
+  "clientSourceId/N2Q3ZDQwZGQtMTVkYy00NmRkLWE4Y2YtMjg3MmU2MTc0NzYy/cmf5ry5e008mrmylkfsolh3uw": "62a3ff67-f494-4164-aa23-f754c321538b",
+  "clientSourceId/N2Q3ZDQwZGQtMTVkYy00NmRkLWE4Y2YtMjg3MmU2MTc0NzYy/undefined": "efe6fcdb-0300-4dea-991f-2a3d59aa5634",
+  "announcement_modal_display_count": "2",
+  "ajs_anonymous_id": "17d842e1-f7d4-4409-bf99-a697c4ce210a",
+  "ajs_user_id": "null",
+  "privy:pat": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImpyUFNibEIwYTBjcmlobXBqT3hBdTVuSlg1RjFpT01Qd3FVNGZrVDFXbUUifQ.eyJhaWQiOiJjbTdwMmtvMnkwMnB2c2d5OHhqM3k4Z3A1IiwiYXR0IjoicGF0Iiwic2lkIjoiY21rbXoybmR0MDA2dGk5MGIzNzI5ZmcxaSIsImlzcyI6InByaXZ5LmlvIiwiaWF0IjoxNzY4OTQwODY5LCJhdWQiOiJodHRwczovL2F1dGgucHJpdnkuaW8iLCJzdWIiOiJkaWQ6cHJpdnk6Y21mNXJ5NXJ5MDAwZ2xlMGNhN3R3ZWs3bCIsImV4cCI6MTc2ODk0NDQ2OX0.pJJx45_ne3KHvebiifY26XnMuPivQKRWO_vy7VrGh8viu5Yr7tLPrDLLW_cI5qIuiZ3B6Vs8dzp-07sMwuj_Gw"
+}

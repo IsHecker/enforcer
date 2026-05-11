@@ -1,17 +1,25 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { 
-  CheckCircle, 
-  Zap, 
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  CheckCircle,
   DollarSign,
-  Users,
   Activity,
-  Shield,
   Clock,
+  Edit3,
+  Trash2,
+  ChevronRight,
 } from 'lucide-react';
 import type { Plan } from '@/types/api';
 
@@ -20,44 +28,32 @@ interface PlanCardProps {
   onSubscribe?: (plan: Plan) => void;
   onEdit?: (plan: Plan) => void;
   onDelete?: (plan: Plan) => void;
+  onCancel?: (plan: Plan) => void;
   userRole: 'creator' | 'consumer' | 'admin';
   isCurrentPlan?: boolean;
   isPopular?: boolean;
+  actionType?: 'subscribe' | 'upgrade' | 'downgrade' | 'current';
+  activeSubscribers?: number;
+  totalSubscribers?: number;
 }
 
-export function PlanCard({ 
-  plan, 
-  onSubscribe, 
-  onEdit, 
-  onDelete, 
-  userRole, 
+export function PlanCard({
+  plan,
+  onSubscribe,
+  onEdit,
+  onDelete,
+  onCancel,
+  userRole,
   isCurrentPlan = false,
   isPopular = false,
+  actionType = 'subscribe',
+  activeSubscribers,
+  totalSubscribers,
 }: PlanCardProps) {
-  const getPlanIcon = (type: string) => {
-    switch (type) {
-      case 'free':
-        return <Users className="h-5 w-5" />;
-      case 'pro':
-        return <Zap className="h-5 w-5" />;
-      case 'enterprise':
-        return <Shield className="h-5 w-5" />;
-      default:
-        return <Activity className="h-5 w-5" />;
-    }
-  };
-
-  const getPlanColor = (type: string) => {
-    switch (type) {
-      case 'free':
-        return 'text-green-400';
-      case 'pro':
-        return 'text-blue-400';
-      case 'enterprise':
-        return 'text-purple-400';
-      default:
-        return 'text-primary';
-    }
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive
+      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+      : 'bg-red-500/10 text-red-400 border-red-500/20';
   };
 
   const formatQuota = (quota: number): string => {
@@ -66,162 +62,231 @@ export function PlanCard({
     return quota.toString();
   };
 
-  const formatPrice = (price: number, period: string): string => {
-    if (price === 0) return 'Free';
-    return `$${price}${period === 'yearly' ? '/yr' : '/mo'}`;
-  };
+  const visibleFeatures = plan.features.slice(0, 5);
+  const remainingFeaturesCount = plan.features.length - visibleFeatures.length;
 
   return (
-    <Card className={`relative bg-card/50 backdrop-blur-sm border-border/20 hover:bg-card/60 transition-all duration-200 ${
-      isCurrentPlan ? 'ring-2 ring-primary' : ''
-    } ${isPopular ? 'ring-2 ring-blue-500 shadow-lg shadow-blue-500/20' : ''}`}>
-      {isPopular && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge className="bg-blue-500 text-white">
-            Most Popular
-          </Badge>
-        </div>
-      )}
-      
-      {isCurrentPlan && (
-        <div className="absolute -top-3 right-4">
-          <Badge className="bg-primary text-primary-foreground">
-            Current Plan
-          </Badge>
-        </div>
-      )}
+    <TooltipProvider>
+      <Card className={`h-full flex flex-col relative transition-all duration-300 group ${isPopular
+        ? 'bg-white/[0.03] border-blue-500/50 ring-1 ring-blue-500/20 shadow-[0_0_40px_-20px_rgba(59,130,246,0.3)] scale-[1.02] z-10'
+        : 'bg-white/[0.01] border-border/10 hover:bg-white/[0.02] hover:border-white/20'
+        } ${isCurrentPlan ? 'ring-1 ring-primary/40 bg-primary/[0.02]' : ''} backdrop-blur-xl rounded-[24px]`}>
 
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className={`p-2 rounded-lg bg-muted/20 ${getPlanColor(plan.type)}`}>
-              {getPlanIcon(plan.type)}
+        {/* Popular Badge integrated into border */}
+        {isPopular && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+            <div className="px-4 py-1 flex items-center justify-center bg-blue-500 border border-blue-400 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] whitespace-nowrap">
+                Most Popular
+              </span>
             </div>
-            <div>
-              <CardTitle className="text-foreground capitalize">
+          </div>
+        )}
+
+        {/* Decorative Background Elements */}
+        {isPopular && (
+          <div className="absolute top-0 right-0 p-8 -mr-16 -mt-16 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none overflow-hidden" />
+        )}
+        <div className="absolute bottom-0 left-0 p-8 -ml-16 -mb-16 bg-white/[0.02] rounded-full blur-[60px] pointer-events-none" />
+
+
+
+        <CardHeader className="pb-8 pt-10 px-6 space-y-6 relative">
+          <div className="flex items-center justify-between w-full relative">
+            <div className="flex items-center gap-3">
+              <h3 className="text-2xl font-black text-white tracking-tight leading-none">
                 {plan.name}
-              </CardTitle>
-              <div className="flex items-center space-x-2">
-                <Badge 
-                  variant="outline" 
-                  className={`${plan.isActive ? 'text-green-400 border-green-500/30 bg-green-500/10' : 'text-red-400 border-red-500/30 bg-red-500/10'}`}
-                >
+              </h3>
+              {userRole !== 'consumer' && (
+                <Badge variant="outline" className={`${getStatusBadge(plan.isActive)} rounded-full px-2 py-0 text-[10px] font-bold uppercase tracking-tight`}>
                   {plan.isActive ? 'Active' : 'Inactive'}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {plan.type}
-                </Badge>
-              </div>
+              )}
             </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-foreground">
-              {formatPrice(plan.price, plan.billingPeriod)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {plan.billingPeriod === 'usage' ? 'pay-per-use' : plan.billingPeriod}
-            </div>
-          </div>
-        </div>
-      </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Activity className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <div className="font-medium text-foreground">
-                {formatQuota(plan.quotaLimit)} requests
-              </div>
-              <div className="text-xs text-muted-foreground">
-                per {plan.billingPeriod === 'usage' ? 'transaction' : 'month'}
-              </div>
+            <div className="absolute top-0 right-0 flex flex-col items-end gap-1.5 shrink-0 z-10">
+              {typeof activeSubscribers === 'number' && (
+                <div className="px-3 py-1 flex items-center justify-center bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm shadow-sm">
+                  <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] whitespace-nowrap">
+                    {activeSubscribers} Active
+                  </span>
+                </div>
+              )}
+              {typeof totalSubscribers === 'number' && (
+                <div className="px-3 py-1 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm shadow-sm">
+                  <span className="text-[9px] font-black text-white/70 uppercase tracking-[0.2em] whitespace-nowrap">
+                    {totalSubscribers} Total
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <div className="font-medium text-foreground">
-                {plan.rateLimit}/sec
-              </div>
-              <div className="text-xs text-muted-foreground">rate limit</div>
+
+          <div className="pt-2 flex flex-col">
+            <div className="flex items-baseline gap-1.5 mt-2">
+              <span className="text-5xl font-black text-white leading-none tracking-tighter">
+                {plan.price === 0 ? 'Free' : `$${plan.price}`}
+              </span>
+              {plan.price > 0 && (
+                <span className="text-lg text-muted-foreground font-bold opacity-40">
+                  /{plan.billingPeriod?.toLowerCase() === 'yearly' ? 'year' : 'month'}
+                </span>
+              )}
             </div>
           </div>
-        </div>
+        </CardHeader>
 
-        <Separator />
-
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-foreground">Features included:</div>
-          <div className="space-y-1">
-            {plan.features.slice(0, 4).map((feature, index) => (
-              <div key={index} className="flex items-center space-x-2 text-sm">
-                <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
-                <span className="text-muted-foreground">{feature}</span>
+        <CardContent className="space-y-8 flex-1 px-6">
+          {/* Main Key Metrics - SaaS Style */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/[0.05] transition-all group/metric">
+              <div className="flex items-center gap-3">
+                <Activity className="h-4 w-4 text-blue-400" aria-hidden="true" />
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Capacity/Quota</span>
               </div>
-            ))}
-            {plan.features.length > 4 && (
-              <div className="text-xs text-muted-foreground">
-                +{plan.features.length - 4} more features
+              <span className="text-[15px] font-black text-white tracking-tight">
+                {formatQuota(plan.quotaLimit)} Requests/{plan.quotaPeriod ? ({ 'daily': 'Day', 'weekly': 'Week', 'monthly': 'Month', 'yearly': 'Year' }[plan.quotaPeriod.toLowerCase()] || plan.quotaPeriod) : 'Month'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/[0.05] transition-all group/metric">
+              <div className="flex items-center gap-3">
+                <Clock className="h-4 w-4 text-purple-400" aria-hidden="true" />
+                <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Rate Limit</span>
+              </div>
+              <span className="text-[15px] font-black text-white tracking-tight">
+                {plan.rateLimit} Requests/{plan.rateLimitPeriod || 'Second'}
+              </span>
+            </div>
+
+            {plan.overage?.enabled && (
+              <div className="flex items-center justify-between p-4 rounded-xl bg-orange-500/[0.06] border border-orange-400/20 transition-all group/metric shadow-[0_2px_15px_-5px_rgba(251,146,60,0.1)]">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                    <DollarSign className="h-4 w-4 text-orange-400" aria-hidden="true" />
+                  </div>
+                  <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">Overages</span>
+                </div>
+                <div className="flex flex-col items-end justify-center space-y-1.5">
+                  <div className="flex items-center gap-2 leading-none">
+                    <span className="text-[15px] font-black text-white tracking-tight">
+                      {plan.overage.maxOverage ? plan.overage.maxOverage.toLocaleString() : '∞'}
+                    </span>
+                    <span className="text-[14px] font-black text-white tracking-tight">Extra Requests</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-[12px] font-black text-orange-400">
+                      ${plan.overage.pricePerRequest}
+                    </span>
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">Per Request</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-        </div>
 
-        {plan.overage?.enabled && (
-          <>
-            <Separator />
-            <div className="flex items-center space-x-2 text-sm">
-              <DollarSign className="h-4 w-4 text-yellow-400" />
-              <div>
-                <div className="font-medium text-foreground">
-                  ${plan.overage.pricePerRequest} per extra request
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Max {plan.overage.maxOverage} overages
-                </div>
+          {/* Features Checklist */}
+          <div className="space-y-5">
+            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] px-1 flex items-center gap-3 after:h-px after:flex-1 after:bg-white/10">
+              Features included
+            </p>
+            <div className="space-y-4 px-1">
+              <div className="space-y-2.5">
+                {visibleFeatures.map((feature, index) => (
+                  <div key={index} className="flex items-start gap-2.5 group/feat">
+                    <div className="mt-1 flex-shrink-0 p-0.5 rounded-full bg-emerald-500/10">
+                      <CheckCircle className="h-2.5 w-2.5 text-emerald-400" />
+                    </div>
+                    <span className="text-[12px] text-muted-foreground/80 font-medium leading-tight group-hover/feat:text-white transition-colors">
+                      {feature}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </>
-        )}
-      </CardContent>
 
-      <CardFooter className="flex items-center justify-between">
-        {userRole === 'consumer' ? (
-          <div className="w-full">
-            {isCurrentPlan ? (
-              <Button disabled className="w-full">
-                Current Plan
-              </Button>
-            ) : (
+              {remainingFeaturesCount > 0 && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="flex items-center gap-1.5 text-[11px] font-black text-blue-400 uppercase tracking-widest hover:text-blue-300 transition-colors pl-1 mt-2">
+                      +{remainingFeaturesCount} more features
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md bg-[#0A0A0B] border-white/10 text-white backdrop-blur-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3 pb-4">
+                        <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                          <Activity className="h-4 w-4 text-blue-400" />
+                        </div>
+                        {plan.name} — Full Features
+                      </DialogTitle>
+                    </DialogHeader>
+                    <ScrollArea className="max-h-[60vh] pr-4 mt-2">
+                      <div className="space-y-4 pt-1">
+                        {plan.features.map((feature, index) => (
+                          <div key={index} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors group/feat">
+                            <div className="mt-1 flex-shrink-0 p-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                              <CheckCircle className="h-3 w-3 text-emerald-400" />
+                            </div>
+                            <span className="text-sm text-gray-400 font-medium group-hover/feat:text-white transition-colors">
+                              {feature}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </div>
+
+
+        </CardContent>
+
+        <CardFooter className="pt-6 pb-10 px-6 mt-auto">
+          {userRole === 'consumer' ? (
+            <Button
+              className={`w-full py-7 h-auto rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all transform hover:translate-y-[-2px] active:scale-[0.98] ${actionType === 'current'
+                ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 shadow-none hover:translate-y-0'
+                : isPopular
+                  ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-[0_20px_40px_-15px_rgba(37,99,235,0.4)]'
+                  : 'bg-white text-black hover:bg-gray-100 shadow-[0_20px_40px_-15px_rgba(255,255,255,0.1)]'
+                }`}
+              onClick={() => {
+                if (actionType === 'current') {
+                  onCancel?.(plan);
+                } else {
+                  onSubscribe?.(plan);
+                }
+              }}
+            >
+              {actionType === 'current' ? 'Cancel Subscription' : actionType === 'upgrade' ? 'Upgrade Tier' : actionType === 'downgrade' ? 'Downgrade Tier' : 'Subscribe'}
+            </Button>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 w-full">
               <Button
-                className="w-full"
-                onClick={() => onSubscribe?.(plan)}
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit?.(plan)}
+                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-[10px] font-bold uppercase tracking-widest rounded-xl py-6 border-dashed"
               >
-                {plan.price === 0 ? 'Get Started' : 'Upgrade'}
+                <Edit3 className="h-4 w-4 mr-2 opacity-60" />
+                Modify
               </Button>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 w-full">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onEdit?.(plan)}
-            >
-              Edit Plan
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:text-destructive"
-              onClick={() => onDelete?.(plan)}
-            >
-              Delete
-            </Button>
-          </div>
-        )}
-      </CardFooter>
-    </Card>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDelete?.(plan)}
+                className="bg-red-500/5 border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-widest rounded-xl py-6 border-dashed"
+              >
+                <Trash2 className="h-4 w-4 mr-2 opacity-60" />
+                Remove
+              </Button>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
+    </TooltipProvider>
   );
 }

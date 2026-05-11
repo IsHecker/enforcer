@@ -9,10 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Plus, 
-  TrendingUp, 
-  Zap, 
+import {
+  Plus,
+  TrendingUp,
+  Zap,
   Globe,
   AlertCircle,
 } from 'lucide-react';
@@ -31,44 +31,31 @@ export default function DashboardPage() {
   };
 
   const getRoleSpecificContent = () => {
-    switch (user.role) {
-      case 'creator':
-        return {
-          title: 'Creator Dashboard',
-          subtitle: 'Manage your API products and monitor performance',
-          quickActions: [
-            { label: 'Create New API Product', icon: Plus, href: '/products/new' },
-            { label: 'View Analytics', icon: TrendingUp, href: '/analytics' },
-            { label: 'Manage Plans', icon: Zap, href: '/plans' },
-          ],
-        };
-      case 'consumer':
-        return {
-          title: 'Consumer Dashboard',
-          subtitle: 'Monitor your API usage and subscriptions',
-          quickActions: [
-            { label: 'Browse API Marketplace', icon: Globe, href: '/marketplace' },
-            { label: 'View Usage Stats', icon: TrendingUp, href: '/usage' },
-            { label: 'Upgrade Plan', icon: Zap, href: '/billing' },
-          ],
-        };
-      case 'admin':
-        return {
-          title: 'Admin Dashboard',
-          subtitle: 'Platform administration and user management',
-          quickActions: [
-            { label: 'User Management', icon: Plus, href: '/admin/users' },
-            { label: 'Platform Analytics', icon: TrendingUp, href: '/admin/analytics' },
-            { label: 'Content Management', icon: Globe, href: '/admin/content' },
-          ],
-        };
-      default:
-        return {
-          title: 'Dashboard',
-          subtitle: 'Welcome to your dashboard',
-          quickActions: [],
-        };
+    // Admin gets special treatment
+    if (user.role === 'admin') {
+      return {
+        title: 'Admin Dashboard',
+        subtitle: 'Platform administration and user management',
+        quickActions: [
+          { label: 'User Management', icon: Plus, href: '/admin/users' },
+          { label: 'Platform Analytics', icon: TrendingUp, href: '/admin/analytics' },
+          { label: 'Content Management', icon: Globe, href: '/admin/content' },
+        ],
+      };
     }
+
+    // Consumer-focused dashboard for all regular users
+    const consumerActions = [
+      { label: 'Browse API Marketplace', icon: Globe, href: '/marketplace' },
+      { label: 'View Usage Stats', icon: TrendingUp, href: '/usage' },
+      { label: 'Manage API Keys', icon: Zap, href: '/keys' },
+    ];
+
+    return {
+      title: 'Dashboard',
+      subtitle: 'Monitor your API subscriptions and usage',
+      quickActions: consumerActions,
+    };
   };
 
   const roleContent = getRoleSpecificContent();
@@ -85,25 +72,11 @@ export default function DashboardPage() {
               {roleContent.subtitle}
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Badge 
-              variant="outline" 
-              className="bg-primary/10 text-primary border-primary/30"
-            >
-              {user.plan} Plan
-            </Badge>
-            <Badge 
-              variant="outline" 
-              className="bg-green-500/10 text-green-400 border-green-500/30"
-            >
-              ● Online
-            </Badge>
-          </div>
         </div>
 
         <StatsCards role={user.role} />
 
-        {user.role === 'consumer' && (
+        {(user.role !== 'admin') && (
           <Card className="bg-card/50 backdrop-blur-sm border-border/20">
             <CardHeader>
               <div className="flex items-center justify-between">

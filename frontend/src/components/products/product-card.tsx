@@ -1,36 +1,43 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-  Globe, 
-  Zap, 
-  Users, 
-  Activity,
+  Eye, 
   Settings,
-  ExternalLink,
-  Trash2,
-  Edit,
+  TrendingUp,
+  Users,
+  Activity,
+  Globe,
+  Lock,
+  Star
 } from 'lucide-react';
 import type { ApiProduct } from '@/types/api';
 
 interface ProductCardProps {
   product: ApiProduct;
-  onEdit?: (product: ApiProduct) => void;
-  onDelete?: (product: ApiProduct) => void;
   onViewAnalytics?: (product: ApiProduct) => void;
+  onViewDetails?: (product: ApiProduct) => void;
+  onManage?: (product: ApiProduct) => void;
   userRole: 'creator' | 'consumer' | 'admin';
 }
 
 export function ProductCard({ 
   product, 
-  onEdit, 
-  onDelete, 
   onViewAnalytics, 
+  onViewDetails,
+  onManage,
   userRole 
 }: ProductCardProps) {
+  const router = useRouter();
+  
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -44,189 +51,319 @@ export function ProductCard({
     }
   };
 
-  const getStatsForRole = () => {
-    if (userRole === 'consumer') {
-      return {
-        rating: 4.8,
-        totalUsers: Math.floor(Math.random() * 10000) + 5000,
-        uptime: 99.2 + Math.random() * 0.8,
-      };
-    } else {
-      return {
-        totalCalls: Math.floor(Math.random() * 50000) + 10000,
-        subscribers: Math.floor(Math.random() * 1000) + 100,
-        uptime: 99.2 + Math.random() * 0.8,
-      };
+  const getStatusText = (status: string): string => {
+    switch (status) {
+      case 'active':
+        return 'Active';
+      case 'inactive':
+        return 'Inactive';
+      case 'maintenance':
+        return 'Maintenance';
+      default:
+        return 'Unknown';
     }
   };
 
-  const stats = getStatsForRole();
+  const formatNumber = (num: number | undefined): string => {
+    if (!num && num !== 0) return '0';
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
 
-  return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/20 hover:bg-card/60 transition-all duration-200 group">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12">
+  const truncateDescription = (description: string, maxLength: number): string => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + '...';
+  };
+
+  const handleManage = () => {
+    // Navigate to studio's API product page for comprehensive management
+    const productId = product.id;
+    console.log('Navigating to product:', productId, 'Product name:', product.name);
+    router.push(`/studio/products/${productId}`);
+  };
+
+  // For consumer view - Enhanced to match creator layout but with rating and only view details button
+  if (userRole === 'consumer') {
+    return (
+      <Card className="bg-card/50 backdrop-blur-sm border-border/20 hover:bg-card/60 transition-all duration-200 h-full flex flex-col">
+        <CardHeader className="pb-3">
+          {/* Product Header with Avatar and Basic Info */}
+          <div className="flex items-start gap-3 mb-3">
+            <Avatar className="h-12 w-12 border-2 border-border/50">
               <AvatarImage src={product.logo} alt={product.name} />
-              <AvatarFallback className="bg-primary/20 text-primary">
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
                 {product.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <CardTitle className="text-foreground group-hover:text-primary transition-colors">
-                {product.name}
-              </CardTitle>
-              <div className="flex items-center space-x-2 mt-1">
+            <div className="flex-1 min-w-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className="font-semibold text-foreground truncate cursor-help">
+                      {product.name}
+                    </h3>
+                  </TooltipTrigger>
+                  {product.name.length > 25 && (
+                    <TooltipContent>
+                      <p>{product.name}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Status and Privacy Badges */}
+              <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className={getStatusBadge(product.status)}>
-                  {product.status}
+                  {getStatusText(product.status)}
                 </Badge>
-                {product.isPublic ? (
-                  <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    <Globe className="h-3 w-3 mr-1" />
-                    Public
-                  </Badge>
-                ) : (
-                  <Badge variant="outline">Private</Badge>
-                )}
+                <Badge 
+                  variant="outline" 
+                  className={product.isPublic 
+                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+                    : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                  }
+                >
+                  {product.isPublic ? (
+                    <>
+                      <Globe className="h-3 w-3 mr-1" />
+                      Public
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-3 w-3 mr-1" />
+                      Private
+                    </>
+                  )}
+                </Badge>
               </div>
             </div>
           </div>
-          
-          {userRole === 'creator' && (
-            <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => onEdit?.(product)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                onClick={() => onDelete?.(product)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+
+          {/* Description */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <p className="text-sm text-muted-foreground cursor-help">
+                  {truncateDescription(product.description, 100)}
+                </p>
+              </TooltipTrigger>
+              {product.description.length > 100 && (
+                <TooltipContent className="max-w-sm">
+                  <p>{product.description}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </CardHeader>
+
+        <CardContent className="pt-0 flex-1">
+          {/* Metrics Grid - Rating instead of Calls */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <Star className="h-4 w-4 text-yellow-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{(product.rating || 0).toFixed(1)}</p>
+                <p className="text-muted-foreground">Rating</p>
+              </div>
             </div>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        <CardDescription className="text-muted-foreground mb-4 line-clamp-2">
-          {product.description}
-        </CardDescription>
-
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          {userRole === 'consumer' ? (
-            <>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.rating}⭐
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Rating
-                </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <Users className="h-4 w-4 text-green-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{formatNumber(product.totalSubscribers || 0)}</p>
+                <p className="text-muted-foreground">Users</p>
               </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.totalUsers.toLocaleString()}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center justify-center">
-                  <Users className="h-3 w-3 mr-1" />
-                  Users
-                </div>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <Activity className="h-4 w-4 text-purple-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{(product.successRate || 0).toFixed(1)}%</p>
+                <p className="text-muted-foreground">Uptime</p>
               </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.uptime.toFixed(1)}%
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center justify-center">
-                  <Zap className="h-3 w-3 mr-1" />
-                  Uptime
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.totalCalls.toLocaleString()}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center justify-center">
-                  <Activity className="h-3 w-3 mr-1" />
-                  API Calls
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.subscribers}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center justify-center">
-                  <Users className="h-3 w-3 mr-1" />
-                  Subscribers
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-semibold text-foreground">
-                  {stats.uptime.toFixed(1)}%
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center justify-center">
-                  <Zap className="h-3 w-3 mr-1" />
-                  Uptime
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Base Path: {product.basePath}</span>
-          <span>{product.endpoints.length} endpoints</span>
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center justify-between">
-        {userRole === 'consumer' ? (
-          <div className="flex items-center space-x-2 w-full">
-            <Button 
-              className="flex-1"
-              onClick={() => onEdit?.(product)}
-            >
-              Subscribe
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.location.href = `/api-details/${product.id}?source=marketplace`}
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
+            </div>
           </div>
-        ) : (
-          <div className="flex items-center space-x-2 w-full">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => window.location.href = `/api-product/${product.id}`}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Manage
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => onViewAnalytics?.(product)}
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
+
+          <Separator className="my-3" />
+
+          {/* Base Path and Endpoints */}
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center gap-1 text-sm">
+              <span className="text-muted-foreground">base path:</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="font-mono text-muted-foreground truncate cursor-help">
+                      {product.basePath}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Base Path: {product.basePath}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium">{product.endpoints.length}</span> endpoint{product.endpoints.length !== 1 ? 's' : ''}
+            </div>
           </div>
-        )}
-      </CardFooter>
-    </Card>
+        </CardContent>
+
+        <CardFooter className="pt-0">
+          {/* Single View Details Button */}
+          <Button 
+            className="w-full"
+            onClick={() => onViewDetails?.(product)}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // Creator view with comprehensive data
+  return (
+    <>
+      <Card className="bg-card/50 backdrop-blur-sm border-border/20 hover:bg-card/60 transition-all duration-200 h-full flex flex-col">
+        <CardHeader className="pb-3">
+          {/* Product Header with Avatar and Basic Info */}
+          <div className="flex items-start gap-3 mb-3">
+            <Avatar className="h-12 w-12 border-2 border-border/50">
+              <AvatarImage src={product.logo} alt={product.name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                {product.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className="font-semibold text-foreground truncate cursor-help">
+                      {product.name}
+                    </h3>
+                  </TooltipTrigger>
+                  {product.name.length > 25 && (
+                    <TooltipContent>
+                      <p>{product.name}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Status and Privacy Badges */}
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className={getStatusBadge(product.status)}>
+                  {getStatusText(product.status)}
+                </Badge>
+                <Badge 
+                  variant="outline" 
+                  className={product.isPublic 
+                    ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+                    : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                  }
+                >
+                  {product.isPublic ? (
+                    <>
+                      <Globe className="h-3 w-3 mr-1" />
+                      Public
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-3 w-3 mr-1" />
+                      Private
+                    </>
+                  )}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <p className="text-sm text-muted-foreground cursor-help">
+                  {truncateDescription(product.description, 100)}
+                </p>
+              </TooltipTrigger>
+              {product.description.length > 100 && (
+                <TooltipContent className="max-w-sm">
+                  <p>{product.description}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </CardHeader>
+
+        <CardContent className="pt-0 flex-1">
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-blue-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{formatNumber(product.totalCalls || 0)}</p>
+                <p className="text-muted-foreground">Calls</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <Users className="h-4 w-4 text-green-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{formatNumber(product.totalSubscribers || 0)}</p>
+                <p className="text-muted-foreground">Users</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+              <Activity className="h-4 w-4 text-purple-400" />
+              <div className="text-xs">
+                <p className="font-medium text-foreground">{(product.successRate || 0).toFixed(1)}%</p>
+                <p className="text-muted-foreground">Uptime</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-3" />
+
+          {/* Base Path and Endpoints */}
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center gap-1 text-sm">
+              <span className="text-muted-foreground">base path:</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="font-mono text-muted-foreground truncate cursor-help">
+                      {product.basePath}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Base Path: {product.basePath}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium">{product.endpoints.length}</span> endpoint{product.endpoints.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="pt-0">
+          {/* Single Manage Button */}
+          <Button 
+            className="w-full"
+            onClick={handleManage}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Manage Product
+          </Button>
+        </CardFooter>
+      </Card>
+    </>
   );
 }
