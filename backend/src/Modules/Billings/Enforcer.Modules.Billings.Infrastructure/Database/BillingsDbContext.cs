@@ -2,7 +2,6 @@ using Enforcer.Common.Application.Data;
 using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Common.Infrastructure.Extensions;
 using Enforcer.Modules.Billings.Application.Abstractions.Data;
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
@@ -26,7 +25,7 @@ public sealed class BillingsDbContext : DbContext, IUnitOfWork, IBillingsDbConte
    public DbSet<PaymentMethod> PaymentMethods { get; init; }
    public DbSet<Payment> Payments { get; init; }
    public DbSet<Invoice> Invoices { get; init; }
-   public DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
+   public DbSet<LineItem> LineItems { get; init; }
    public DbSet<Refund> Refunds { get; init; }
    public DbSet<PromotionalCode> PromotionalCodes { get; init; }
    public DbSet<PromotionalCodeUsage> PromotionalCodeUsages { get; init; }

@@ -23,8 +23,12 @@ internal sealed class PaymentIntentPaymentFailedHandler(
 
         if (paymentIntent.IsCheckoutMode())
         {
-            await invoiceRepository.DeleteAsync(invoiceId);
-            return Result.Success;
+            var invoice = await invoiceRepository.GetByIdAsync(invoiceId);
+            if (invoice is not null)
+            {
+                invoice.Void();
+                invoiceRepository.Update(invoice);
+            }
         }
 
         var paymentMethodId = paymentIntent.Get(MetadataKeys.PaymentMethodId);

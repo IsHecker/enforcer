@@ -81,7 +81,7 @@ public sealed class Wallet : Entity
         return Result.Success;
     }
 
-    public Result Charge(long amount, Guid invoiceId)
+    public Result<long> Charge(long amount, Guid invoiceId)
     {
         if (amount <= 0)
             return WalletErrors.InvalidChargeAmount;
@@ -93,14 +93,14 @@ public sealed class Wallet : Entity
         Credits -= chargeAmount;
 
         _entries.Add(WalletEntry.Create(
-        Id,
-        WalletEntryType.Charge,
-        -chargeAmount,
-        Currency,
-        invoiceId,
-        "In-App charge"));
+            Id,
+            WalletEntryType.Charge,
+            -chargeAmount,
+            Currency,
+            invoiceId,
+            "In-App charge"));
 
-        return Result.Success;
+        return chargeAmount;
     }
 
     public Result Withdraw(long amount, int minimumWithdrawalAmount)
@@ -119,7 +119,14 @@ public sealed class Wallet : Entity
 
         Balance -= amount;
 
-        LastPayoutAt = DateTime.Now;
+        _entries.Add(WalletEntry.Create(
+            Id,
+            WalletEntryType.Withdrawal,
+            -amount,
+            Currency,
+            description: "Withdrawal"));
+
+        LastPayoutAt = DateTime.UtcNow;
 
         return Result.Success;
     }

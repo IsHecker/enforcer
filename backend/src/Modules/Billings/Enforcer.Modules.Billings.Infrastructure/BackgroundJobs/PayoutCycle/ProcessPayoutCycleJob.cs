@@ -1,11 +1,9 @@
-﻿using Enforcer.Modules.Billings.Application.Abstractions.Payments;
-using Enforcer.Modules.Billings.Application.Abstractions.Services;
-using Enforcer.Modules.Billings.Domain.Payouts;
+﻿using Enforcer.Modules.Billings.Application.Abstractions.Services;
 using Enforcer.Modules.Billings.Domain.Wallets;
 using Enforcer.Modules.Billings.Infrastructure.Database;
-using Enforcer.Modules.Billings.Infrastructure.PaymentProcessing;
 using Enforcer.Modules.Billings.Infrastructure.Payouts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 
@@ -16,7 +14,8 @@ internal sealed class ProcessPayoutCycleJob(
     IOptions<PayoutCycleOptions> payoutCycleOptions,
     IOptions<PayoutOptions> payoutOptions,
     IWithdrawalService withdrawalService,
-    BillingsDbContext dbContext) : IJob
+    BillingsDbContext dbContext,
+    ILogger<ProcessPayoutCycleJob> logger) : IJob
 {
     private readonly PayoutCycleOptions _payoutCycleOptions = payoutCycleOptions.Value;
     private readonly PayoutOptions _payoutOptions = payoutOptions.Value;
@@ -32,20 +31,49 @@ internal sealed class ProcessPayoutCycleJob(
         var wallets = await GetEligibleForPayoutAsync(
             _payoutCycleOptions.BatchSize,
             _payoutOptions.MinimumWithdrawalAmountInCents,
-            context.CancellationToken);
+            cancellationToken);
+
+        logger.LogInformation("Found {Count} wallets eligible for payout", wallets.Count);
+
+        var successCount = 0;
+        var failureCount = 0;
 
         foreach (var wallet in wallets)
         {
-            await withdrawalService.ProcessPayoutAsync(
-                wallet,
-                wallet.Balance,
-                periodStart,
-                now,
-                isManual: false,
-                cancellationToken);
+            try
+            {
+                var result = await withdrawalService.ProcessPayoutAsync(
+                    wallet,
+                    wallet.Balance,
+                    periodStart,
+                    now,
+                    isManual: false,
+                    cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+                if (!result.IsSuccess)
+                {
+                    failureCount++;
+                    logger.LogWarning(
+                        "Payout failed for wallet {WalletId}: {ErrorCode} - {ErrorMessage}",
+                        wallet.Id,
+                        result.Error.Code,
+                        result.Error.Description);
+                    continue;
+                }
+
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                failureCount++;
+                logger.LogError(ex, "Unexpected error processing payout for wallet {WalletId}", wallet.Id);
+            }
         }
+
+        logger.LogInformation(
+            "Payout cycle completed. Success: {SuccessCount}, Failed: {FailureCount}",
+            successCount,
+            failureCount);
     }
 
     public async Task<List<Wallet>> GetEligibleForPayoutAsync(

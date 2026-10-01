@@ -127,4 +127,9 @@ public sealed class ApiService : Entity
         Version = newVersion;
         return Result.Success;
     }
+
+    public void UpdateApiDocId(Guid apiDocId)
+    {
+        ApiDocId = apiDocId;
+    }
 }

@@ -30,14 +30,7 @@ internal sealed class RefundUpdatedHandler(
         if (invoice is null)
             return Error.Failure();
 
-        if (refund.Amount == invoice.Total)
-        {
-            invoice.MarkAsRefunded();
-        }
-        else
-        {
-            invoice.MarkAsPartiallyRefunded();
-        }
+        invoice.Refund(refund.Amount);
 
         invoiceRepository.Update(invoice);
         await unitOfWork.SaveChangesAsync();

@@ -15,9 +15,9 @@ internal sealed class CreateSubscriptionCommandHandler(
     ISubscriptionService subscriptionService,
     IPlanRepository planRepository,
     IApiServiceRepository apiServiceRepository,
-    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, SessionResponse>
+    IBillingsApi billingsApi) : ICommandHandler<CreateSubscriptionCommand, PaymentIntentResponse>
 {
-    public async Task<Result<SessionResponse>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PaymentIntentResponse>> Handle(CreateSubscriptionCommand request, CancellationToken cancellationToken)
     {
         var isExist = await subscriptionRepository.ExistsAsync(request.ConsumerId, request.ApiServiceId, cancellationToken);
         if (isExist)
@@ -37,21 +37,20 @@ internal sealed class CreateSubscriptionCommandHandler(
         if (subscriptionResult.IsFailure)
             return subscriptionResult.Error;
 
-        var createSessionResult = await billingsApi.CreateSubscriptionCheckoutSessionAsync(
+        var createIntentResult = await billingsApi.InitializePaymentAsync(
             request.ConsumerId,
             apiService!.CreatorId,
             subscriptionResult.Value.ExpiresAt,
             plan.ToResponse(),
             request.PromoCode,
-            request.ReturnUrl,
             cancellationToken);
 
-        if (createSessionResult.IsFailure)
-            return createSessionResult.Error;
+        if (createIntentResult.IsFailure)
+            return createIntentResult.Error;
 
-        if (createSessionResult.Value.Url is null)
+        if (createIntentResult.Value.ClientSecret is null)
             await subscriptionService.CreateSubscriptionAsync(request.ConsumerId, request.PlanId, cancellationToken);
 
-        return createSessionResult;
+        return createIntentResult;
     }
 }

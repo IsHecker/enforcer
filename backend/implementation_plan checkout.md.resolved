@@ -1,0 +1,208 @@
+# Invoicing System — Clean-Slate Design
+
+## Platform Context
+
+Enforcer is an API marketplace. **Consumers** subscribe to plans. An invoice is generated when a consumer owes money.
+
+| Flow | Scenarios | How |
+|---|---|---|
+| **Checkout UI (Custom)** | Subscribe, Plan Switch | Consumer previews invoice on our UI, pays via Stripe Elements PaymentIntent |
+| **Direct Charge** | Renewal | Background job charges saved card, webhook confirms |
+
+**Rule: An invoice is only persisted when payment is confirmed (for checkout flows) or just before a background charge (for renewals).**
+
+---
+
+## Checkout Flow (Subscribe + Plan Switch)
+
+We are transitioning from Stripe Hosted Checkout to a Custom Checkout UI using Stripe Elements (PaymentIntents).
+
+### 1. Preview Phase (No DB Mutation)
+```mermaid
+sequenceDiagram
+    participant Consumer
+    participant API
+    participant Factory as InvoiceFactory
+    
+    Consumer->>API: GET /api/billings/preview-subscription
+    API->>API: Calculate promo, calculate wallet usage
+    API->>Factory: ForSubscription / ForPlanSwitch → in-memory Invoice
+    Factory-->>API: Invoice (NOT saved)
+    API-->>Consumer: Returns InvoicePreviewResponse
+```
+
+### 2. Payment Phase (Total > 0)
+```mermaid
+sequenceDiagram
+    participant Consumer
+    participant API
+    participant Stripe
+    participant Webhook
+    participant DB
+
+    Consumer->>API: POST /api/billings/payment-intent
+    API->>API: Re-calculate totals securely
+    API->>Stripe: Create PaymentIntent (amount, metadata)
+    Stripe-->>Consumer: client_secret
+    Consumer->>Stripe: Submit Stripe Payment Element
+
+    Stripe->>Webhook: Checkout.Session.Completed / PaymentIntent.Succeeded
+    Webhook->>API: Rebuild invoice from metadata
+    Webhook->>DB: Save invoice
+    Webhook->>DB: Redeem Promo & Charge Wallet
+    Webhook->>DB: invoice.Pay()
+    Webhook->>API: Create Subscription via ApiServices
+```
+
+### 3. Free Checkout Phase (Total = 0)
+```mermaid
+sequenceDiagram
+    participant Consumer
+    participant API
+    participant DB
+
+    Consumer->>API: POST /api/billings/process-free-checkout
+    API->>API: Re-calculate totals (Verify == 0)
+    API->>API: Rebuild invoice
+    API->>DB: Save invoice
+    API->>DB: Redeem Promo & Charge Wallet
+    API->>DB: invoice.Pay()
+    API->>API: Create Subscription via ApiServices
+    API-->>Consumer: Success
+```
+
+---
+
+## Direct Charge Flow (Renewal)
+
+```mermaid
+sequenceDiagram
+    participant Job as Background Job
+    participant Factory as InvoiceFactory
+    participant Stripe
+    participant DB
+    participant Webhook
+
+    Job->>Factory: ForRenewal(subscription)
+    Factory-->>Job: Invoice (in-memory)
+    Job->>DB: Save invoice (Pending)
+    Job->>Stripe: ChargeAsync(invoice) → creates PaymentIntent
+
+    alt Payment succeeds
+        Stripe->>Webhook: PaymentIntent.Succeeded
+        Webhook->>Webhook: invoice.Pay()
+        Webhook->>DB: Update invoice → Paid
+    else Payment fails
+        Stripe->>Webhook: PaymentIntent.Failed
+        Webhook->>Webhook: invoice.RecordFailedAttempt()
+        Webhook->>DB: Update invoice (still Pending, attempts++)
+    end
+```
+
+> [!NOTE]
+> For renewals, the invoice is saved **before** charging because there's no consumer interaction. The webhook then transitions it to [Paid](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/PaymentProcessing/StripeEvents/EventHandlers/PaymentIntentSucceededHandler.cs#52-64). If the charge fails, the webhook marks the attempt ([RecordFailedAttempt](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Invoices/Invoice.cs#97-98)).
+
+---
+
+## 1. Domain — Invoice Aggregate
+
+### Invoice Entity
+
+```csharp
+public sealed class Invoice : Entity
+{
+    public Guid ConsumerId { get; private set; }
+    public Guid? ReferenceId { get; private set; }  // generic link (subscription, order, etc.)
+    public string InvoiceNumber { get; private set; }
+    public string Currency { get; private set; }
+
+    public long Subtotal { get; private set; }
+    public long DiscountTotal { get; private set; }
+    public long Total { get; private set; }
+
+    public DateTime? PeriodStart { get; private set; }
+    public DateTime? PeriodEnd { get; private set; }
+
+    public InvoiceStatus Status { get; private set; }
+    public DateTime IssuedAt { get; private set; }
+    public DateTime? PaidAt { get; private set; }
+    public int PaymentAttempts { get; private set; }
+    public string? Notes { get; private set; }
+
+    private List<LineItem> _lineItems;
+    public IReadOnlyList<LineItem> LineItems => _lineItems;
+}
+```
+
+### Construction — Born Complete, No `AddLineItem`
+
+```csharp
+public static Invoice Create(
+    Guid consumerId, string currency, List<LineItem> lineItems,
+    Guid? referenceId = null,
+    DateTime? periodStart = null, DateTime? periodEnd = null,
+    string? notes = null)
+```
+
+### Lifecycle
+
+```csharp
+public Result Pay()               // Pending → Paid
+public Result Void()              // Pending → Void
+public Result Refund(long amount) // Paid → Refunded | PartiallyRefunded
+public void RecordFailedAttempt() // increments counter only
+```
+
+### Supporting Types
+
+```csharp
+public enum InvoiceStatus { Pending, Paid, Void, Refunded, PartiallyRefunded }
+public enum LineItemType { Subscription, Overage, Credit, Discount, Fee, Tax }
+```
+
+---
+
+## 2. Infrastructure — InvoiceFactory
+
+```csharp
+internal static class InvoiceFactory
+{
+    public static Invoice ForSubscription(
+        Guid consumerId, PlanResponse plan, DateTime? expiresAt,
+        long discountAmount = 0, string? discountDescription = null,
+        long walletCreditUsed = 0) { ... }
+
+    public static Invoice ForRenewal(
+        SubscriptionResponse subscription) { ... }
+
+    public static Invoice ForPlanSwitch(
+        SubscriptionResponse subscription,
+        PlanResponse targetPlan, DateTime now) { ... }
+}
+```
+
+---
+
+## 3. File Structure
+
+```
+Domain/Invoices/
+    Invoice.cs, InvoiceStatus.cs, InvoiceErrors.cs,
+    LineItem.cs, LineItemType.cs
+
+Infrastructure/Invoicing/
+    InvoiceFactory.cs, InvoiceRepository.cs
+```
+
+---
+
+## 4. Key Decisions
+
+| Decision | Rationale |
+|---|---|
+| Checkout invoices not saved until webhook | Consumer can go back/abandon — no orphans |
+| Renewal invoice saved before charge | No consumer interaction; webhook confirms later |
+| Plan Switch = checkout flow | Consumer previews and decides |
+| Custom UI Checkout (Stripe Elements) | Seamless, white-labeled experience that fully integrates with Enforcer's custom wallet and promo code logic |
+| No `AddLineItem` | All line items computed upfront via Factory |
+| [Void()](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Invoices/Invoice.cs#76-84) instead of delete | Never delete financial records |

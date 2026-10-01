@@ -8,7 +8,6 @@ using Enforcer.Modules.Billings.Domain.Payments;
 using Enforcer.Modules.Billings.Infrastructure.Payments;
 using Enforcer.Modules.Billings.Infrastructure.Payouts;
 using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
-using Enforcer.Modules.Billings.Infrastructure.Wallets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -22,7 +21,7 @@ internal sealed class PaymentIntentSucceededHandler(
     IInvoiceRepository invoiceRepository,
     IPaymentMethodRepository paymentMethodRepository,
     PaymentRepository paymentRepository,
-    WalletRepository walletRepository,
+    IWalletRepository walletRepository,
     WalletEntryRepository walletEntryRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<PaymentIntent>
 {
@@ -56,7 +55,7 @@ internal sealed class PaymentIntentSucceededHandler(
         var invoice = await invoiceRepository.GetByIdAsync(invoiceId)
             ?? throw new InvalidOperationException("Invoice not found");
 
-        invoice.MarkAsPaid();
+        invoice.Pay();
         invoiceRepository.Update(invoice);
 
         return invoice;
@@ -66,10 +65,8 @@ internal sealed class PaymentIntentSucceededHandler(
     {
         var consumerId = paymentIntent.Get(MetadataKeys.ConsumerId);
         var planId = paymentIntent.Get(MetadataKeys.PlanId);
-
-        var subscriptionId = await servicesApi.CreateSubscriptionAsync(consumerId, planId);
-
-        invoice.SetSubscriptionId(subscriptionId);
+        // invoice should reference the subscription id.
+        await servicesApi.CreateSubscriptionAsync(consumerId, planId);
     }
 
     private async Task<Domain.PaymentMethods.PaymentMethod?> GetOrCreatePaymentMethodAsync(

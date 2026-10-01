@@ -1,5 +1,6 @@
 using Enforcer.Common.Application.Data;
 using Enforcer.Common.Domain.Results;
+using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Infrastructure.Payouts;
 using Enforcer.Modules.Billings.Infrastructure.Wallets;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,7 @@ namespace Enforcer.Modules.Billings.Infrastructure.PaymentProcessing.StripeEvent
 [StripeEvent(EventTypes.TransferReversed)]
 internal sealed class TransferReversedHandler(
     PayoutRepository payoutRepository,
-    WalletRepository walletRepository,
+    IWalletRepository walletRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : StripeEventHandler<Transfer>
 {
     public override async Task<Result> HandleAsync(Transfer transfer)

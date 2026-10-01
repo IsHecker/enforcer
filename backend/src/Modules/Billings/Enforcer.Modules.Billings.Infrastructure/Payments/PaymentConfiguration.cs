@@ -10,8 +10,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {
     public void Configure(EntityTypeBuilder<Payment> builder)
     {
-        builder.Property(x => x.Amount)
-            .HasPrecision(18, 2);
+        builder.Property(x => x.Amount);
 
         builder.Property(x => x.Currency)
             .HasMaxLength(3);

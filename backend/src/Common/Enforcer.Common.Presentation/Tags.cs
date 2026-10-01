@@ -1,4 +1,4 @@
-﻿namespace Enforcer.Common.Presentation;
+namespace Enforcer.Common.Presentation;
 
 public static class Tags
 {
@@ -6,6 +6,7 @@ public static class Tags
     public const string Endpoints = "Endpoints";
     public const string Plans = "Plans";
     public const string Subscriptions = "Subscriptions";
+    public const string Invoices = "Invoices";
     public const string ApiUsages = "ApiUsages";
     public const string ApiKeyBans = "ApiKeyBans";
 

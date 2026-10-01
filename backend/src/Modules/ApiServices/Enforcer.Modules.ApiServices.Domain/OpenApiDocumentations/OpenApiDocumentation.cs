@@ -5,17 +5,19 @@ namespace Enforcer.Modules.ApiServices.Domain.OpenApiDocumentations;
 
 public sealed class OpenApiDocumentation : Entity
 {
+    public Guid ApiServiceId { get; private set; }
     public string Documentation { get; private set; } = null!;
 
     private OpenApiDocumentation() { }
 
-    public static Result<OpenApiDocumentation> Create(string documentation)
+    public static Result<OpenApiDocumentation> Create(Guid apiServiceId, string documentation)
     {
         if (string.IsNullOrWhiteSpace(documentation))
             return OpenApiDocumentationErrors.EmptyDocumentation;
 
         var doc = new OpenApiDocumentation
         {
+            ApiServiceId = apiServiceId,
             Documentation = documentation
         };
 

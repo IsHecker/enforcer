@@ -2,7 +2,6 @@ using Enforcer.Common.Domain;
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Refunds;
@@ -29,66 +28,41 @@ internal sealed class StripeGateway(
             CancelUrl = returnUrl
         };
 
-        Session session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken = default);
+        Session session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken);
 
         return session.Url;
     }
 
-    public async Task<string?> CreateCheckoutSessionAsync(
+    public async Task<string?> InitializePaymentIntentAsync(
         string stripeCustomerId,
         Invoice invoice,
         Guid creatorId,
         Guid consumerId,
         Guid planId,
-        string returnUrl,
         CancellationToken cancellationToken = default)
     {
         if (invoice.Total <= 0)
             return null;
 
-        var options = new SessionCreateOptions
+        var options = new Stripe.PaymentIntentCreateOptions
         {
-            Mode = "payment",
             Customer = stripeCustomerId,
+            Amount = invoice.Total,
+            Currency = invoice.Currency.ToLower(),
             PaymentMethodTypes = ["card"],
-            SavedPaymentMethodOptions = new SessionSavedPaymentMethodOptionsOptions
-            {
-                PaymentMethodSave = "enabled"
-            },
-            LineItems = BuildLineItems(invoice),
-            SuccessUrl = returnUrl,
-            CancelUrl = returnUrl,
-            PaymentIntentData = new SessionPaymentIntentDataOptions()
-            .WithKey(MetadataKeys.InvoiceId, invoice.Id)
-            .WithKey(MetadataKeys.CreatorId, creatorId)
-            .WithKey(MetadataKeys.ConsumerId, consumerId)
-            .WithKey(MetadataKeys.PlanId, planId)
-            .WithKey(MetadataKeys.CheckoutMode, "true")
-        };
+            SetupFutureUsage = "off_session",
+            Description = BuildDescription(invoice)
+        }
+        .WithKey(MetadataKeys.InvoiceId, invoice.Id)
+        .WithKey(MetadataKeys.CreatorId, creatorId)
+        .WithKey(MetadataKeys.ConsumerId, consumerId)
+        .WithKey(MetadataKeys.PlanId, planId)
+        .WithKey(MetadataKeys.CheckoutMode, "true");
 
-        var session = await new SessionService().CreateAsync(options, cancellationToken: cancellationToken);
-        return session.Url;
-    }
+        var service = new Stripe.PaymentIntentService();
+        var paymentIntent = await service.CreateAsync(options, cancellationToken: cancellationToken);
 
-    private static List<SessionLineItemOptions> BuildLineItems(Invoice invoice)
-    {
-        return invoice.LineItems
-            .Where(item => item.Type is InvoiceItemType.Subscription)
-            .Select(item => new SessionLineItemOptions
-            {
-                PriceData = new SessionLineItemPriceDataOptions
-                {
-                    Currency = invoice.Currency.ToLower(),
-                    UnitAmount = invoice.Total,
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = item.Description,
-                        Description = "Total after credits and charges applied"
-                    }
-                },
-                Quantity = item.Quantity
-            })
-            .ToList();
+        return paymentIntent.ClientSecret;
     }
 
     public async Task<Result> ChargeAsync(
@@ -98,7 +72,7 @@ internal sealed class StripeGateway(
     {
         try
         {
-            var paymentMethod = await paymentMethodRepository.GetDefaultAsync(invoice.ConsumerId, cancellationToken = default);
+            var paymentMethod = await paymentMethodRepository.GetDefaultAsync(invoice.ConsumerId, cancellationToken);
 
             if (paymentMethod is null)
                 return PaymentMethodErrors.NoDefaultPaymentMethod;
@@ -118,13 +92,13 @@ internal sealed class StripeGateway(
             .WithKey(MetadataKeys.PaymentMethodId, paymentMethod.Id);
 
             var paymentIntent = await new Stripe.PaymentIntentService()
-                .CreateAsync(options, cancellationToken: cancellationToken = default);
+                .CreateAsync(options, cancellationToken: cancellationToken);
 
             return paymentIntent.Status == "succeeded"
                 ? Result.Success
                 : Error.Failure(
-                    paymentIntent.LastPaymentError?.Code ?? "unknown",
-                    paymentIntent.LastPaymentError?.Message ?? "Payment failed");
+                    paymentIntent.LastPaymentError.Code,
+                    paymentIntent.LastPaymentError.Message);
         }
         catch (Stripe.StripeException ex)
         {
@@ -134,20 +108,20 @@ internal sealed class StripeGateway(
 
     private static string BuildDescription(Invoice invoice)
     {
-        var mainItem = invoice.LineItems.FirstOrDefault(x => x.Type == InvoiceItemType.Subscription);
+        var mainItem = invoice.LineItems.FirstOrDefault(x => x.Type == LineItemType.Subscription);
         return mainItem?.Description ?? "Subscription Renewal";
     }
 
     public async Task RemovePaymentMethodAsync(string stripePaymentMethodId, CancellationToken cancellationToken = default)
     {
-        await new Stripe.PaymentMethodService().DetachAsync(stripePaymentMethodId, cancellationToken: cancellationToken = default);
+        await new Stripe.PaymentMethodService().DetachAsync(stripePaymentMethodId, cancellationToken: cancellationToken);
     }
 
     public async Task<Result> RefundAsync(Refund refund, CancellationToken cancellationToken = default)
     {
         try
         {
-            var payment = await paymentRepository.GetLastBySucceededInvoiceId(refund.InvoiceId, cancellationToken = default);
+            var payment = await paymentRepository.GetLastBySucceededInvoiceId(refund.InvoiceId, cancellationToken);
             if (payment is null)
                 return Error.NotFound(
                     "Refund.NoPaymentsFound",
@@ -161,7 +135,7 @@ internal sealed class StripeGateway(
             }
             .WithKey(MetadataKeys.RefundId, refund.Id);
 
-            await new Stripe.RefundService().CreateAsync(refundOptions, cancellationToken: cancellationToken = default);
+            await new Stripe.RefundService().CreateAsync(refundOptions, cancellationToken: cancellationToken);
 
             return Result.Success;
         }

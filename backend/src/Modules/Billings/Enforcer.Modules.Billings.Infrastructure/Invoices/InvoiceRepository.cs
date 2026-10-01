@@ -8,11 +8,11 @@ namespace Enforcer.Modules.Billings.Infrastructure.Invoices;
 
 internal sealed class InvoiceRepository(BillingsDbContext context) : Repository<Invoice>(context), IInvoiceRepository
 {
-    public Task<Invoice?> GetLastPaidBySubscriptionIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
+    public Task<Invoice?> GetLastPaidByReferenceIdAsync(Guid referenceId, CancellationToken cancellationToken = default)
     {
         return context.Invoices
             .AsNoTracking()
             .OrderByDescending(i => i.PaidAt)
-            .FirstOrDefaultAsync(i => i.SubscriptionId == subscriptionId, cancellationToken);
+            .FirstOrDefaultAsync(i => i.ReferenceId == referenceId, cancellationToken);
     }
 }

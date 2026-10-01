@@ -8,6 +8,7 @@ public static class ApiEndpoints
     private const string EndpointsBase = $"{ApiBase}/endpoints";
     private const string SubscriptionsBase = $"{ApiBase}/subscriptions";
     private const string UsersBase = $"{ApiBase}/users";
+    private const string InvoicesBase = $"{ApiBase}/invoices";
     private const string ApiKeysBase = $"{ApiBase}/apikeys";
 
     private const string AnalyticsBase = $"{ApiBase}/analytics";
@@ -32,6 +33,9 @@ public static class ApiEndpoints
         public const string GetStats = $"{GetById}/stats";
 
         public const string Rate = $"{GetById}/rate";
+
+        public const string GetDocumentation = $"{GetById}/documentation";
+        public const string UploadDocumentation = GetDocumentation;
     }
 
     public static class Endpoints
@@ -71,6 +75,12 @@ public static class ApiEndpoints
         public const string ListServiceSubscribers = $"{ApiServices.GetById}/subscribers";
 
         public const string GetStats = $"{GetById}/stats";
+    }
+
+    public static class Invoices
+    {
+        public const string List = InvoicesBase;
+        public const string GetById = $"{InvoicesBase}/{{invoiceId:guid}}";
     }
 
     public static class ApiUsages

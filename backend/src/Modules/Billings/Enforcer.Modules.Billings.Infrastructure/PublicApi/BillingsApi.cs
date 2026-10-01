@@ -6,8 +6,7 @@ using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
 using Enforcer.Modules.Billings.Contracts;
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
-using Enforcer.Modules.Billings.Domain.Invoices;
+using Enforcer.Modules.Billings.Infrastructure.Invoicing;
 using Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 using Enforcer.Modules.Billings.Infrastructure.Services;
 using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
@@ -26,89 +25,84 @@ internal sealed class BillingsApi(
     PromoCodeService promoCodeService,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork) : IBillingsApi
 {
-    public async Task<Result<SessionResponse>> CreateSubscriptionCheckoutSessionAsync(
+    public async Task<Result<PaymentIntentResponse>> InitializePaymentAsync(
         Guid consumerId,
         Guid creatorId,
         DateTime? subscriptionExpiresAt,
         PlanResponse plan,
         string promoCode,
-        string returnUrl,
         CancellationToken cancellationToken = default)
     {
-        var invoiceResult = await CreateInvoiceAsync(
-            consumerId,
-            subscriptionExpiresAt,
-            plan,
-            promoCode,
-            cancellationToken);
+        var discountAmount = 0L;
+        string? discountDescription = null;
 
-        if (invoiceResult.IsFailure)
-            return invoiceResult.Error;
-
-        var checkoutUrl = await stripeGateway.CreateCheckoutSessionAsync(
-            SharedData.CustomerId,
-            invoiceResult.Value,
-            creatorId,
-            consumerId,
-            plan.Id,
-            returnUrl,
-            cancellationToken);
-
-        return new SessionResponse(checkoutUrl);
-    }
-
-    private async Task<Result<Invoice>> CreateInvoiceAsync(
-        Guid consumerId,
-        DateTime? subscriptionExpiresAt,
-        PlanResponse plan,
-        string code,
-        CancellationToken cancellationToken)
-    {
-        var invoice = Invoice.Create(
-            consumerId,
-            "USD",
-            billingPeriodStart: DateTime.UtcNow,
-            billingPeriodEnd: subscriptionExpiresAt);
-
-        var subscriptionLineItem = InvoiceLineItem.Create(
-            InvoiceItemType.Subscription,
-            $"{plan.Name} - Subscription",
-            plan.PriceInCents);
-
-        invoice.AddLineItem(subscriptionLineItem);
-
-        if (code is not null)
+        if (promoCode is not null)
         {
-            var discountResult = await promoCodeService.ApplyPromoCodeAsync(
-                code,
-                consumerId,
-                invoice.Total,
-                cancellationToken);
+            var promoResult = await promoCodeService.ApplyPromoCodeAsync(
+                promoCode, consumerId, plan.PriceInCents, cancellationToken);
 
-            if (discountResult.IsFailure)
-                return discountResult.Error;
+            if (promoResult.IsFailure)
+                return promoResult.Error;
 
-            invoice.AddLineItem(discountResult.Value);
+            (discountAmount, discountDescription) = promoResult.Value;
         }
 
         var wallet = await walletRepository.GetByUserIdAsync(consumerId, cancellationToken);
-        var oldCredits = wallet!.Credits;
+        var walletCreditUsed = 0L;
 
-        var chargeResult = wallet.Charge(invoice.Total, invoice.Id);
-        var chargeAmount = oldCredits - wallet.Credits;
+        if (wallet is not null)
+        {
+            var invoiceSubtotal = plan.PriceInCents - discountAmount;
+            var chargeResult = wallet.Charge(invoiceSubtotal, Guid.Empty);
 
-        if (chargeResult.IsSuccess)
-            invoice.AddLineItem(InvoiceLineItem.Create(
-                InvoiceItemType.Credit,
-                $"Wallet Credits Used: {chargeAmount}",
-                -chargeAmount));
+            if (chargeResult.IsSuccess)
+                walletCreditUsed = chargeResult.Value;
+        }
 
-        await entryRepository.AddRangeAsync(wallet.Entries, cancellationToken);
+        var invoice = InvoiceFactory.ForSubscription(
+            consumerId,
+            plan,
+            subscriptionExpiresAt,
+            discountAmount,
+            discountDescription,
+            walletCreditUsed);
+
+        if (walletCreditUsed > 0)
+            await entryRepository.AddRangeAsync(wallet!.Entries, cancellationToken);
 
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return invoice;
+        var clientSecret = await stripeGateway.InitializePaymentIntentAsync(
+            SharedData.CustomerId,
+            invoice,
+            creatorId,
+            consumerId,
+            plan.Id,
+            cancellationToken);
+
+        return new PaymentIntentResponse(clientSecret);
+    }
+
+    public async Task<Result<PaymentIntentResponse>> ProcessRenewalBillingAsync(
+        Guid creatorId,
+        SubscriptionResponse subscription,
+        CancellationToken cancellationToken = default)
+    {
+        var invoice = InvoiceFactory.ForRenewal(subscription);
+
+        await invoiceRepository.AddAsync(invoice, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var clientSecret = await stripeGateway.InitializePaymentIntentAsync(
+            SharedData.CustomerId,
+            invoice,
+            creatorId,
+            subscription.ConsumerId,
+            subscription.Plan.Id,
+            cancellationToken);
+
+        return new PaymentIntentResponse(clientSecret);
     }
 
     public Task<Result> ProcessCancellationRefundAsync(
@@ -118,11 +112,12 @@ internal sealed class BillingsApi(
         return subscriptionCancellationRefundService.ProcessCancellationRefundAsync(subscription, cancellationToken);
     }
 
-    public Task<Result> ProcessPlanSwitchBillingAsync(
+    public Task<Result<PaymentIntentResponse>> ProcessPlanSwitchBillingAsync(
+        Guid creatorId,
         SubscriptionResponse subscription,
         PlanResponse targetPlan,
         CancellationToken cancellationToken = default)
     {
-        return planSwitchBillingService.ProcessBillingAsync(subscription, targetPlan, cancellationToken);
+        return planSwitchBillingService.ProcessBillingAsync(creatorId, subscription, targetPlan, cancellationToken);
     }
 }

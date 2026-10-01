@@ -1,4 +1,3 @@
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.PaymentMethods;
 using Enforcer.Modules.Billings.Domain.Payments;
@@ -18,7 +17,7 @@ public interface IBillingsDbContext
     DbSet<Payment> Payments { get; }
     DbSet<Invoice> Invoices { get; }
 
-    DbSet<InvoiceLineItem> InvoiceLineItems { get; init; }
+    DbSet<LineItem> LineItems { get; init; }
     DbSet<Refund> Refunds { get; init; }
     DbSet<PromotionalCode> PromotionalCodes { get; init; }
     DbSet<PromotionalCodeUsage> PromotionalCodeUsages { get; init; }

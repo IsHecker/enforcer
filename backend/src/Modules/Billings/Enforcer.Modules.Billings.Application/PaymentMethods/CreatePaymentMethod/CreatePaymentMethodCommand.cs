@@ -4,5 +4,5 @@ using Enforcer.Modules.Billings.Contracts;
 namespace Enforcer.Modules.Billings.Application.PaymentMethods.CreatePaymentMethod;
 
 public readonly record struct CreatePaymentMethodCommand(
-    Guid ConsumerId,
+    string StripeCustomerId,
     string ReturnUrl) : ICommand<SessionResponse>;

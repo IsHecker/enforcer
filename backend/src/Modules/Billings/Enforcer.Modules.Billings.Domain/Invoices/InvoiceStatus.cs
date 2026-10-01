@@ -2,9 +2,9 @@ namespace Enforcer.Modules.Billings.Domain.Invoices;
 
 public enum InvoiceStatus
 {
-    Failed,
-    Paid,
     Pending,
+    Paid,
+    Void,
     Refunded,
     PartiallyRefunded
 }

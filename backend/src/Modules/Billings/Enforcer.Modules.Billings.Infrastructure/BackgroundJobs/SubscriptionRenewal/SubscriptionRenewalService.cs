@@ -4,9 +4,7 @@ using Enforcer.Modules.ApiServices.Contracts.Subscriptions;
 using Enforcer.Modules.ApiServices.PublicApi;
 using Enforcer.Modules.Billings.Application.Abstractions.Payments;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
-using Enforcer.Modules.Billings.Domain.Invoices;
-using Enforcer.Modules.Billings.Domain.PaymentMethods;
+using Enforcer.Modules.Billings.Infrastructure.Invoicing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +19,10 @@ internal sealed class SubscriptionRenewalService(
 {
     public async Task<Result> RenewAsync(SubscriptionResponse subscription, CancellationToken cancellationToken)
     {
-        var invoice = await CreateInvoiceAsync(subscription, cancellationToken);
+        var invoice = InvoiceFactory.ForRenewal(subscription);
+
+        await invoiceRepository.AddAsync(invoice, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var chargeResult = await stripeGateway.ChargeAsync(
             invoice,
@@ -43,39 +44,5 @@ internal sealed class SubscriptionRenewalService(
         await servicesApi.RenewSubscription(subscription.Id, cancellationToken);
 
         return Result.Success;
-    }
-
-    private async Task<Invoice> CreateInvoiceAsync(SubscriptionResponse subscription, CancellationToken cancellationToken)
-    {
-        var invoice = Invoice.Create(
-            subscription.ConsumerId,
-            "USD",
-            subscription.Id,
-            DateTime.UtcNow,
-            subscription.ExpiresAt);
-
-        var subscriptionLineItem = InvoiceLineItem.Create(
-            InvoiceItemType.Subscription,
-            $"{subscription.Plan.Name} - Renewal",
-            subscription.Plan.PriceInCents);
-
-        invoice.AddLineItem(subscriptionLineItem);
-
-        if (subscription.ApiUsage.OverageUsed > 0 &&
-            subscription.Plan.OveragePriceInCents.HasValue)
-        {
-            var overageLineItem = InvoiceLineItem.Create(
-                InvoiceItemType.Overage,
-                $"Overage: {subscription.ApiUsage.OverageUsed} additional API calls",
-                subscription.Plan.OveragePriceInCents.Value,
-                subscription.ApiUsage.OverageUsed);
-
-            invoice.AddLineItem(overageLineItem);
-        }
-
-        await invoiceRepository.AddAsync(invoice, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return invoice;
     }
 }

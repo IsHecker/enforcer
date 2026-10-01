@@ -1,4 +1,4 @@
-﻿using Enforcer.Common.Domain;
+using Enforcer.Common.Domain;
 using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
@@ -22,21 +22,19 @@ internal sealed class CreateSubscription : IEndpoint
                 SharedData.UserId,
                 request.PlanId,
                 request.ApiServiceId,
-                request.PromoCode,
-                request.ReturnUrl
+                request.PromoCode
             ));
 
             return result.MatchResponse(Results.Ok, ApiResults.Problem);
         })
         .WithTags(Tags.Subscriptions)
-        .Produces<SessionResponse>(StatusCodes.Status200OK)
+        .Produces<PaymentIntentResponse>(StatusCodes.Status200OK)
         .WithOpenApiName(nameof(CreateSubscription));
     }
 
     internal readonly record struct Request(
         Guid ApiServiceId,
         Guid PlanId,
-        string PromoCode,
-        string ReturnUrl
+        string PromoCode
     );
 }

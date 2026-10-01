@@ -3,7 +3,7 @@ using Enforcer.Common.Domain.Results;
 
 namespace Enforcer.Modules.Billings.Domain.Payouts;
 
-public class Payout : Entity
+public sealed class Payout : Entity
 {
     public string PayoutNumber { get; private set; }
 
@@ -36,10 +36,10 @@ public class Payout : Entity
         string? description = null)
     {
         if (totalAmount < 0)
-            return PayoutErrors.InvalidTotalAmound;
+            return PayoutErrors.InvalidTotalAmount;
 
         if (periodEnd < periodStart)
-            throw new ArgumentException("PeriodEnd cannot be before PeriodStart.");
+            return PayoutErrors.InvalidPeriod;
 
         return new Payout
         {

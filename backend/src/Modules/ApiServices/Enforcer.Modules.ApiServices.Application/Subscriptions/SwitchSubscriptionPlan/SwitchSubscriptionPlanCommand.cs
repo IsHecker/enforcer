@@ -1,5 +1,7 @@
+using Enforcer.Common.Application.Messaging;
+using Enforcer.Modules.Billings.Contracts;
+
 namespace Enforcer.Modules.ApiServices.Application.Subscriptions.SwitchSubscriptionPlan;
 
-using Enforcer.Common.Application.Messaging;
-
-public readonly record struct SwitchSubscriptionPlanCommand(Guid SubscriptionId, Guid TargetPlanId) : ICommand;
+public readonly record struct SwitchSubscriptionPlanCommand(Guid SubscriptionId, Guid TargetPlanId)
+    : ICommand<PaymentIntentResponse>;

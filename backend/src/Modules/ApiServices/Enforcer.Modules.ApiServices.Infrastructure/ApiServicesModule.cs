@@ -1,4 +1,4 @@
-﻿using Enforcer.Common.Application.Data;
+using Enforcer.Common.Application.Data;
 using Enforcer.Common.Infrastructure.Data;
 using Enforcer.Common.Infrastructure.Interceptors;
 using Enforcer.Common.Presentation.Endpoints;

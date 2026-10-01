@@ -115,7 +115,6 @@ public static class BillingsModule
         services.AddScoped<IPromotionalCodeUsageRepository, PromotionalCodeUsageRepository>();
         services.AddScoped<PaymentRepository>();
         services.AddScoped<RefundRepository>();
-        services.AddScoped<WalletRepository>();
         services.AddScoped<WalletEntryRepository>();
         services.AddScoped<PayoutRepository>();
     }

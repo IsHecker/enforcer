@@ -6,6 +6,7 @@ using Enforcer.Modules.ApiServices.Application.Plans;
 using Enforcer.Modules.ApiServices.Application.Subscriptions;
 using Enforcer.Modules.ApiServices.Domain.Plans;
 using Enforcer.Modules.ApiServices.Domain.Subscriptions;
+using Enforcer.Modules.Billings.Contracts;
 using Enforcer.Modules.Billings.PublicApi;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,11 @@ namespace Enforcer.Modules.ApiServices.Application.Subscriptions.SwitchSubscript
 
 internal sealed class SwitchSubscriptionPlanCommandHandler(
     IApiServicesDbContext context,
+    IApiServiceRepository apiServiceRepository,
     IPlanRepository planRepository,
-    IBillingsApi billingsApi) : ICommandHandler<SwitchSubscriptionPlanCommand>
+    IBillingsApi billingsApi) : ICommandHandler<SwitchSubscriptionPlanCommand, PaymentIntentResponse>
 {
-    public async Task<Result> Handle(SwitchSubscriptionPlanCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PaymentIntentResponse>> Handle(SwitchSubscriptionPlanCommand request, CancellationToken cancellationToken)
     {
         var subscription = await GetSubscriptionAsync(request.SubscriptionId, cancellationToken);
         if (subscription is null)
@@ -35,7 +37,10 @@ internal sealed class SwitchSubscriptionPlanCommandHandler(
         if (targetPlan.ApiServiceId != subscription.ApiServiceId)
             return PlanErrors.PlanDoesNotBelongToService;
 
+        var apiService = await apiServiceRepository.GetByIdAsync(targetPlan.ApiServiceId, cancellationToken);
+
         var billingResult = await billingsApi.ProcessPlanSwitchBillingAsync(
+            apiService!.CreatorId,
             subscription.ToResponse(),
             targetPlan.ToResponse(),
             cancellationToken);
@@ -50,7 +55,7 @@ internal sealed class SwitchSubscriptionPlanCommandHandler(
 
         context.Subscriptions.Update(subscription);
 
-        return Result.Success;
+        return billingResult;
     }
 
     private async Task<Subscription?> GetSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken)

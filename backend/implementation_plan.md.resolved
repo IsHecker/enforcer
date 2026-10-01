@@ -1,0 +1,177 @@
+# Redesign: Invoice Management System
+
+## Problem Statement
+
+Invoice creation logic is scattered across 3 separate files, each duplicating the same pattern:
+
+| Current Location | Scenario | Line Items Added |
+|---|---|---|
+| `BillingsApi.CreateInvoiceAsync` | Initial Subscribe | Subscription + Discount + WalletCredits |
+| `SubscriptionRenewalService.CreateInvoiceAsync` | Renewal | Subscription + Overage |
+| `PlanSwitchInvoiceFactory.CreatePlanSwitchInvoice` | Plan Switch | Credit + Subscription + Overage (prorated) |
+
+The **pattern is identical** every time: `Create Invoice → Add Line Items → Save`. The only thing that varies is **which line items** get added per scenario.
+
+## Design: Strategy Pattern
+
+We centralize invoice creation into a single **[InvoiceFactory](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Factories/PlanSwitchInvoiceFactory.cs#10-152)** that accepts a list of **`ILineItemContributor`** strategies. Each contributor knows how to add its specific line items to an invoice.
+
+> [!IMPORTANT]
+> The [InvoiceFactory](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Factories/PlanSwitchInvoiceFactory.cs#10-152) and strategies will live in the **Infrastructure layer** since they depend on external contracts (`PlanResponse`, `SubscriptionResponse`) and services ([PromoCodeService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/PromotionalCodes/PromoCodeService.cs#9-83)). The pure math ([ProrationCalculatorService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/ProrationCalculatorService.cs#3-45)) will move to Domain.
+
+```mermaid
+graph TD
+    A["InvoiceFactory"] --> B["ILineItemContributor"]
+    B --> C["SubscriptionLineItemContributor"]
+    B --> D["OverageLineItemContributor"]
+    B --> E["ProratedSubscriptionContributor"]
+    B --> F["CreditForUnusedTimeContributor"]
+    B --> G["DiscountLineItemContributor"]
+    B --> H["WalletCreditContributor"]
+```
+
+### How it works
+
+Each **scenario** (Subscribe, Renew, PlanSwitch) simply picks the right **contributors** and hands them to the factory:
+
+```csharp
+// Renewal scenario (inside SubscriptionRenewalService)
+var invoice = InvoiceFactory.Create(consumerId, "USD", subscriptionId, periodStart, periodEnd)
+    .AddContribution(new SubscriptionContributor(plan))
+    .AddContribution(new OverageContributor(plan, apiUsage))
+    .Build();
+
+// Plan Switch scenario (inside PlanSwitchBillingService)
+var invoice = InvoiceFactory.Create(consumerId, "USD", subscriptionId, now, expiresAt, notes)
+    .AddContribution(new CreditForUnusedTimeContributor(currentPlan, expiresAt, now))
+    .AddContribution(new ProratedSubscriptionContributor(targetPlan, expiresAt, now))
+    .AddContribution(new OverageContributor(currentPlan, apiUsage))
+    .Build();
+```
+
+---
+
+## Proposed Changes
+
+### Domain Layer
+
+#### [MODIFY] [ProrationCalculatorService.cs](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Services/ProrationCalculatorService.cs)
+- Already moved to Domain in a prior step. No changes needed — this is pure math.
+
+---
+
+### Infrastructure Layer
+
+#### [NEW] `Invoicing/ILineItemContributor.cs`
+```csharp
+public interface ILineItemContributor
+{
+    InvoiceLineItem? Contribute();
+}
+```
+A single-method interface. Each implementation returns one line item (or `null` to skip).
+
+---
+
+#### [NEW] `Invoicing/Contributors/SubscriptionContributor.cs`
+- Adds the base subscription charge: `"{PlanName} - Subscription"` or `"{PlanName} - Renewal"`.
+
+#### [NEW] `Invoicing/Contributors/OverageContributor.cs`
+- Adds overage charges if `OverageUsed > 0` and plan has `OveragePriceInCents`.
+
+#### [NEW] `Invoicing/Contributors/ProratedSubscriptionContributor.cs`
+- Uses [ProrationCalculatorService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/ProrationCalculatorService.cs#3-45) to calculate prorated charge for a new plan.
+
+#### [NEW] `Invoicing/Contributors/CreditForUnusedTimeContributor.cs`
+- Uses [ProrationCalculatorService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/ProrationCalculatorService.cs#3-45) to calculate credit for unused time on current plan.
+
+#### [NEW] `Invoicing/Contributors/FullPriceSubscriptionContributor.cs`
+- Adds the full-price charge when switching billing periods (e.g., Monthly → Yearly).
+
+---
+
+#### [NEW] `Invoicing/InvoiceBuilder.cs`
+```csharp
+public sealed class InvoiceBuilder
+{
+    private readonly Invoice _invoice;
+    private readonly List<ILineItemContributor> _contributors = [];
+
+    internal InvoiceBuilder(Invoice invoice) => _invoice = invoice;
+
+    public InvoiceBuilder AddContribution(ILineItemContributor contributor)
+    {
+        _contributors.Add(contributor);
+        return this;
+    }
+
+    public Invoice Build()
+    {
+        foreach (var contributor in _contributors)
+        {
+            var lineItem = contributor.Contribute();
+            if (lineItem is not null)
+                _invoice.AddLineItem(lineItem);
+        }
+        return _invoice;
+    }
+}
+```
+
+#### [NEW] `Invoicing/InvoiceFactory.cs`
+```csharp
+public static class InvoiceFactory
+{
+    public static InvoiceBuilder Create(
+        Guid consumerId, string currency,
+        Guid? subscriptionId = null,
+        DateTime? periodStart = null, DateTime? periodEnd = null,
+        string? notes = null)
+    {
+        var invoice = Invoice.Create(consumerId, currency, subscriptionId,
+            periodStart, periodEnd, notes);
+        return new InvoiceBuilder(invoice);
+    }
+}
+```
+
+---
+
+#### [MODIFY] [SubscriptionRenewalService.cs](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/BackgroundJobs/SubscriptionRenewal/SubscriptionRenewalService.cs)
+- Replace the inline [CreateInvoiceAsync](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/BackgroundJobs/SubscriptionRenewal/SubscriptionRenewalService.cs#48-81) method with:
+```csharp
+var invoice = InvoiceFactory
+    .Create(subscription.ConsumerId, "USD", subscription.Id,
+            DateTime.UtcNow, subscription.ExpiresAt)
+    .AddContribution(new SubscriptionContributor(subscription.Plan, "Renewal"))
+    .AddContribution(new OverageContributor(subscription.Plan, subscription.ApiUsage))
+    .Build();
+```
+
+#### [MODIFY] [BillingsApi.cs](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/PublicApi/BillingsApi.cs)
+- Replace the inline [CreateInvoiceAsync](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/BackgroundJobs/SubscriptionRenewal/SubscriptionRenewalService.cs#48-81) method with the builder pattern. Promo code and wallet credit handling stay in [BillingsApi](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/PublicApi/BillingsApi.cs#19-129) since they require async I/O.
+
+#### [MODIFY] [PlanSwitchBillingService.cs](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/PlanSwitchBillingService.cs)
+- Replace the call to [PlanSwitchInvoiceFactory](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Factories/PlanSwitchInvoiceFactory.cs#10-152) with the builder using the appropriate contributors based on the plan switch scenario (Free→Paid, Paid→Paid, Paid→Free).
+
+#### [DELETE] [PlanSwitchInvoiceFactory.cs](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Factories/PlanSwitchInvoiceFactory.cs)
+- All logic absorbed into the contributors and [PlanSwitchBillingService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/PlanSwitchBillingService.cs#15-63).
+
+---
+
+## Result
+
+After refactoring, the invoice system will be:
+
+| Property | Before | After |
+|---|---|---|
+| **Centralized** | 3 separate files with inline logic | 1 Factory + reusable Contributors |
+| **Flexible** | Adding a new line item type = editing a service | Adding a new line item type = 1 new Contributor class |
+| **Readable** | Logic buried in nested `if` blocks | Each Contributor has a single, clear responsibility |
+| **Reusable** | `OverageContributor` logic duplicated in 2 places | 1 `OverageContributor` used everywhere |
+
+## Verification Plan
+
+### Manual Verification
+- Trace each scenario (Subscribe, Renew, PlanSwitch) to confirm the same line items are generated.
+- Verify that the [PlanSwitchBillingService](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Infrastructure/Services/PlanSwitchBillingService.cs#15-63) correctly selects contributors based on the transition type.

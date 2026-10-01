@@ -7,7 +7,6 @@ using Enforcer.Modules.Billings.Domain.Invoices;
 using Enforcer.Modules.Billings.Domain.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.Refunds;
 using Enforcer.Modules.Billings.Infrastructure.WalletEntries;
-using Enforcer.Modules.Billings.Infrastructure.Wallets;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Enforcer.Modules.Billings.Infrastructure.Services;
@@ -16,7 +15,7 @@ internal sealed class SubscriptionCancellationRefundService(
     IInvoiceRepository invoiceRepository,
     IStripeGateway stripeGateway,
     RefundRepository refundRepository,
-    WalletRepository walletRepository,
+    IWalletRepository walletRepository,
     WalletEntryRepository walletEntryRepository,
     [FromKeyedServices(nameof(Billings))] IUnitOfWork unitOfWork)
 {
@@ -24,7 +23,7 @@ internal sealed class SubscriptionCancellationRefundService(
         SubscriptionResponse subscription,
         CancellationToken cancellationToken = default)
     {
-        var invoice = await invoiceRepository.GetLastPaidBySubscriptionIdAsync(subscription.Id, cancellationToken);
+        var invoice = await invoiceRepository.GetLastPaidByReferenceIdAsync(subscription.Id, cancellationToken);
         if (invoice is null)
             return Error.NotFound(
                 "Invoice.NotFound",

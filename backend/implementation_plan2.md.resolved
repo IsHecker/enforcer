@@ -1,0 +1,168 @@
+# Invoicing System — Clean-Slate Design
+
+## Platform Context
+
+Enforcer is an API marketplace. **Consumers** subscribe to plans. An invoice is generated when a consumer owes money.
+
+Two payment flows exist:
+
+| Flow | When | How |
+|---|---|---|
+| **Checkout** | New subscription | Consumer previews the invoice, decides to pay or go back |
+| **Direct Charge** | Renewal, Plan Switch | Automated charge using saved card — no UI |
+
+---
+
+## The Core Insight: Don't Save Until Paid
+
+During checkout, the consumer is **browsing**. They see what they'll owe, and they might go back. Saving an invoice to the database at this stage creates garbage — orphaned `Pending` invoices for every abandoned checkout.
+
+**Rule: An invoice is only persisted when payment is confirmed.**
+
+---
+
+## Checkout Flow
+
+```mermaid
+sequenceDiagram
+    participant Consumer
+    participant API
+    participant Factory as InvoiceFactory
+    participant Stripe
+    participant Webhook
+
+    Consumer->>API: "I want to subscribe to Plan X"
+    API->>API: Validate promo, check wallet
+    API->>Factory: ForSubscription(...) → in-memory Invoice
+    Factory-->>API: Invoice (NOT saved)
+    API->>Stripe: CreateCheckoutSession(line items, metadata)
+    Note over Stripe: metadata = { planId, consumerId, discount, credit }
+    Stripe-->>Consumer: Checkout page (preview)
+
+    alt Consumer pays
+        Stripe->>Webhook: PaymentIntent.Succeeded
+        Webhook->>Factory: ForSubscription(...) → rebuild from metadata
+        Webhook->>Webhook: invoice.Pay() → save to DB
+    else Consumer goes back
+        Note over Consumer: Nothing saved. No cleanup needed.
+    end
+```
+
+The invoice object is created **twice**: once for the checkout preview (discarded if abandoned), and once in the webhook when payment succeeds (persisted). The factory is deterministic, so both produce identical results.
+
+## Direct Charge Flow (Renewal / Plan Switch)
+
+```mermaid
+sequenceDiagram
+    participant Job as Background Job / Service
+    participant Factory as InvoiceFactory
+    participant Stripe
+    participant DB
+
+    Job->>Factory: ForRenewal(...) or ForPlanSwitch(...)
+    Factory-->>Job: Invoice (in-memory)
+    Job->>Stripe: ChargeAsync(invoice)
+    alt Charge succeeds
+        Job->>Job: invoice.Pay()
+        Job->>DB: Save invoice
+    else Charge fails
+        Note over Job: Invoice not saved. Log the failure.
+    end
+```
+
+No orphaned invoices. If the charge fails, the invoice is never persisted.
+
+---
+
+## 1. Domain — Invoice Aggregate
+
+### Invoice Entity
+
+```csharp
+public sealed class Invoice : Entity
+{
+    public Guid ConsumerId { get; private set; }
+    public Guid? SubscriptionId { get; private set; }
+    public string InvoiceNumber { get; private set; }
+    public string Currency { get; private set; }
+
+    public long Subtotal { get; private set; }
+    public long DiscountTotal { get; private set; }
+    public long Total { get; private set; }
+
+    public DateTime? PeriodStart { get; private set; }
+    public DateTime? PeriodEnd { get; private set; }
+
+    public InvoiceStatus Status { get; private set; }
+    public DateTime IssuedAt { get; private set; }
+    public DateTime? PaidAt { get; private set; }
+    public int PaymentAttempts { get; private set; }
+    public string? Notes { get; private set; }
+
+    private readonly List<LineItem> _lineItems;
+    public IReadOnlyList<LineItem> LineItems => _lineItems;
+}
+```
+
+### Construction
+
+`internal static Create(...)` — requires at least one line item. No public [AddLineItem](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Invoices/Invoice.cs#62-72).
+
+### Lifecycle
+
+```csharp
+public Result Pay() { ... }               // Pending → Paid
+public Result Void() { ... }              // Pending → Void
+public Result Refund(long amount) { ... } // Paid → Refunded | PartiallyRefunded
+public void RecordFailedAttempt() => PaymentAttempts++;
+public void AssociateSubscription(Guid subscriptionId) { ... } // one-time link
+```
+
+### LineItem, Enums, Errors
+
+Same as previous revision — [LineItem](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Invoices/Invoice.cs#62-72), `LineItemType`, `InvoiceStatus` (Pending, Paid, Void, Refunded, PartiallyRefunded), `InvoiceErrors`.
+
+---
+
+## 2. Infrastructure — InvoiceFactory
+
+```csharp
+internal static class InvoiceFactory
+{
+    public static Invoice ForSubscription(
+        Guid consumerId, PlanResponse plan, DateTime? expiresAt,
+        long discountAmount = 0, string? discountDescription = null,
+        long walletCreditUsed = 0) { ... }
+
+    public static Invoice ForRenewal(SubscriptionResponse subscription) { ... }
+
+    public static Invoice ForPlanSwitch(
+        SubscriptionResponse subscription,
+        PlanResponse targetPlan, DateTime now) { ... }
+}
+```
+
+---
+
+## 3. File Structure
+
+```
+Domain/Invoices/
+    Invoice.cs, InvoiceStatus.cs, InvoiceErrors.cs,
+    LineItem.cs, LineItemType.cs
+
+Infrastructure/Invoicing/
+    InvoiceFactory.cs, InvoiceRepository.cs
+```
+
+---
+
+## 4. Summary of Key Decisions
+
+| Decision | Rationale |
+|---|---|
+| Don't save on checkout | Consumer might go back. No orphaned invoices |
+| Rebuild invoice in webhook | Factory is deterministic — same inputs = same invoice |
+| Save only on payment confirmation | Invoice = financial record of a completed transaction |
+| No [AddLineItem](file:///c:/Users/Mhamed/source/repos/Backend%20Projects/enforcer/backend/src/Modules/Billings/Enforcer.Modules.Billings.Domain/Invoices/Invoice.cs#62-72) | All line items computed upfront, invoice born complete |
+| `Void()` instead of delete | Never delete financial records, just void them |

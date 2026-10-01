@@ -11,13 +11,12 @@ public interface IStripeGateway
         string returnUrl,
         CancellationToken cancellationToken = default);
 
-    Task<string?> CreateCheckoutSessionAsync(
+    Task<string?> InitializePaymentIntentAsync(
         string stripeCustomerId,
         Invoice invoice,
         Guid creatorId,
         Guid consumerId,
         Guid planId,
-        string returnUrl,
         CancellationToken cancellationToken = default);
 
     Task RemovePaymentMethodAsync(string stripePaymentMethodId, CancellationToken cancellationToken = default);

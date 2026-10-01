@@ -1,4 +1,5 @@
-﻿using Enforcer.Common.Presentation;
+﻿using Enforcer.Common.Domain;
+using Enforcer.Common.Presentation;
 using Enforcer.Common.Presentation.Endpoints;
 using Enforcer.Common.Presentation.Extensions;
 using Enforcer.Common.Presentation.Results;
@@ -18,7 +19,7 @@ internal sealed class AddPaymentMethod : IEndpoint
         app.MapPost(ApiEndpoints.PaymentMethods.Create, async (Request request, ISender sender) =>
         {
             var result = await sender.Send(new CreatePaymentMethodCommand(
-                Guid.Empty,
+                SharedData.CustomerId,
                 request.ReturnUrl
             ));
 

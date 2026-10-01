@@ -8,7 +8,7 @@ public static class WalletErrors
         Error.NotFound("Wallet.NotFound", $"Wallet with ID '{id}' was not found.");
 
     public static Error NotFoundByUser(Guid id) =>
-        Error.NotFound("Wallet.NotFound", $"User does not own a wallet with ID '{id}' was not found.");
+        Error.NotFound("Wallet.NotFound", $"User does not own a wallet with ID '{id}'.");
 
     public static readonly Error InvalidEarningAmount =
         Error.Validation(
@@ -39,6 +39,11 @@ public static class WalletErrors
         Error.Validation(
             "Wallet.PayoutMethodIsNotConfigured",
             "No payout method is configured for this wallet. Please set up a payout method before withdrawing.");
+
+    public static readonly Error PayoutMethodIsConfigured =
+        Error.Validation(
+            "Wallet.PayoutMethodIsConfigured",
+            "Payout method is already configured for this wallet.");
 
     public static Error BalanceBelowMinimum(long balance, int minimum) =>
         Error.Validation(

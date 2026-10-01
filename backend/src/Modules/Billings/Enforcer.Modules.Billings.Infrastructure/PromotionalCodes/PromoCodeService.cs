@@ -1,16 +1,17 @@
 using Enforcer.Common.Domain.Results;
 using Enforcer.Modules.Billings.Application.Abstractions.Repositories;
-using Enforcer.Modules.Billings.Domain.InvoiceLineItems;
 using Enforcer.Modules.Billings.Domain.PromotionalCodes;
 using Enforcer.Modules.Billings.Domain.PromotionalCodeUsages;
 
 namespace Enforcer.Modules.Billings.Infrastructure.PromotionalCodes;
 
+internal sealed record PromoCodeResult(long Amount, string Description);
+
 internal sealed class PromoCodeService(
     IPromotionalCodeRepository codeRepository,
     IPromotionalCodeUsageRepository codeUsageRepository)
 {
-    public async Task<Result<InvoiceLineItem>> ApplyPromoCodeAsync(
+    public async Task<Result<PromoCodeResult>> ApplyPromoCodeAsync(
        string code,
        Guid consumerId,
        long totalAmount,
@@ -28,10 +29,9 @@ internal sealed class PromoCodeService(
 
         await RecordUsageAsync(promoCode, consumerId, discountAmount, cancellationToken);
 
-        return InvoiceLineItem.Create(
-            InvoiceItemType.Discount,
-            $"Discount applied '{code}' - ({FormatDiscount(promoCode)})",
-            -discountAmount);
+        var description = $"Discount applied '{code}' - ({FormatDiscount(promoCode)})";
+
+        return new PromoCodeResult(discountAmount, description);
     }
 
     private async Task<Result> ValidatePromoCodeAsync(

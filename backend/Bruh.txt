@@ -1,0 +1,12 @@
+In designing the implementation for this specific flow, you will always need these architectural "pillars":
+
+Reconstruction Contract: A single logic path (Service or Pure Function) that accepts a "Purchase Context" (User + Product + Modifiers) and returns a complete 
+
+Invoice
+ object. This ensures the Preview and the Webhook always generate the exact same numbers.
+Product Abstraction: A generic interface or model (e.g., IPurchasable) that represents the item being bought. The checkout system should only care about price, duration, and name, not whether it’s a "Plan" or a "Service."
+Metadata Serializer: A robust mapper that flattens your "Purchase Context" into Stripe Metadata (key-value strings) and back into a typed object. This is your "source of truth" during the stateless gap between UI and Webhook.
+Checkout Modifier Schema: A shared model for PromoCodes and WalletCredits that allows the Frontend to simulate calculations and the Backend to validate them identically.
+Post-Payment "Success" Registry: A mechanism (like a Command Bus or Action Registry) to map a purchase type to its final side-effects (e.g., Type: Subscription -> ActivateSubInDb).
+Unified Completion Guard: A central gateway that decides if a transaction is "External" (requires a Stripe Client Secret) or "Internal" (completes by just subtracting credits and updating the DB).
+These provide the "plumbing" for an agnostic, stateless checkout regardless of the specific patterns (Strategies, Processors, etc.) you choose.

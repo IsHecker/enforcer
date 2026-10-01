@@ -80,7 +80,7 @@ public sealed class ApiUsage : Entity
         return resetPeriod switch
         {
             QuotaResetPeriod.Daily => now.AddDays(1),
-            QuotaResetPeriod.Weekly => now.AddMinutes(1),
+            QuotaResetPeriod.Weekly => now.AddDays(7),
             QuotaResetPeriod.Monthly => now.AddMonths(1),
             QuotaResetPeriod.Yearly => now.AddYears(1),
             _ => now.AddMonths(1)
